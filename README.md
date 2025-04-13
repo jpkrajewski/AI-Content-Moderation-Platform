@@ -2,7 +2,7 @@
 
 ## 💼 What It Does
 
-A system for publishing content (posts, offers, etc.) with built-in moderation and analysis using AI.
+A system with built-in moderation and analysis using AI. Can be used as SaaS or headless microservice.
 
 ### Core Features
 
@@ -19,7 +19,7 @@ A system for publishing content (posts, offers, etc.) with built-in moderation a
 ### 👤 Users
 
 - Registration / Login  
-- User roles: `admin`, `user`  
+- User roles: `admin`, `reviewer`  
 
 ### ✍️ Content Creation
 
