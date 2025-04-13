@@ -23,8 +23,12 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
 
 ### ✍️ Content Creation
 
-- Users can create posts or announcements  
-- Content is sent to a Kafka topic for asynchronous processing  
+- User-generated content is submitted via API by an external system.
+- The content payload includes metadata like user_id, source, and submitted_at.
+- Upon submission, the content is pushed to a Kafka topic for asynchronous processing by AI moderation services.
+- The API immediately returns an acknowledgment (e.g., 202 Accepted) while processing happens in the background.
+
+
 
 ### 🤖 LLM Worker
 
