@@ -1,0 +1,10 @@
+[project]
+name = "moderation"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "connexion[flask,swagger-ui,uvicorn]>=3.2.0",
+    "sqlalchemy>=2.0.40",
+]
