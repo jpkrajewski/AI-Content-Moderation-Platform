@@ -267,15 +267,53 @@ components:
           type: string
     ContentCreate:
       type: object
+      required:
+        - title
+        - body
+        - user_id
+        - username
+        - timestamp
+        - source
       properties:
         title:
           type: string
+          description: Title of the content
         body:
           type: string
+          description: Main body of the content
         tags:
           type: array
           items:
             type: string
+          description: List of content tags
+        user_id:
+          type: string
+          format: uuid
+          description: Unique identifier of the user submitting the content
+        username:
+          type: string
+          description: Human-readable username of the submitter
+        localization:
+          type: object
+          description: Information about the content's localization
+          properties:
+            language:
+              type: string
+              example: en
+              description: Language code (ISO 639-1)
+            region:
+              type: string
+              example: US
+              description: Region code (ISO 3166-1 alpha-2)
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the content was created
+          example: "2025-04-14T21:34:00Z"
+        source:
+          type: string
+          description: Identifier or name of the company or service using the SaaS
+          example: acme_corp
   securitySchemes:
     BearerAuth:
       type: http

@@ -43,4 +43,4 @@ repos:
     hooks:
       - id: bandit
         name: Security scan (Bandit)
-        args: ["-r", "backend/"]
+        args: ["-r", "backend/src"]

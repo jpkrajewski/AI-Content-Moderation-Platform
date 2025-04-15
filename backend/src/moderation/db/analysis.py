@@ -15,5 +15,5 @@ class ContentAnalysis(Base):
     flagged = Column(Boolean, default=False)
     score = Column(Float)
     model_version = Column(String)
-    metadata = Column(JSON)
+    analysis_metadata = Column(JSON)
     analyzed_at = Column(DateTime, default=datetime.utcnow)

@@ -1,10 +1,13 @@
 from http import HTTPStatus
 from typing import Dict, Tuple
 
+from moderation.kafka.producer import publish_content_message
+
 
 def create_content(body: dict) -> Tuple[Dict, HTTPStatus]:
     """Create new content"""
     content_id = "content_123"  # In a real implementation, this would be generated
+    publish_content_message(body.get("title"))
     return {
         "id": content_id,
         "title": body["title"],
