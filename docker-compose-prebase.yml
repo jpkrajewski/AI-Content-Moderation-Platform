@@ -1,0 +1,6 @@
+services:
+  base:
+    build:
+      context: ./backend
+      dockerfile: docker/Dockerfile.base
+    image: moderation-base:latest

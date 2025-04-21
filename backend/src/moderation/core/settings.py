@@ -1,11 +1,14 @@
-from pydantic import PostgresDsn
+from typing import Literal
+
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AI Content Moderation"
     ENVIRONMENT: str = "development"
-    DB_URI: PostgresDsn
+    DB_URI: str
+    APP_HOST: str
+    APP_PORT: int
 
     # Kafka Configuration
     KAFKA_TOPIC: str = "moderation-content"
@@ -16,8 +19,16 @@ class Settings(BaseSettings):
     # Consumer Configuration
     MAX_RETRIES: int = 10
     RETRY_INTERVAL: int = 3
-    CONSUMER_TIMEOUT_MS: int = 5000
+    KAFKA_CONSUMER_TIMEOUT_MS: int = 5000
     HEARTBEAT_INTERVAL: int = 60
+
+    DB_REPOSITORY: Literal["memory", "database"] = "database"
+
+    AI_IMAGE_MODERATION_MODEL: str = "Falconsai/nsfw_image_detection"
+    AI_TEXT_MODERATION_MODEL: str = "unitary/toxic-bert"
+
+    AI_IMAGE_MODERATION_THRESHOLD: float = 0.5
+    AI_TEXT_MODERATION_THRESHOLD: float = 0.5
 
 
 settings = Settings()

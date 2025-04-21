@@ -92,11 +92,11 @@ paths:
       summary: Create new content
       operationId: moderation.routes.content.create_content
       security:
-        - BearerAuth: []
+        - APIKeyAuth: [test]
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: '#/components/schemas/ContentCreate'
       responses:
@@ -294,17 +294,15 @@ components:
           type: string
           description: Human-readable username of the submitter
         localization:
-          type: object
-          description: Information about the content's localization
-          properties:
-            language:
-              type: string
-              example: en
-              description: Language code (ISO 639-1)
-            region:
-              type: string
-              example: US
-              description: Region code (ISO 3166-1 alpha-2)
+          type: string
+          example: en
+          description: Language code (ISO 639-1)
+        images:
+          type: array
+          items:
+            type: string
+            format: binary
+          description: List of image files.
         timestamp:
           type: string
           format: date-time
@@ -314,9 +312,16 @@ components:
           type: string
           description: Identifier or name of the company or service using the SaaS
           example: acme_corp
+
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
       x-bearerInfoFunc: auth.jwt.bearer_auth
+    APIKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+      x-apikeyInfoFunc: auth.apikey.apikey_auth

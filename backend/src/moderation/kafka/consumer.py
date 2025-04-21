@@ -7,7 +7,16 @@ import time
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError, NoBrokersAvailable
 from moderation.core.settings import settings
+from moderation.kafka.processor import process_message
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("log.log", mode="a"),
+    ],
+)
 logger = logging.getLogger("moderation.consumer")
 
 
@@ -24,6 +33,15 @@ signal.signal(signal.SIGINT, graceful_shutdown)
 signal.signal(signal.SIGTERM, graceful_shutdown)
 
 
+def value_deserializer(value: bytes) -> dict:
+    """Deserialize the message value from bytes to JSON."""
+    try:
+        return json.loads(value.decode("utf-8"))
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to deserialize message: {e}")
+        return {"error": "Invalid JSON", "message": str(e), "value": value.decode("utf-8")}
+
+
 def initialize_consumer():
     """Establish connection to Kafka with retry logic."""
     for attempt in range(settings.MAX_RETRIES):
@@ -34,8 +52,8 @@ def initialize_consumer():
                 group_id=settings.KAFKA_GROUP_ID,
                 auto_offset_reset=settings.KAFKA_AUTO_OFFSET_RESET,
                 enable_auto_commit=True,
-                value_deserializer=lambda m: json.loads(m.decode("utf-8")),
-                consumer_timeout_ms=settings.CONSUMER_TIMEOUT_MS,
+                value_deserializer=value_deserializer,
+                consumer_timeout_ms=settings.KAFKA_CONSUMER_TIMEOUT_MS,
             )
             logger.info("Successfully connected to Kafka broker")
             return consumer
@@ -45,17 +63,6 @@ def initialize_consumer():
 
     logger.error("Failed to connect to Kafka after maximum retry attempts")
     sys.exit(1)
-
-
-def process_message(message):
-    """Process a message from Kafka."""
-    # Implement your message processing logic here
-    logger.info(f"Processing message with offset {message.offset}")
-
-    # Log message details at debug level to avoid flooding logs in production
-    logger.debug(f"Message content: {message.value}")
-
-    # Message processing implementation
 
 
 def start_consumer():

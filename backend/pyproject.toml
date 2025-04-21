@@ -12,4 +12,8 @@ dependencies = [
     "pydantic-settings>=2.8.1",
     "pydantic>=2.11.3",
     "sqlalchemy>=2.0.40",
+    "dependency-injector>=4.46.0",
+    "pillow>=11.2.1",
+    "transformers>=4.51.3",
+    "torch>=2.6.0",
 ]

@@ -17,6 +17,8 @@ if not config.get_main_option("sqlalchemy.url"):
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+from moderation.db import *  # noqa: E402
+
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel

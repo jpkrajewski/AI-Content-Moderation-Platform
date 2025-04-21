@@ -1,56 +1,42 @@
 from http import HTTPStatus
 from typing import Dict, Tuple
 
-from moderation.kafka.producer import publish_content_message
+from dependency_injector.wiring import Provide, inject
+from flask import request
+from moderation.core.container import Container
+from moderation.service.content import ContentService
+from moderation.service.image_storage import LocalImageStorage
+from moderation.service.kafka import KafkaProducerService
 
 
-def create_content(body: dict) -> Tuple[Dict, HTTPStatus]:
-    """Create new content"""
-    content_id = "content_123"  # In a real implementation, this would be generated
-    publish_content_message(body.get("title"))
-    return {
-        "id": content_id,
-        "title": body["title"],
-        "body": body["body"],
-        "tags": body.get("tags", []),
-        "status": "pending",
-        "created_at": "2025-04-13T12:00:00Z",
-    }, HTTPStatus.CREATED
+@inject
+def create_content(
+    body: dict,
+    content_service: ContentService = Provide[Container.content_service],
+    kafka: KafkaProducerService = Provide[Container.kafka_producer_service],
+) -> Tuple[Dict, HTTPStatus]:
+    print(body)
+    print(request.files)
+
+    paths = LocalImageStorage().save_images(request.files.getlist("images"))
+
+    content, http_status = content_service.create_content(body)
+    kafka.send_message_for_text_classifier(content.id, content.body, message_type="text")
+    kafka.send_message_for_image_classifier_bulk(content.id, paths, message_type="image")
+    return content, http_status
 
 
-def list_content(status: str | None = None):
+@inject
+def list_content(
+    status: str | None = None, content_service: ContentService = Provide[Container.content_service]
+) -> Tuple[Dict, HTTPStatus]:
     """List all content with optional status filter"""
-    content_list = [
-        {
-            "id": "content_123",
-            "title": "First content item",
-            "tags": ["tag1", "tag2"],
-            "status": "pending",
-            "created_at": "2025-04-12T10:00:00Z",
-        },
-        {
-            "id": "content_456",
-            "title": "Second content item",
-            "tags": ["tag2", "tag3"],
-            "status": "approved",
-            "created_at": "2025-04-13T09:30:00Z",
-        },
-    ]
-
-    if status:
-        content_list = [item for item in content_list if item["status"] == status]
-
-    return content_list, HTTPStatus.OK
+    return content_service.list_content(status=status)
 
 
-def get_content(content_id: str):
+@inject
+def get_content(
+    content_id: str, content_service: ContentService = Provide[Container.content_service]
+) -> Tuple[Dict, HTTPStatus]:
     """Get specific content by ID"""
-    return {
-        "id": content_id,
-        "title": "Sample content",
-        "body": "This is the full content body text.",
-        "tags": ["sample", "content"],
-        "status": "pending",
-        "created_at": "2025-04-13T08:15:00Z",
-        "updated_at": "2025-04-13T08:15:00Z",
-    }, HTTPStatus.OK
+    return content_service.get_content(content_id)
