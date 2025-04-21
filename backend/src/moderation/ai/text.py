@@ -40,7 +40,7 @@ class TextModeration:
         return ClassifyResult(
             content_type="text",
             automated_flag=flagged,
-            autmotated_flag_reason=flagged_reason,
+            automated_flag_reason=flagged_reason,
             model_version=settings.AI_TEXT_MODERATION_MODEL,
             analysis_metadata={labels[i]: score.item() for i, score in enumerate(probs[0])},
         )
