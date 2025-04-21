@@ -39,7 +39,7 @@ class ImageModeration:
         return ClassifyResult(
             content_type="image",
             automated_flag=flagged,
-            autmotated_flag_reason=flagged_reason,
+            automated_flag_reason=flagged_reason,
             model_version=settings.AI_IMAGE_MODERATION_MODEL,
             analysis_metadata=analysis_metadata,
         )
