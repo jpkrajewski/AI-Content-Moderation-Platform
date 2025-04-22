@@ -1,0 +1,2 @@
+[flake8]
+exclude = backend/alembic/env.py

@@ -1,0 +1,327 @@
+openapi: 3.0.0
+info:
+  title: AI Content Moderation Platform API
+  version: 1.0.0
+
+servers:
+  - url: https://api.moderation-platform.com
+
+
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      operationId: moderation.routes.auth.register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        '201':
+          description: User registered
+
+  /auth/login:
+    post:
+      summary: Login and receive token
+      operationId: moderation.routes.auth.login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        '200':
+          description: Token returned
+
+  /auth/me:
+    get:
+      summary: Get current user
+      operationId: moderation.routes.auth.me
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user data
+
+  /users:
+    get:
+      summary: Admin - list all users
+      operationId: moderation.routes.user.list_users
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of users
+
+  /users/{user_id}:
+    get:
+      summary: Admin - view specific user
+      operationId: moderation.routes.user.get_user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details
+    delete:
+      summary: Admin - delete user
+      operationId: moderation.routes.user.delete_user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted
+
+  /content:
+    post:
+      summary: Create new content
+      operationId: moderation.routes.content.create_content
+      security:
+        - APIKeyAuth: [test]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ContentCreate'
+      responses:
+        '201':
+          description: Content created
+    get:
+      summary: List all content
+      operationId: moderation.routes.content.list_content
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of content
+
+  /content/{content_id}:
+    get:
+      summary: View specific content
+      operationId: moderation.routes.content.get_content
+      parameters:
+        - name: content_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Content details
+
+  /moderation/pending:
+    get:
+      summary: Admin - list flagged content
+      operationId: moderation.routes.moderation_action.list_pending_content
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of flagged content
+
+  /moderation/{content_id}:
+    get:
+      summary: Admin - view analysis of single content
+      operationId: moderation.routes.moderation_action.get_content_analysis
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: content_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Analysis result
+
+  /moderation/{content_id}/approve:
+    post:
+      summary: Admin - approve content
+      operationId: moderation.routes.moderation_action.approve_content
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: content_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Approved
+
+  /moderation/{content_id}/reject:
+    post:
+      summary: Admin - reject content
+      operationId: moderation.routes.moderation_action.reject_content
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: content_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rejected
+
+  /moderation/{content_id}/flag:
+    post:
+      summary: Manually flag content
+      operationId: moderation.routes.moderation_action.flag_content
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: content_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flagged
+
+  /dashboard/summary:
+    get:
+      summary: Admin - get statistics
+      operationId: moderation.routes.dashboard.get_summary
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Dashboard summary
+
+  /dashboard/user-activity:
+    get:
+      summary: Admin - user activity metrics
+      operationId: moderation.routes.dashboard.get_user_activity
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User activity
+
+  /dashboard/moderation-stats:
+    get:
+      summary: Admin - moderation KPIs
+      operationId: moderation.routes.dashboard.get_moderation_stats
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Moderation KPIs
+
+  /health:
+    get:
+      summary: Health check
+      operationId: moderation.routes.health.health_check
+      responses:
+        '200':
+          description: OK
+
+  /version:
+    get:
+      summary: API version
+      operationId: moderation.routes.health.api_version
+      responses:
+        '200':
+          description: Version info
+
+
+components:
+  schemas:
+    UserRegister:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    ContentCreate:
+      type: object
+      required:
+        - title
+        - body
+        - user_id
+        - username
+        - timestamp
+        - source
+      properties:
+        title:
+          type: string
+          description: Title of the content
+        body:
+          type: string
+          description: Main body of the content
+        tags:
+          type: array
+          items:
+            type: string
+          description: List of content tags
+        user_id:
+          type: string
+          format: uuid
+          description: Unique identifier of the user submitting the content
+        username:
+          type: string
+          description: Human-readable username of the submitter
+        localization:
+          type: string
+          example: en
+          description: Language code (ISO 639-1)
+        images:
+          type: array
+          items:
+            type: string
+            format: binary
+          description: List of image files.
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the content was created
+          example: "2025-04-14T21:34:00Z"
+        source:
+          type: string
+          description: Identifier or name of the company or service using the SaaS
+          example: acme_corp
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: auth.jwt.bearer_auth
+    APIKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+      x-apikeyInfoFunc: auth.apikey.apikey_auth
