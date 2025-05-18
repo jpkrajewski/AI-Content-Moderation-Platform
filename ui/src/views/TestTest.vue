@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { getCurrentUser } from "@/services/auth.ts";
-import { useJwtStore } from '@/stores/jwt.ts';
 
 const data = ref(null);
-const jwtStore = useJwtStore();
+
 
 
 function onbtnclick() {
-    console.log('Button clicked');
-    console.log('JWT:', jwtStore.jwt);
-    getCurrentUser(jwtStore.jwt)
+    getCurrentUser()
         .then(response => {
             console.log('User information:', response);
             data.value = response; // Update the reactive `data` value

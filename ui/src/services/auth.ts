@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from './interceptor.ts';
 import endpoints from './endpoints.ts';
 
 
@@ -27,12 +27,12 @@ class Credentials {
 
 
 const registerUser = async (userData: RegisterUser) => {
-  const response = await axios.post(endpoints.auth.register, userData);
+  const response = await axiosInstance.post(endpoints.auth.register, userData);
   return response.data;
 };
 
 const loginUser = async (credentials: Credentials) => {
-  const response = await axios.post(
+  const response = await axiosInstance.post(
     endpoints.auth.login, credentials,
     {
       headers: {
@@ -43,10 +43,8 @@ const loginUser = async (credentials: Credentials) => {
   return response.data.token; // Assuming the response contains a token
 };
 
-const getCurrentUser = async (token: string) => {
-  const response = await axios.get(endpoints.auth.me, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+const getCurrentUser = async () => {
+  const response = await axiosInstance.get(endpoints.auth.me);
   return response.data;
 };
 

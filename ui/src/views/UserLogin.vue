@@ -2,29 +2,26 @@
 import { ref } from 'vue';
 import {loginUser} from "@/services/auth.ts";
 import { useJwtStore } from '@/stores/jwt.ts';
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+
 
 const jwtStore = useJwtStore();
 
 function handleLogin() {
-    // Handle login logic here
-    console.log('Logging in with', { username, password });
     loginUser({
         email: username.value,
         password: password.value
     })
         .then(token => {
-            console.log('Login successful:', token);
-            // Handle successful login (e.g., redirect to dashboard)
             jwtStore.setJwt(token);
-            console.log('Token set in store:', token);
-            // Optionally, redirect to another page after login
+            router.push('/dashboard/summary');
+
         })
         .catch(error => {
             console.error('Login failed:', error);
-            // Handle login failure (e.g., show error message)
         });
-
-
 }
 const username = ref('');
 const password = ref('');
