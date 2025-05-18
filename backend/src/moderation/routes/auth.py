@@ -6,8 +6,11 @@ def register(body):
 
 
 def login(body):
-    return {"token": "example_token"}, http.HTTPStatus.OK
+    print(body)
+    return {"token": "valid-token"}, http.HTTPStatus.OK
 
 
-def me():
+def me(*args, **kwargs):
+    print(kwargs)
+    print(args)
     return {"id": 1, "email": "user@example.com"}, http.HTTPStatus.OK
