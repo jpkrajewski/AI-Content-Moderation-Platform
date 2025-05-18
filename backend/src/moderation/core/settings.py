@@ -1,6 +1,9 @@
+from pathlib import Path
 from typing import Literal
 
 from pydantic_settings import BaseSettings
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 
 class Settings(BaseSettings):
@@ -10,6 +13,7 @@ class Settings(BaseSettings):
     APP_HOST: str
     APP_PORT: int
     APP_RELOAD: bool = True
+    APP_UPLOAD_DIR: Path = BASE_DIR / "uploads"
 
     # Kafka Configuration
     KAFKA_TOPIC: str = "moderation-content"

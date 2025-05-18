@@ -19,5 +19,6 @@ class Content(Base):
     localization = Column(JSON, nullable=True)  # language, region
     source = Column(String, nullable=False)  # e.g. "acme_corp"
     status = Column(String(50), default="pending")  # pending, approved, rejected, flagged
+    image_paths = Column(ARRAY(String), default=[])  # List of image paths
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

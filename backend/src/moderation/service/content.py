@@ -10,7 +10,7 @@ class ContentService:
     def __init__(self, repository: AbstractDBContentRepository):
         self.repository = repository
 
-    def create_content(self, input: Dict[str, Any]) -> Tuple[Content, HTTPStatus]:
+    def create_content(self, input: Dict[str, Any], image_paths: List[str]) -> Content:
         """Create new content and queue it for moderation."""
         try:
             content = Content(
@@ -21,11 +21,11 @@ class ContentService:
                 tags=input["tags"],
                 localization=input["localization"],
                 source=input["source"],
+                image_paths=image_paths,
             )
         except KeyError as e:
-            return {"error": f"Missing required field: {str(e)}"}, HTTPStatus.BAD_REQUEST
-        content = self.repository.create(content)
-        return content, HTTPStatus.CREATED
+            raise ValueError(f"Missing required field: {e}")
+        return self.repository.create(content)
 
     def list_content(self, status: Optional[str] = None) -> Tuple[List[Content], HTTPStatus]:
         """List all content with optional status filter."""
