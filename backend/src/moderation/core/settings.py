@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     DB_URI: str
     APP_HOST: str
     APP_PORT: int
+    APP_RELOAD: bool = True
 
     # Kafka Configuration
     KAFKA_TOPIC: str = "moderation-content"

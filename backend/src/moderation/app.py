@@ -3,7 +3,6 @@ from pathlib import Path
 from connexion import FlaskApp
 from connexion.middleware import MiddlewarePosition
 from moderation.core.container import Container
-from moderation.core.settings import settings
 from moderation.middlewares.cors import CORSMiddleware
 
 
@@ -37,12 +36,3 @@ def create_app():
     add_routes(app)
     add_middleware(app)
     return app
-
-
-def run_app():
-    app = create_app()
-    app.run(port=settings.APP_PORT, host=settings.APP_HOST)
-
-
-if __name__ == "__main__":
-    run_app()
