@@ -70,5 +70,17 @@ services:
       - ./backend:/app
     command: python src/moderation/kafka/consumer.py
 
+  nginx:
+    image: nginx:latest
+    container_name: nginx-server
+    ports:
+      - "4040:4040"  # Expose Nginx on port 80
+    depends_on:
+      - backend
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Mount Nginx config
+      - ./backend/uploads:/uploads  # Bind uploads directory for serving media
+    restart: always
+
 volumes:
   postgres_data:

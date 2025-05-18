@@ -29,6 +29,7 @@ class DatabaseContentRepository(AbstractDBContentRepository):
             tags=content.tags,
             localization=content.localization,
             source=content.source,
+            image_paths=content.image_paths,
         )
         self.session.add(record)
         self.session.commit()
@@ -44,6 +45,7 @@ class DatabaseContentRepository(AbstractDBContentRepository):
             status=record.status,
             created_at=record.created_at.isoformat() if record.created_at else None,
             updated_at=record.updated_at.isoformat() if record.updated_at else None,
+            image_paths=record.image_paths,
         )
 
     def update(self, content_id: str, data: Content) -> Content:
