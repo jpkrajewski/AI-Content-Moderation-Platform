@@ -1,15 +1,22 @@
 from pathlib import Path
 
-import connexion
+from connexion import FlaskApp
+from connexion.middleware import MiddlewarePosition
 from moderation.core.container import Container
 from moderation.core.settings import settings
+from moderation.middlewares.cors import CORSMiddleware
 
 
-def create_app():
-    """Create a Flask application."""
-    container = Container()
-    app = connexion.FlaskApp(__name__, specification_dir=Path(__file__).parent / "spec")
-    app.app.container = container
+def add_middleware(app: FlaskApp) -> None:
+    app.add_middleware(
+        CORSMiddleware,
+        position=MiddlewarePosition.BEFORE_ROUTING,
+        allow_origins=["*"],
+        allow_credentials=True,
+    )
+
+
+def add_routes(app: FlaskApp) -> None:
     app.add_api(
         "openapi.yaml",
         base_path="/api/v1",
@@ -18,10 +25,24 @@ def create_app():
         resolver_error=501,
         auth_all_paths=True,
     )
-    print(container.content_service)
+
+
+def add_container(app: FlaskApp) -> None:
+    app.app.container = Container()
+
+
+def create_app():
+    app = FlaskApp(__name__, specification_dir=Path(__file__).parent / "spec")
+    add_container(app)
+    add_routes(app)
+    add_middleware(app)
     return app
 
 
-if __name__ == "__main__":
+def run_app():
     app = create_app()
     app.run(port=settings.APP_PORT, host=settings.APP_HOST)
+
+
+if __name__ == "__main__":
+    run_app()

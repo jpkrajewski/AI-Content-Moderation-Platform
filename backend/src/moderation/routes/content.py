@@ -15,11 +15,7 @@ def create_content(
     content_service: ContentService = Provide[Container.content_service],
     kafka: KafkaProducerService = Provide[Container.kafka_producer_service],
 ) -> Tuple[Dict, HTTPStatus]:
-    print(body)
-    print(request.files)
-
     paths = LocalImageStorage().save_images(request.files.getlist("images"))
-
     content, http_status = content_service.create_content(body)
     kafka.send_message_for_text_classifier(content.id, content.body, message_type="text")
     kafka.send_message_for_image_classifier_bulk(content.id, paths, message_type="image")

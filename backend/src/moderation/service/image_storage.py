@@ -12,11 +12,7 @@ class LocalImageStorage:
 
     def save_images(self, images: List[FileStorage]) -> List[str]:
         saved_paths = []
-        print("Saving images to local storage...")
-        print(images)
-
         for image in images:
-            print(f"Saving image: {image.filename}")
             ext = os.path.splitext(image.filename)[-1]
             filename = f"{uuid4()}{ext}"
             filepath = os.path.abspath(os.path.join(self.upload_dir, filename))
