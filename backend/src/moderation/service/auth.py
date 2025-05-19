@@ -1,21 +1,6 @@
-from dataclasses import dataclass
-from uuid import UUID
+from typing import Tuple
 
-import jwt
-from moderation.core.settings import settings
-from moderation.repository.db.user.base import AbstractUserRepository
-
-
-@dataclass
-class JwtUser:
-    uuid: UUID
-    roles: list
-
-    def to_dict(self):
-        return {
-            "uuid": str(self.uuid),
-            "roles": self.roles,
-        }
+from moderation.repository.db.user.base import AbstractUserRepository, User, UserCreate
 
 
 class AuthService:
@@ -26,32 +11,26 @@ class AuthService:
         return password == hashed_password
         # return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
-    def authenticate(self, username: str, password: str) -> bool:
+    def authenticate(self, username: str, password: str) -> Tuple[bool, User | None]:
         user = self.user_repository.get_user_by_username(username)
         if not user:
-            raise ValueError("User not found")
-        if not self._check_password(password, ""):
-            raise ValueError("Invalid password")
-        return user
+            return False, None
+        if not self._check_password(password, user.password_hash):
+            return False, None
+        return True, user
 
-    def generate_jwt_token(self, user_id: str) -> str:
-        user = self.user_repository.get_user_by_id(user_id)
-        if not user:
-            raise ValueError("User not found")
-        return jwt.encode({"user_id": user_id, "roles": user.roles}, settings.JWT_SECRET, algorithm="HS256")
+    def register(self, username: str, password: str, email: str) -> Tuple[bool, User | None]:
+        user = self.user_repository.get_by_criteria(email=email)
+        if user:
+            return False, None
+        user = UserCreate(
+            email=email,
+            username=username,
+            password_hash=password,
+            role="moderator",
+        )
+        return True, self.user_repository.save_user(user)
 
-    def decode_jwt_token(self, token: str) -> JwtUser:
-        try:
-            payload = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
-            return JwtUser(uuid=UUID(payload["user_id"]), roles=payload.get("roles", []))
-        except jwt.ExpiredSignatureError:
-            raise ValueError("Token has expired")
-        except jwt.InvalidTokenError:
-            raise ValueError("Invalid token")
-
-    def verify_token(self, token: str, required_scopes: list) -> JwtUser:
-        user = self.decode_jwt_token(token)
-        result = all(scope in user.roles for scope in required_scopes)
-        if not result:
-            raise ValueError("Insufficient permissions")
-        return user
+    def check_email_exists(self, email: str) -> bool:
+        user = self.user_repository.get_by_criteria(email=email)
+        return user is not None

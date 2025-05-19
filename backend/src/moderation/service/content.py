@@ -18,6 +18,7 @@ class AnalysisResult:
 
 @dataclass
 class ContentWithAnalysis:
+    id: str
     body: str
     tags: List[str]
     localization: str
@@ -30,6 +31,7 @@ class ContentWithAnalysis:
 def content_with_analysis(content: Content, results: List[DBAnalysisResult]) -> ContentWithAnalysis:
     """Combine content and analysis results into a single object."""
     return ContentWithAnalysis(
+        id=content.id,
         body=content.body,
         tags=content.tags,
         localization=content.localization,

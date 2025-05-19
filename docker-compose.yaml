@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   db:
+    container_name: postgresdb
     image: postgres:15
     restart: unless-stopped
     env_file:
@@ -12,6 +13,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   migrate:
+    container_name: db-migrate
     build:
       context: ./backend
     volumes:
@@ -21,6 +23,7 @@ services:
     command: alembic upgrade head
 
   backend:
+    container_name: moderation-backend
     build:
       context: ./backend
     depends_on:
@@ -38,6 +41,7 @@ services:
       - ./backend:/app
 
   zookeeper:
+    container_name: kafka-zookeeper
     image: confluentinc/cp-zookeeper:7.4.0
     env_file:
       - .env
@@ -45,6 +49,7 @@ services:
       - "2181:2181"
 
   kafka:
+    container_name: kafka-broker
     image: confluentinc/cp-kafka:7.4.0
     depends_on:
       - zookeeper
@@ -59,6 +64,7 @@ services:
       - .env
 
   consumer:
+    container_name: kafka-consumer
     build:
       context: ./backend
     restart: always
@@ -72,22 +78,23 @@ services:
     command: python src/moderation/kafka/consumer.py
 
   nginx:
-    image: nginx:latest
     container_name: nginx-server
+    image: nginx:latest
     ports:
-      - "4040:4040"  # Expose Nginx on port 80
+      - "4040:4040"
     depends_on:
       - backend
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Mount Nginx config
-      - ./backend/uploads:/uploads  # Bind uploads directory for serving media
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./backend/uploads:/uploads
     restart: always
 
   redis:
+    container_name: redis-cache
     image: redis:7
     restart: unless-stopped
     ports:
-      - "6379:6379"  # Optional, for local dev
+      - "6379:6379"
     volumes:
       - redis_data:/data
 

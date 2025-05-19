@@ -1,4 +1,4 @@
-from moderation.repository.db.user.base import AbstractUserRepository
+from moderation.repository.db.user.base import AbstractUserRepository, User
 
 
 class UserService:
@@ -13,7 +13,7 @@ class UserService:
         """Create a new user in the database."""
         return self.user_repository.save_user(user_data["id"], user_data)
 
-    def get_user(self, user_id: str) -> dict:
+    def get_user(self, user_id: str) -> User | None:
         """Get user details by user ID."""
         return self.user_repository.get_user_by_id(user_id)
 

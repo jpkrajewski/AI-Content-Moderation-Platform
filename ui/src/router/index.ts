@@ -9,6 +9,7 @@ import DashboardSummary from '../views/dashboard/DashboardSummary.vue';
 import DashboardActivityMetrics from '../views/dashboard/DashboardActivityMetrics.vue';
 import DashboardKPI from '../views/dashboard/DashboardKPI.vue';
 import ModerationListPending from '../views/moderation/ModerationListPending.vue';
+import ModerationContentAnalysis from '../views/moderation/ModerationContentAnalysis.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,7 +30,7 @@ const router = createRouter({
 
     // Protected routes (wrapped in GlobalLayout)
     {
-      path: '/',
+      path: '/secure',
       component: GlobalLayout, // Use global layout for authenticated routes
       meta: { requiresAuth: true }, // Authentication required
       children: [
@@ -52,6 +53,12 @@ const router = createRouter({
           path: 'moderation/pending',
           name: 'ModerationListPending',
           component: ModerationListPending,
+        },
+        {
+          path: 'moderation/content-analysis/:contentId',
+          name: 'ModerationContentAnalysis',
+          component: ModerationContentAnalysis,
+          props: true, // Pass route params as props
         },
       ],
     },
