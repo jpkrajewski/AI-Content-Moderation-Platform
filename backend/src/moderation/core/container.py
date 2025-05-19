@@ -4,6 +4,9 @@ from dependency_injector import containers, providers
 from kafka import KafkaProducer
 from moderation.core.settings import settings
 from moderation.db.session import SessionLocal
+from moderation.repository.db.analysis.base import AbstractAnalysisRepository
+from moderation.repository.db.analysis.database import DatabaseAnalysisRepository
+from moderation.repository.db.analysis.memory import InMemoryAnalysisRepository
 from moderation.repository.db.content.database import DatabaseContentRepository
 from moderation.repository.db.content.memory import InMemoryContentRepository
 from moderation.repository.db.user.base import AbstractUserRepository
@@ -28,11 +31,26 @@ def _get_user_and_auth_repository() -> AbstractUserRepository:
     return DatabaseUserRepository(session=SessionLocal())
 
 
+def _get_analysis_repository() -> AbstractAnalysisRepository:
+    if settings.DB_REPOSITORY == "memory":
+        return InMemoryAnalysisRepository()
+    else:
+        return DatabaseAnalysisRepository(session=SessionLocal())
+
+
 class Container(containers.DeclarativeContainer):
-    wiring_config = containers.WiringConfiguration(packages=["moderation.routes.content"])
+    wiring_config = containers.WiringConfiguration(
+        packages=[
+            "moderation.routes.content",
+            "moderation.routes.moderation_action",
+            "moderation.kafka.processor",
+            "moderation.routes.user",
+        ]
+    )
     content_service = providers.Singleton(
         ContentService,
-        repository=providers.Factory(_get_content_repository),
+        content_repository=providers.Factory(_get_content_repository),
+        analysis_repository=providers.Factory(_get_analysis_repository),
     )
     kafka_producer_service = providers.Singleton(
         KafkaProducerService,

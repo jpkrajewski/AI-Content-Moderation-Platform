@@ -10,7 +10,7 @@ class InMemoryContentRepository(AbstractDBContentRepository):
         self.contents: Dict[str, Content] = {}
         self.counter = 0
 
-    def list(self, status: str) -> List[Content]:
+    def list(self, status: str | None = None) -> List[Content]:
         """List all content."""
         return list(self.contents.values())
 

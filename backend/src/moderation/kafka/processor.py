@@ -1,56 +1,48 @@
 import logging
-import sys
 from typing import Callable
 
+from dependency_injector.wiring import Provide, inject
 from kafka.consumer.fetcher import ConsumerRecord
-from moderation.ai.image import image_moderation
+from moderation.ai.image import get_image_moderation
 from moderation.ai.models import ClassifyResult
-from moderation.ai.text import text_moderation
-from moderation.db.analysis import ContentAnalysis
-from moderation.db.session import get_db
+from moderation.ai.text import get_text_moderation
+from moderation.core.container import Container
 from moderation.kafka.models import KafkaModerationMessage
+from moderation.repository.db.analysis.base import AnalysisResult
+from moderation.service.content import ContentService
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler("log.log", mode="a"),
-    ],
-)
-logger = logging.getLogger("moderation.consumer")
+logger = logging.getLogger("moderation")
 
 
+@inject
 def save_result(
     content_id: str,
     result: ClassifyResult,
+    content_service: ContentService = Provide[Container.content_service],
 ) -> bool:
-    """Save the moderation result to the database."""
-    record = ContentAnalysis(
-        content_id=content_id,
-        content_type=result.content_type,
-        automated_flag=result.automated_flag,
-        autmotated_flag_reason=result.autmotated_flag_reason,
-        model_version=result.model_version,
-        analysis_metadata=result.analysis_metadata,
-    )
-
     try:
-        with get_db() as session:
-            session.add(record)
-            session.commit()
-            return True
+        input_ = AnalysisResult(
+            content_id=content_id,
+            content_type=result.content_type,
+            automated_flag=result.automated_flag,
+            automated_flag_reason=result.automated_flag_reason,
+            model_version=result.model_version,
+            analysis_metadata=result.analysis_metadata,
+        )
+        result = content_service.save_analysis_result(content_id, input_)
+        logger.info(f"Saved analysis result: {result}")
     except Exception as e:
-        logger.error(f"Failed to save moderation result: {e}")
+        logger.error(f"Failed to save analysis result: {e}")
         return False
+    return True
 
 
 def get_classifier(message: KafkaModerationMessage) -> Callable[[str], ClassifyResult] | None:
     match message.type:
         case "image":
-            return image_moderation.classify
+            return get_image_moderation().classify
         case "text":
-            return text_moderation.classify
+            return get_text_moderation().classify
         case _:
             return None
 

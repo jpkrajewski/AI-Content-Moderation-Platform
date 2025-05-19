@@ -1,23 +1,23 @@
 import http
 
+from dependency_injector.wiring import Provide, inject
+from moderation.core.container import Container
+from moderation.service.user import UserService
 
-def list_users():
+
+@inject
+def list_users(user_service: UserService = Provide[Container.user_service]):
     """List all users - admin function"""
-    return [
-        {"id": "123", "email": "user1@example.com", "role": "user"},
-        {"id": "456", "email": "user2@example.com", "role": "admin"},
-    ], http.HTTPStatus.OK
+    return user_service.list_users(), http.HTTPStatus.OK
 
 
-def get_user(user_id):
-    """Get specific user by ID - admin function"""
-    return {
-        "id": user_id,
-        "email": f"user{user_id}@example.com",
-        "role": "user",
-    }, http.HTTPStatus.OK
+@inject
+def get_user(user_id: str, user_service: UserService = Provide[Container.user_service]):
+    """Get user details by ID - admin function"""
+    return user_service.get_user(user_id), http.HTTPStatus.OK
 
 
-def delete_user(user_id):
-    """Delete a user by ID - admin function"""
-    return {}, http.HTTPStatus.NO_CONTENT
+@inject
+def delete_user(user_id: str, user_service: UserService = Provide[Container.user_service]):
+    """Delete user by ID - admin function"""
+    return user_service.delete_user(user_id), http.HTTPStatus.OK

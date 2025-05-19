@@ -18,7 +18,7 @@ class AbstractAnalysisRepository(ABC):
         """Save the moderation result to the database."""
 
     @abstractmethod
-    def get_result(self, content_id: str) -> AnalysisResult | None:
+    def get_results(self, content_id: str) -> list[AnalysisResult] | None:
         """Retrieve the moderation result from the database."""
 
     @abstractmethod

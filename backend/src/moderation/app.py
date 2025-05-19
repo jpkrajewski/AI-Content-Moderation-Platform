@@ -1,9 +1,24 @@
+import logging
+import logging.config
 from pathlib import Path
 
 from connexion import FlaskApp
 from connexion.middleware import MiddlewarePosition
 from moderation.core.container import Container
+from moderation.core.settings import settings
 from moderation.middlewares.cors import CORSMiddleware
+
+
+def setup_logging():
+    logging.config.fileConfig(
+        settings.LOGGER_CONF_PATH,
+        disable_existing_loggers=False,
+    )
+    logger = logging.getLogger("moderation")
+    logger.info("Logging is set up.")
+    logger.debug("This is a debug message from moderation.")
+    logger.info("This is an info message from moderation.")
+    logger.error("This is an error message from moderation.")
 
 
 def add_middleware(app: FlaskApp) -> None:
@@ -27,10 +42,12 @@ def add_routes(app: FlaskApp) -> None:
 
 
 def add_container(app: FlaskApp) -> None:
+    print("loas...")
     app.app.container = Container()
 
 
 def create_app():
+    setup_logging()
     app = FlaskApp(__name__, specification_dir=Path(__file__).parent / "spec")
     add_container(app)
     add_routes(app)

@@ -12,7 +12,7 @@ class InMemoryAnalysisRepository(AbstractAnalysisRepository):
         self.data[content_id] = result
         return True
 
-    def get_result(self, content_id) -> AnalysisResult | None:
+    def get_results(self, content_id) -> list[AnalysisResult] | None:
         """Retrieve the moderation result from the in-memory database."""
         return self.data.get(content_id)
 

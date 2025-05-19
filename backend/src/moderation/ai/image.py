@@ -1,12 +1,33 @@
-import torch
+from abc import ABC, abstractmethod
+from functools import cache
+
 from moderation.ai.models import ClassifyResult
 from moderation.core.settings import settings
 from PIL import Image
-from transformers import AutoFeatureExtractor, AutoModelForImageClassification
+
+try:
+    import torch
+    from transformers import AutoFeatureExtractor, AutoModelForImageClassification
+except ImportError:
+    if not settings.AI_USE_MOCK:
+        raise ImportError(
+            "The required libraries for image moderation are not installed. "
+            "Please install the necessary libraries or set AI_USE_MOCK to True."
+        )
 
 
-class ImageModeration:
+class ImageClassifier(ABC):
+    """
+    Abstract base class for image classifiers.
+    """
+
+    @abstractmethod
+    def classify(self, image_path: str) -> ClassifyResult: ...
+
+
+class ImageModeration(ImageClassifier):
     def __init__(self) -> None:
+
         self.extractor: AutoFeatureExtractor = AutoFeatureExtractor.from_pretrained(settings.AI_IMAGE_MODERATION_MODEL)
         self.model: AutoModelForImageClassification = AutoModelForImageClassification.from_pretrained(
             settings.AI_IMAGE_MODERATION_MODEL
@@ -45,4 +66,20 @@ class ImageModeration:
         )
 
 
-image_moderation = ImageModeration()
+class ImageModerationFake(ImageClassifier):
+    def classify(self, image_path: str) -> ClassifyResult:
+        return ClassifyResult(
+            content_type="image",
+            automated_flag=False,
+            automated_flag_reason="",
+            model_version="fake_model",
+            analysis_metadata={},
+        )
+
+
+@cache
+def get_image_moderation() -> ImageClassifier:
+    """Get the image moderation instance."""
+    if settings.AI_USE_MOCK:
+        return ImageModerationFake()
+    return ImageModeration()

@@ -1,10 +1,14 @@
-from dependency_injector.wiring import Provide, inject
-from moderation.core.container import Container
+import logging
+
+from moderation.auth.common import check_scopes
+from moderation.helpers.jwt_token import JwtTokenHandler
+
+logger = logging.getLogger("moderation")
 
 
-@inject
-def bearer_auth(token, required_scopes, auth_service: Container = Provide[Container.auth_service]):
-    if token == "valid-token":  # nosec
-        return {"sub": "user-id"}
-    else:
-        return None  # or raise an error
+def bearer_auth(token: str, required_scopes: list[str] | None):
+    token = token.removeprefix("Bearer ")
+    payload: dict = JwtTokenHandler().decode_token(token)
+    scopes = payload.get("scopes", [])
+    check_scopes(scopes, required_scopes)
+    return {"uid": payload["user_id"], "scopes": scopes}

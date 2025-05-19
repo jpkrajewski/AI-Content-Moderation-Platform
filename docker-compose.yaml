@@ -28,6 +28,7 @@ services:
       - db
       - kafka
       - zookeeper
+      - redis
     env_file:
       - .env
     ports:
@@ -82,5 +83,14 @@ services:
       - ./backend/uploads:/uploads  # Bind uploads directory for serving media
     restart: always
 
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"  # Optional, for local dev
+    volumes:
+      - redis_data:/data
+
 volumes:
   postgres_data:
+  redis_data:

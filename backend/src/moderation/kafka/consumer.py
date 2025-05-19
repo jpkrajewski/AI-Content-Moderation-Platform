@@ -6,18 +6,13 @@ import time
 
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError, NoBrokersAvailable
+from moderation.app import setup_logging
+from moderation.core.container import Container
 from moderation.core.settings import settings
 from moderation.kafka.processor import process_message
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler("log.log", mode="a"),
-    ],
-)
-logger = logging.getLogger("moderation.consumer")
+setup_logging()
+logger = logging.getLogger("moderation")
 
 
 shutdown_requested = False
@@ -109,4 +104,5 @@ def start_consumer():
 
 
 if __name__ == "__main__":
+    container = Container()
     start_consumer()

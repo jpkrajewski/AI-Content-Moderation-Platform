@@ -1,8 +1,27 @@
 from typing import List
 
+from moderation.db.analysis import ContentAnalysis as DBContentAnalysis
 from moderation.db.content import Content as DBContent
 from moderation.repository.db.content.base import AbstractDBContentRepository, Content
 from sqlalchemy.orm import Session
+
+
+def from_record(record: DBContent) -> Content:
+    """Convert a database record to a Content object."""
+    return Content(
+        user_id=record.user_id,
+        username=record.username,
+        title=record.title,
+        body=record.body,
+        tags=record.tags,
+        localization=record.localization,
+        source=record.source,
+        id=str(record.id),
+        status=record.status,
+        created_at=record.created_at.isoformat() if record.created_at else None,
+        updated_at=record.updated_at.isoformat() if record.updated_at else None,
+        image_paths=record.image_paths,
+    )
 
 
 class DatabaseContentRepository(AbstractDBContentRepository):
@@ -11,13 +30,21 @@ class DatabaseContentRepository(AbstractDBContentRepository):
     def __init__(self, session: Session):
         self.session = session
 
-    def list(self, status: str) -> List[Content]:
+    def list(self, status: str | None = None) -> List[Content]:
         """List all content."""
-        return self.session.query(DBContent).all()
+        if status:
+            return (
+                self.session.query(DBContent)
+                .select_from(DBContent)
+                .join(DBContentAnalysis)
+                .filter(DBContent.status == status)
+                .all()
+            )
+        return self.session.query(DBContent).select_from(DBContent).join(DBContentAnalysis).all()
 
     def get_by_id(self, content_id: str) -> Content:
         """Get content by ID."""
-        return self.session.query(DBContent).filter(Content.id == content_id).first()
+        return self.session.query(DBContent).filter(DBContent.id == content_id).first()
 
     def create(self, content: Content) -> Content:
         """Create new content."""
@@ -33,20 +60,7 @@ class DatabaseContentRepository(AbstractDBContentRepository):
         )
         self.session.add(record)
         self.session.commit()
-        return Content(
-            user_id=record.user_id,
-            username=record.username,
-            title=record.title,
-            body=record.body,
-            tags=record.tags,
-            localization=record.localization,
-            source=record.source,
-            id=str(record.id),
-            status=record.status,
-            created_at=record.created_at.isoformat() if record.created_at else None,
-            updated_at=record.updated_at.isoformat() if record.updated_at else None,
-            image_paths=record.image_paths,
-        )
+        return from_record(record)
 
     def update(self, content_id: str, data: Content) -> Content:
         """Update content properties."""
@@ -55,7 +69,7 @@ class DatabaseContentRepository(AbstractDBContentRepository):
             for key, value in data.items():
                 setattr(content, key, value)
             self.session.commit()
-            return content
+            return from_record(content)
         return None
 
     def update_status(self, content_id: str, status: str) -> Content:
@@ -64,7 +78,7 @@ class DatabaseContentRepository(AbstractDBContentRepository):
         if content:
             content.status = status
             self.session.commit()
-            return content
+            return from_record(content)
         return None
 
     def delete(self, content_id: str) -> bool:

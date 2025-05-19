@@ -24,7 +24,7 @@ class Content:
 class AbstractDBContentRepository(ABC):
 
     @abstractmethod
-    def list(self, status: str) -> List[Content]:
+    def list(self, status: str | None = None) -> List[Content]:
         """List all content."""
 
     @abstractmethod

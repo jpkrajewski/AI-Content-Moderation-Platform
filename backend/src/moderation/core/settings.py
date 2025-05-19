@@ -29,11 +29,21 @@ class Settings(BaseSettings):
 
     DB_REPOSITORY: Literal["memory", "database"] = "database"
 
+    AI_USE_MOCK: bool = True
     AI_IMAGE_MODERATION_MODEL: str = "Falconsai/nsfw_image_detection"
     AI_TEXT_MODERATION_MODEL: str = "unitary/toxic-bert"
-
     AI_IMAGE_MODERATION_THRESHOLD: float = 0.5
     AI_TEXT_MODERATION_THRESHOLD: float = 0.5
+
+    LOGGER_CONF_PATH: Path = BASE_DIR / "logging" / "dev.conf"
+
+    JWT_SECRET: str = "your_jwt_secret"
+    JWT_ALGORITHM: str = "HS256"
+
+    REDIS_URL: str = "redis://redis:6379/0"
+    REDIS_API_KEY_PREFIX: str = "api_key"
+    REDIS_HOST: str = "redis"
+    REDIS_PORT: int = 6379
 
 
 settings = Settings()

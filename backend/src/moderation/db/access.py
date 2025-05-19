@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import List
 
 from moderation.db.base import Base
 from sqlalchemy import ARRAY, Boolean, Column, DateTime, Integer, String
@@ -12,7 +13,7 @@ class ClientAccess(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     source = Column(String, nullable=False)  # e.g. "acme_corp"
     api_key = Column(String, nullable=False, unique=True)  # hashed api key
-    current_scope = Column(ARRAY, nullable=False)  # e.g. "moderation", "content"
+    current_scope: Column[List[str]] = Column(ARRAY(String), nullable=False)  # e.g. "moderation", "content"
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_accessed = Column(DateTime, default=datetime.utcnow)
