@@ -151,3 +151,7 @@ def load_fixtures(drop_db: bool = True):
 
         db.commit()
         logger.info("✅ Fixtures successfully loaded.")
+
+
+if __name__ == "__main__":
+    load_fixtures()

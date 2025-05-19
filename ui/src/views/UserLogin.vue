@@ -16,7 +16,7 @@ function handleLogin() {
     })
         .then(token => {
             jwtStore.setJwt(token);
-            router.push('/dashboard/summary');
+            router.push('/secure/dashboard/summary');
 
         })
         .catch(error => {

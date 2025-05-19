@@ -33,7 +33,13 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
 ### 🤖 LLM Worker
 
 - Listens to Kafka for new content
+- Listens to Kafka for new content
 - Analyzes:
+  - Banned phrases
+  - Spam detection
+  - Auto-tagging
+  - Sentiment analysis
+- Sends the result back to the database or triggers an alert
   - Banned phrases
   - Spam detection
   - Auto-tagging
@@ -43,7 +49,11 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
 ### 🛠 Admin Panel
 
 - List of suspicious or flagged content
+- List of suspicious or flagged content
 - Admin actions:
+  - ✅ Approve
+  - ❌ Delete
+  - ✏️ Request correction
   - ✅ Approve
   - ❌ Delete
   - ✏️ Request correction
@@ -79,3 +89,11 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
     npm install
     npm run dev
     ```
+
+### Automated setup using Makefile
+
+You can use the provided Makefile to automate the setup process. The Makefile includes targets for building, running, and restarting the application, as well as running fixtures.
+To use the Makefile, simply run the following commands in your terminal:
+```bash
+make restart
+```

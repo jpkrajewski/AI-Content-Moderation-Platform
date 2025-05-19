@@ -75,7 +75,7 @@ router.beforeEach((to, from, next) => {
     next({ path: '/login' });
   } else if (!requiresAuth && jwtStore.isLoggedIn && to.path === '/login') {
     // Redirect to dashboard if the user is already logged in
-    next({ path: '/dashboard/summary' });
+    next({ path: '/secure/dashboard/summary' });
   } else {
     next(); // Proceed as normal
   }
