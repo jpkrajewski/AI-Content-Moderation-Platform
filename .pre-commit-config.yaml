@@ -28,6 +28,7 @@ repos:
         name: isort (import sorting)
         args: ["--profile", "black", "--line-length", "120"]
         language_version: python3.10
+        exclude: "backend/src/moderation/spec/openapi.yaml"
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.9.0
