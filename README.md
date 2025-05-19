@@ -6,11 +6,11 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
 
 ### Core Features
 
-- 🔒 User authentication and authorization  
-- ⚡️ Streaming content processing via Kafka  
-- 🧠 Content analysis using LLMs (moderation, classification, tagging, sentiment)  
-- 🛢 Data storage using PostgreSQL  
-- 📊 Admin panel to review and manage flagged content  
+- 🔒 User authentication and authorization
+- ⚡️ Streaming content processing via Kafka
+- 🧠 Content analysis using LLMs (moderation, classification, tagging, sentiment)
+- 🛢 Data storage using PostgreSQL
+- 📊 Admin panel to review and manage flagged content
 
 ---
 
@@ -18,8 +18,8 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
 
 ### 👤 Users
 
-- Registration / Login  
-- User roles: `admin`, `reviewer`  
+- Registration / Login
+- User roles: `admin`, `reviewer`
 
 ### ✍️ Content Creation
 
@@ -32,25 +32,50 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
 
 ### 🤖 LLM Worker
 
-- Listens to Kafka for new content  
+- Listens to Kafka for new content
 - Analyzes:
-  - Banned phrases  
-  - Spam detection  
-  - Auto-tagging  
-  - Sentiment analysis  
-- Sends the result back to the database or triggers an alert  
+  - Banned phrases
+  - Spam detection
+  - Auto-tagging
+  - Sentiment analysis
+- Sends the result back to the database or triggers an alert
 
 ### 🛠 Admin Panel
 
-- List of suspicious or flagged content  
+- List of suspicious or flagged content
 - Admin actions:
-  - ✅ Approve  
-  - ❌ Delete  
-  - ✏️ Request correction  
+  - ✅ Approve
+  - ❌ Delete
+  - ✏️ Request correction
 
 ### 📈 Dashboard
 
 - Statistics:
-  - Number of submissions  
-  - Classification results  
-  - User activity  
+  - Number of submissions
+  - Classification results
+  - User activity
+
+## Development
+
+### Prerequisites
+- docker compose
+- npm
+
+### Setup
+1. Clone the repository
+    ```bash
+    git clone ...
+    cd ai-content-moderation
+    ```
+
+2. Start the services
+    ```bash
+    docker-compose up --build
+    ```
+
+3. Start the frontend
+    ```bash
+    cd ui
+    npm install
+    npm run dev
+    ```

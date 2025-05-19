@@ -19,8 +19,8 @@ class JwtTokenHandler:
                 algorithms=[settings.JWT_ALGORITHM],
             )
             return payload
-        except Exception as e:
-            raise ValueError(f"Invalid token: {str(e)}")
+        except Exception:
+            return {}
 
     def validate_token(self, token: str) -> bool:
         try:

@@ -1,5 +1,5 @@
 import pytest
-from connexion.exceptions import Unauthorized
+from connexion.exceptions import ClientProblem
 from moderation.auth.common import check_scopes
 
 
@@ -16,7 +16,7 @@ from moderation.auth.common import check_scopes
 )
 def test_check_scopes(scopes, required_scopes, should_raise):
     if should_raise:
-        with pytest.raises(Unauthorized):
+        with pytest.raises(ClientProblem):
             check_scopes(scopes, required_scopes)
     else:
         assert check_scopes(scopes, required_scopes) is None

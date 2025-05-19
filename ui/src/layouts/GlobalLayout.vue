@@ -2,10 +2,10 @@
   <div>
     <nav>
       <ul>
-        <li><router-link to="/dashboard/summary">Dashboard Summary</router-link></li>
-        <li><router-link to="/dashboard/activity-metrics">Activity Metrics</router-link></li>
-        <li><router-link to="/dashboard/kpi">Dashboard KPI</router-link></li>
-        <li><router-link to="/moderation/pending">Moderation</router-link></li>
+        <li><router-link to="/secure/dashboard/summary">Dashboard Summary</router-link></li>
+        <li><router-link to="/secure/dashboard/activity-metrics">Activity Metrics</router-link></li>
+        <li><router-link to="/secure/dashboard/kpi">Dashboard KPI</router-link></li>
+        <li><router-link to="/secure/moderation/pending">Moderation</router-link></li>
         <li><button @click="logout">Logout</button></li>
         <li>Version: {{ version }}</li>
       </ul>

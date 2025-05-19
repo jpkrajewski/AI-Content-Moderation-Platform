@@ -45,6 +45,7 @@ class Container(containers.DeclarativeContainer):
             "moderation.routes.moderation_action",
             "moderation.kafka.processor",
             "moderation.routes.user",
+            "moderation.routes.auth",
         ]
     )
     content_service = providers.Singleton(

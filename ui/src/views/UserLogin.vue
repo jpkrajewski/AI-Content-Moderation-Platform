@@ -11,7 +11,7 @@ const jwtStore = useJwtStore();
 
 function handleLogin() {
     loginUser({
-        email: username.value,
+        username: username.value,
         password: password.value
     })
         .then(token => {
