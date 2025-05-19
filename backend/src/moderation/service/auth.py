@@ -14,15 +14,15 @@ class AuthService:
     def authenticate(self, username: str, password: str) -> Tuple[bool, User | None]:
         user = self.user_repository.get_user_by_username(username)
         if not user:
-            return False, {}
+            return False, None
         if not self._check_password(password, user.password_hash):
-            return False, {}
+            return False, None
         return True, user
 
     def register(self, username: str, password: str, email: str) -> Tuple[bool, User | None]:
         user = self.user_repository.get_by_criteria(email=email)
         if user:
-            return False, {}
+            return False, None
         user = UserCreate(
             email=email,
             username=username,
