@@ -40,7 +40,7 @@ def login(body: dict, auth_service: AuthService = Provide[Container.auth_service
     result, user = auth_service.authenticate(username, password)
     if not result:
         raise ClientProblem(title="Invalid credentials")
-    token = JwtTokenHandler().generate_token(user_id=user.id, scopes=user.role)
+    token = JwtTokenHandler().generate_token(user_id=user.id, scopes=[user.role])
     return {"token": token}, http.HTTPStatus.OK
 
 
