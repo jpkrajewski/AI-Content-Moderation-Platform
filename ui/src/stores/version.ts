@@ -10,9 +10,8 @@ export const useVersionStore = defineStore('version', {
       try {
         const data = await getCurrentVersion();
         this.version = data.version;
-        console.log('App version:', this.version);
       } catch (error) {
-        console.error('Failed to fetch app version:', error);
+        console.error(`Fetch version error! ${error}`)
       }
     },
   },

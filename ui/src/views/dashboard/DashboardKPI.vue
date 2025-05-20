@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { getModerationKPI } from '@/services/dashboard';
@@ -12,7 +11,6 @@ const fetchKPI = async () => {
     try {
     const data = await getModerationKPI();
     kpiData.value = JSON.stringify(data, null, 2);
-    console.log('Dashboard summary:', data);
     } catch {
     error.value = 'Failed to fetch dashboard summary.';
     } finally {

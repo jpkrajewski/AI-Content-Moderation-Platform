@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
-const contentId = route.params.contentId as string;
+const contentId = route.params.id as string;
 
 console.log('Content ID:', contentId);
 const loading = ref(false);
@@ -16,7 +16,7 @@ const approve = async () => {
     loading.value = true;
     await approveContent(contentId);
     alert('Content approved successfully!');
-    router.push('/moderation/pending'); // Redirect after action
+    router.push('/moderation/pending');
   } catch {
     error.value = 'Failed to approve content.';
   } finally {
@@ -29,7 +29,7 @@ const reject = async () => {
     loading.value = true;
     await rejectContent(contentId);
     alert('Content rejected successfully!');
-    router.push('/moderation/pending'); // Redirect after action
+    router.push('/moderation/pending');
   } catch {
     error.value = 'Failed to reject content.';
   } finally {

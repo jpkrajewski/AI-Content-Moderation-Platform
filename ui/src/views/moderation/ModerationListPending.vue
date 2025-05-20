@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { listPendingContent } from '@/services/moderation';
 import { useRouter } from 'vue-router';
-import { ContentItem } from '@/models/moderation';
+import type { ContentItem } from '@/models/moderation';
 
 const router = useRouter();
 const contentItems = ref<ContentItem[]>([]);
@@ -26,15 +26,17 @@ const openItem = (item: ContentItem) => {
 };
 
 const openItemRedirect = (item: ContentItem) => {
-  router.push({ name: 'ModerationContentAnalysis', params: { contentId: item.id } });
+  router.push({ 
+    name: 'ModerationContentAnalysis', 
+    params: { contentId: item.id } 
+  });
 };
 
 const closeModal = () => {
   selectedItem.value = null;
 };
-onMounted(() => {
-  fetchPendingContent();
-});
+
+onMounted(fetchPendingContent);
 </script>
 
 <template>
@@ -81,16 +83,13 @@ onMounted(() => {
             {{ tag }}
           </span>
         </div>
-        <div>
+        <div class="flex justify-between">
           <button
             @click="openItemRedirect(item)"
-            class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded mr-2"
+            class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded"
           >
             View Analysis
           </button>
-        </div>
-
-        <div class="text-right">
           <button
             @click="openItem(item)"
             class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded"
@@ -105,8 +104,12 @@ onMounted(() => {
     <div
       v-if="selectedItem"
       class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4"
+      @click="closeModal"
     >
-      <div class="bg-white max-w-3xl w-full rounded-xl shadow-xl p-6 relative overflow-y-auto max-h-[90vh]">
+      <div 
+        class="bg-white max-w-3xl w-full rounded-xl shadow-xl p-6 relative overflow-y-auto max-h-[90vh]"
+        @click.stop
+      >
         <button @click="closeModal" class="absolute top-2 right-4 text-gray-600 hover:text-black text-2xl">×</button>
 
         <h2 class="text-xl font-bold mb-2">Content ID: {{ selectedItem.id }}</h2>

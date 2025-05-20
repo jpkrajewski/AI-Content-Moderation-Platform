@@ -5,7 +5,6 @@ const axiosInstance = axios.create({
   baseURL: 'http://localhost:8080/api/v1',
 });
 
-// Add a request interceptor to attach the token
 axiosInstance.interceptors.request.use(
   (config) => {
     const jwtStore = useJwtStore();

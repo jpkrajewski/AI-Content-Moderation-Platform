@@ -7,7 +7,7 @@ import {
   flagContent
 } from '@/services/moderation';
 import { useRoute } from 'vue-router';
-import { ContentItem } from '@/models/moderation';
+import type { ContentItem } from '@/models/moderation';
 
 const route = useRoute();
 const contentId = route.params.contentId as string;
@@ -30,22 +30,27 @@ const fetchContentAnalysis = async () => {
 };
 
 const handleAction = async (action: 'approve' | 'reject' | 'flag') => {
+  if (!content.value) return;
+  
   processing.value = true;
   actionMessage.value = '';
 
   try {
-    if (action === 'approve') {
-      await approveContent(contentId);
-      actionMessage.value = 'Content approved.';
-      content.value.status = 'approved';
-    } else if (action === 'reject') {
-      await rejectContent(contentId);
-      actionMessage.value = 'Content rejected.';
-      content.value.status = 'rejected';
-    } else if (action === 'flag') {
-      await flagContent(contentId);
-      actionMessage.value = 'Content flagged.';
-      // you can also update status here if needed
+    switch (action) {
+      case 'approve':
+        await approveContent(contentId);
+        actionMessage.value = 'Content approved.';
+        content.value.status = 'approved';
+        break;
+      case 'reject':
+        await rejectContent(contentId);
+        actionMessage.value = 'Content rejected.';
+        content.value.status = 'rejected';
+        break;
+      case 'flag':
+        await flagContent(contentId);
+        actionMessage.value = 'Content flagged.';
+        break;
     }
   } catch {
     actionMessage.value = 'Action failed. Please try again.';

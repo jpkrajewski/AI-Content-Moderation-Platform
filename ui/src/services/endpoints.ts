@@ -1,38 +1,34 @@
 const BASE_URL = 'http://localhost:8080/api/v1';
 
 const endpoints = {
-  // Authentication endpoints
   auth: {
-    register: `${BASE_URL}/auth/register`, // POST: Register a new user
-    login: `${BASE_URL}/auth/login`, // POST: Login and receive token
-    me: `${BASE_URL}/auth/me`, // GET: Get current user
+    register: `${BASE_URL}/auth/register`,
+    login: `${BASE_URL}/auth/login`,
+    me: `${BASE_URL}/auth/me`,
   },
 
-  // User management endpoints
   users: {
-    list: `${BASE_URL}/users`, // GET: Admin - list all users
-    getUser: (userId: string) => `${BASE_URL}/users/${userId}`, // GET: Admin - view a specific user
-    deleteUser: (userId: string) => `${BASE_URL}/users/${userId}`, // DELETE: Admin - delete a specific user
+    list: `${BASE_URL}/users`,
+    getUser: (userId: string) => `${BASE_URL}/users/${userId}`,
+    deleteUser: (userId: string) => `${BASE_URL}/users/${userId}`,
   },
 
-  // Dashboard endpoints
   dashboard: {
-    summary: `${BASE_URL}/dashboard/summary`, // GET: Admin - get statistics
-    userActivity: `${BASE_URL}/dashboard/user-activity`, // GET: Admin - user activity metrics
-    moderationStats: `${BASE_URL}/dashboard/moderation-stats`, // GET: Admin - moderation KPIs
+    summary: `${BASE_URL}/dashboard/summary`,
+    userActivity: `${BASE_URL}/dashboard/user-activity`,
+    moderationStats: `${BASE_URL}/dashboard/moderation-stats`,
   },
 
-  // Moderation endpoints
   moderation: {
-    listPending: `${BASE_URL}/moderation/pending`, // GET: Admin - list flagged content
-    getContentAnalysis: (contentId: string) => `${BASE_URL}/moderation/${contentId}`, // GET: Admin - view analysis of single content
-    approveContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/approve`, // POST: Admin - approve content
-    rejectContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/reject`, // POST: Admin - reject content
-    flagContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/flag`, // POST: Manually flag content
+    listPending: `${BASE_URL}/moderation/pending`,
+    getContentAnalysis: (contentId: string) => `${BASE_URL}/moderation/${contentId}`, 
+    approveContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/approve`,
+    rejectContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/reject`,
+    flagContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/flag`,
   },
 
   misc: {
-    version: `${BASE_URL}/version`, // GET: Get the current version of the API
+    version: `${BASE_URL}/version`,
   }
 };
 

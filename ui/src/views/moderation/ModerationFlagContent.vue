@@ -15,7 +15,7 @@ const flag = async () => {
     loading.value = true;
     await flagContent(contentId);
     alert('Content flagged successfully!');
-    router.push('/moderation/pending'); // Redirect after action
+    router.push('/moderation/pending');
   } catch {
     error.value = 'Failed to flag content.';
   } finally {

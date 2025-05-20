@@ -9,11 +9,9 @@ const errorMessage = ref('');
 const successMessage = ref('');
 
 function handleRegister() {
-  // Clear messages
   errorMessage.value = '';
   successMessage.value = '';
 
-  // Simple validation
   if (!username.value || !password.value || !email.value) {
     errorMessage.value = 'All fields are required.';
     return;
@@ -24,7 +22,6 @@ function handleRegister() {
     return;
   }
 
-  // Simulate an API call (replace with your actual API logic)
   registerUser({
     username: username.value,
     password: password.value,
@@ -34,7 +31,6 @@ function handleRegister() {
       successMessage.value = 'Registration successful!';
       console.log('Registration response:', response);
 
-      // Clear form fields after successful registration
       username.value = '';
       password.value = '';
       email.value = '';
@@ -45,7 +41,6 @@ function handleRegister() {
     });
 }
 
-// Utility function to validate email format
 function validateEmail(email: string) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);

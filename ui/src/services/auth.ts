@@ -40,7 +40,7 @@ const loginUser = async (credentials: Credentials) => {
       },
     }
 );
-  return response.data.token; // Assuming the response contains a token
+  return response.data.token;
 };
 
 const getCurrentUser = async () => {
