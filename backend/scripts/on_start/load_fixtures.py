@@ -1,5 +1,4 @@
 # bandit: skip=B105
-import logging
 import random
 import uuid
 
@@ -12,8 +11,6 @@ from moderation.db.moderation import ModerationAction
 from moderation.db.session import get_db
 from moderation.db.user import User
 
-logger = logging.getLogger(__name__)
-
 fake = Faker()
 
 
@@ -23,18 +20,7 @@ def generate_fake_api_key():
 
 def load_fixtures(drop_db: bool = True):
     with get_db() as db:
-        exists = db.query(User).filter(User.username == "admin_user").first()
-        if exists:
-            logger.info("🚨 Fixtures already loaded. Skipping...")
-            return
-
         if drop_db:
-            print(ContentAnalysis.__tablename__)
-            print(ModerationAction.__tablename__)
-            print(Content.__tablename__)
-            print(CustomerContentCreatorUser.__tablename__)
-            print(ClientAccess.__tablename__)
-            print(User.__tablename__)
             # Delete child tables first due to foreign keys
             db.query(ContentAnalysis).delete(synchronize_session=False)
             db.query(ModerationAction).delete(synchronize_session=False)
@@ -45,15 +31,15 @@ def load_fixtures(drop_db: bool = True):
             db.commit()
 
     with get_db() as db:
-        logger.info("🚀 Loading fixtures...")
+        print("🚀 Loading fixtures...")
 
         # Admin & Moderator passwords (plaintext for logging only)
-        admin_password = "admin1234"
-        moderator_password = "mod1234"
+        admin_password = "admin"
+        moderator_password = "moderator"
 
         admin = User(
             id=uuid.uuid4(),
-            username="admin_user",
+            username="admin",
             email="admin@example.com",
             password_hash=admin_password,  # NOTE: hash in prod
             role="admin",
@@ -61,14 +47,14 @@ def load_fixtures(drop_db: bool = True):
 
         moderator = User(
             id=uuid.uuid4(),
-            username="moderator_user",
+            username="moderator",
             email="moderator@example.com",
             password_hash=moderator_password,
             role="moderator",
         )
 
-        logger.info(f"🔐 Admin password: {admin_password}")
-        logger.info(f"🔐 Moderator password: {moderator_password}")
+        print(f"🔐 Admin 'admin' password: {admin_password}")
+        print(f"🔐 Moderator 'moderator' password: {moderator_password}")
 
         # Ensure admin & moderator exist before FK references
         db.add_all([admin, moderator])
@@ -91,7 +77,7 @@ def load_fixtures(drop_db: bool = True):
                 access_count=random.randint(0, 100),
             )
             clients.append(client)
-            logger.info(f"🔑 Client API Key: {client.api_key}")
+            print(f"🔑 Client API Key: {client.api_key}")
 
         db.add_all(clients)
         db.flush()  # Make sure client IDs are persisted
@@ -150,7 +136,7 @@ def load_fixtures(drop_db: bool = True):
         db.add_all(moderation_actions)
 
         db.commit()
-        logger.info("✅ Fixtures successfully loaded.")
+        print("✅ Fixtures successfully loaded.")
 
 
 if __name__ == "__main__":
