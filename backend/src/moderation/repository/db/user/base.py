@@ -17,7 +17,6 @@ class User:
     id: str
     username: str
     email: str
-    password_hash: str
     role: str
     created_at: str
     updated_at: str
@@ -28,7 +27,6 @@ def to_user(user: DBUser) -> User:
         id=str(user.id),
         username=user.username,
         email=user.email,
-        password_hash=user.password_hash,
         role=user.role,
         created_at=user.created_at.isoformat(),
         updated_at=user.updated_at.isoformat(),
@@ -49,7 +47,7 @@ class AbstractUserRepository(ABC):
         """Delete the user data from the database."""
 
     @abstractmethod
-    def list_users(self) -> list[dict]:
+    def list_users(self) -> list[User]:
         """List all users in the database."""
 
     @abstractmethod
@@ -63,3 +61,7 @@ class AbstractUserRepository(ABC):
     @abstractmethod
     def get_by_criteria(self, **kwargs) -> User | None:
         """Retrieve the user data by criteria from the database."""
+
+    @abstractmethod
+    def get_password_hash_by_email(self, email: str) -> str | None:
+        """Retrieve the password hash by email from the database."""

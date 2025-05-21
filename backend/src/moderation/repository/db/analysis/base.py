@@ -10,6 +10,7 @@ class AnalysisResult:
     automated_flag_reason: str
     model_version: str
     analysis_metadata: dict
+    filename: str | None = None
 
 
 class AbstractAnalysisRepository(ABC):

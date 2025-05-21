@@ -1,5 +1,6 @@
-import http
 import logging
+from http import HTTPStatus
+from typing import Any, Dict, Tuple
 
 from connexion.exceptions import ClientProblem, ServerError
 from dependency_injector.wiring import Provide, inject
@@ -12,41 +13,60 @@ logger = logging.getLogger(__name__)
 
 
 @inject
-def register(body: dict, auth_service: AuthService = Provide[Container.auth_service]):
-    """Register a new user"""
+def register(
+    body: Dict[str, Any],
+    auth_service: AuthService = Provide[Container.auth_service],
+) -> Tuple[Dict[str, str], HTTPStatus]:
+    """Register a new user."""
     try:
         email = body["email"]
         username = body["username"]
         password = body["password"]
     except KeyError as e:
-        raise ClientProblem(title=f"Invalid payload: Missing required field: {e}")
-    exists = auth_service.check_email_exists(email)
-    if exists:
+        raise ClientProblem(title=f"Invalid payload: Missing required field: {e.args[0]}")
+
+    if auth_service.check_email_exists(email):
         raise ClientProblem(title="Email already exists")
+
     result, _ = auth_service.register(email=email, username=username, password=password)
     if not result:
         raise ServerError(title="Failed to create user, please try again")
-    return {"status": "created"}, http.HTTPStatus.OK
+
+    return {"status": "created"}, HTTPStatus.OK
 
 
 @inject
-def login(body: dict, auth_service: AuthService = Provide[Container.auth_service]):
-    logger.info("Login request: %s", body)
+def login(
+    body: Dict[str, Any],
+    auth_service: AuthService = Provide[Container.auth_service],
+) -> Tuple[Dict[str, str], HTTPStatus]:
+    """Authenticate a user and return a JWT token."""
     try:
-        username = body["username"]
+        email = body["email"]
         password = body["password"]
     except KeyError as e:
-        raise ClientProblem(title=f"Invalid payload: Missing required field: {e}")
-    result, user = auth_service.authenticate(username, password)
-    if not result:
+        raise ClientProblem(title=f"Invalid payload: Missing required field: {e.args[0]}")
+
+    result, user = auth_service.authenticate(email, password)
+    if not result or user is None:
         raise ClientProblem(title="Invalid credentials")
+
     token = JwtTokenHandler().generate_token(user_id=user.id, scopes=[user.role])
-    return {"token": token}, http.HTTPStatus.OK
+    return {"token": token}, HTTPStatus.OK
 
 
 @inject
-def me(user: int, user_service: UserService = Provide[Container.user_service]):
+def me(
+    user: int,
+    user_service: UserService = Provide[Container.user_service],
+) -> Tuple[Dict[str, str], HTTPStatus]:
+    """Retrieve the authenticated user's profile."""
     user_ = user_service.get_user(user)
     if not user_:
-        raise ClientProblem("User not found")
-    return {"email": user_.email, "username": user_.username, "scope": user_.role}, http.HTTPStatus.OK
+        raise ClientProblem(title="User not found")
+
+    return {
+        "email": user_.email,
+        "username": user_.username,
+        "scope": user_.role,
+    }, HTTPStatus.OK

@@ -14,11 +14,6 @@ def setup_logging():
         settings.LOGGER_CONF_PATH,
         disable_existing_loggers=False,
     )
-    logger = logging.getLogger("moderation")
-    logger.info("Logging is set up.")
-    logger.debug("This is a debug message from moderation.")
-    logger.info("This is an info message from moderation.")
-    logger.error("This is an error message from moderation.")
 
 
 def add_middleware(app: FlaskApp) -> None:
@@ -42,7 +37,6 @@ def add_routes(app: FlaskApp) -> None:
 
 
 def add_container(app: FlaskApp) -> None:
-    print("loas...")
     app.app.container = Container()
 
 

@@ -3,12 +3,10 @@ import json
 from dependency_injector import containers, providers
 from kafka import KafkaProducer
 from moderation.core.settings import settings
-from moderation.db.session import SessionLocal
+from moderation.db.session import get_db
 from moderation.repository.db.analysis.base import AbstractAnalysisRepository
 from moderation.repository.db.analysis.database import DatabaseAnalysisRepository
-from moderation.repository.db.analysis.memory import InMemoryAnalysisRepository
 from moderation.repository.db.content.database import DatabaseContentRepository
-from moderation.repository.db.content.memory import InMemoryContentRepository
 from moderation.repository.db.user.base import AbstractUserRepository
 from moderation.repository.db.user.database import DatabaseUserRepository
 from moderation.service.auth import AuthService
@@ -18,24 +16,15 @@ from moderation.service.user import UserService
 
 
 def _get_content_repository():
-    if settings.DB_REPOSITORY == "memory":
-        return InMemoryContentRepository()
-    else:
-        return DatabaseContentRepository(session=SessionLocal())
+    return DatabaseContentRepository(db=get_db)
 
 
 def _get_user_and_auth_repository() -> AbstractUserRepository:
-    # if settings.DB_REPOSITORY == "memory":
-    # return InMemoryContentRepository()
-    # else:
-    return DatabaseUserRepository(session=SessionLocal())
+    return DatabaseUserRepository(db=get_db)
 
 
 def _get_analysis_repository() -> AbstractAnalysisRepository:
-    if settings.DB_REPOSITORY == "memory":
-        return InMemoryAnalysisRepository()
-    else:
-        return DatabaseAnalysisRepository(session=SessionLocal())
+    return DatabaseAnalysisRepository(db=get_db)
 
 
 class Container(containers.DeclarativeContainer):

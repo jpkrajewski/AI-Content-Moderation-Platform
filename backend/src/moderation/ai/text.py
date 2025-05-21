@@ -1,18 +1,10 @@
 from abc import ABC, abstractmethod
 from functools import cache
 
+import torch
 from moderation.ai.models import ClassifyResult
 from moderation.core.settings import settings
-
-try:
-    import torch
-    from transformers import AutoModelForSequenceClassification, AutoTokenizer
-except ImportError:
-    if not settings.AI_USE_MOCK:
-        raise ImportError(
-            "The required libraries for image moderation are not installed. "
-            "Please install the necessary libraries or set AI_USE_MOCK to True."
-        )
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 class TextClassifier(ABC):
@@ -62,24 +54,6 @@ class TextModeration(TextClassifier):
         )
 
 
-class TextModerationFake(TextClassifier):
-    def classify(self, text: str) -> ClassifyResult:
-        return ClassifyResult(
-            content_type="text",
-            automated_flag=False,
-            automated_flag_reason="",
-            model_version="fake_model",
-            analysis_metadata={},
-        )
-
-
 @cache
 def get_text_moderation() -> TextClassifier:
-    """
-    Factory function to get the text moderation instance.
-    Returns:
-        TextModeration: An instance of the TextModeration class.
-    """
-    if settings.AI_USE_MOCK:
-        return TextModerationFake()
     return TextModeration()
