@@ -1,5 +1,5 @@
 import logging
-from typing import Callable
+from typing import Callable, Optional
 
 from dependency_injector.wiring import Provide, inject
 from kafka.consumer.fetcher import ConsumerRecord
@@ -14,49 +14,67 @@ from moderation.service.content import ContentService
 logger = logging.getLogger("moderation")
 
 
+def get_classifier(message_type: str) -> Optional[Callable[[str], ClassifyResult]]:
+    return {
+        "image": get_image_moderation().classify,
+        "text": get_text_moderation().classify,
+    }.get(message_type)
+
+
 @inject
-def save_result(
+def save_analysis_result(
     content_id: str,
     result: ClassifyResult,
+    filename: Optional[str] = None,
     content_service: ContentService = Provide[Container.content_service],
 ) -> bool:
+    analysis = AnalysisResult(
+        content_id=content_id,
+        content_type=result.content_type,
+        automated_flag=result.automated_flag,
+        automated_flag_reason=result.automated_flag_reason,
+        model_version=result.model_version,
+        analysis_metadata=result.analysis_metadata,
+        filename=filename,
+    )
+
+    logger.info(f"Saving analysis result: {analysis}")
+
     try:
-        input_ = AnalysisResult(
-            content_id=content_id,
-            content_type=result.content_type,
-            automated_flag=result.automated_flag,
-            automated_flag_reason=result.automated_flag_reason,
-            model_version=result.model_version,
-            analysis_metadata=result.analysis_metadata,
-        )
-        result = content_service.save_analysis_result(content_id, input_)
-        logger.info(f"Saved analysis result: {result}")
+        saved = content_service.save_analysis_result(content_id, analysis)
+        logger.info(f"Saved analysis result: {saved}")
+        return True
     except Exception as e:
-        logger.error(f"Failed to save analysis result: {e}")
+        logger.exception(f"Failed to save analysis result: {e}")
         return False
-    return True
 
 
-def get_classifier(message: KafkaModerationMessage) -> Callable[[str], ClassifyResult] | None:
-    match message.type:
-        case "image":
-            return get_image_moderation().classify
-        case "text":
-            return get_text_moderation().classify
-        case _:
-            return None
-
-
-def process_message(message: ConsumerRecord) -> None:
-    try:
-        result = KafkaModerationMessage(**message.value)
-    except TypeError as e:
-        logger.error(f"Failed to parse message: {e}")
-        return
-    classifier = get_classifier(result)
+def classify_and_save(message: KafkaModerationMessage) -> None:
+    classifier = get_classifier(message.type)
     if classifier is None:
-        logger.error(f"Unsupported message type: {result.type}")
+        logger.error(f"Unsupported message type: {message.type}")
         return
-    classification_result = classifier(result.message)
-    logger.info(f"Classification result: {classification_result}")
-    save_result(result.content_id, classification_result)
+
+    input_data = message.message if message.type == "text" else message.filepath
+    classification = classifier(input_data)
+
+    success = save_analysis_result(
+        content_id=message.content_id,
+        result=classification,
+        filename=message.filename if message.type == "image" else None,
+    )
+
+    if success:
+        logger.info(f"Processed and saved: {message.content_id} ({message.type})")
+    else:
+        logger.error(f"Failed to save result for: {message.content_id} ({message.type})")
+
+
+def process_message(record: ConsumerRecord) -> None:
+    try:
+        message = KafkaModerationMessage(**record.value)
+    except TypeError as e:
+        logger.error(f"Failed to parse Kafka message: {e}")
+        return
+
+    classify_and_save(message)

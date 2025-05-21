@@ -11,11 +11,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ClientAccess:
-    # "user_id": str(client.id),
-    #                     "source": client.source,
-    #                     "scopes": client.current_scope,
-    #                     "is_active": client.is_active,
-    #                     "access_count": client.access_count,
     user_id: str
     source: str
     scopes: list

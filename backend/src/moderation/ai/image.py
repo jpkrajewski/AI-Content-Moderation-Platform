@@ -1,19 +1,11 @@
 from abc import ABC, abstractmethod
 from functools import cache
 
+import torch
 from moderation.ai.models import ClassifyResult
 from moderation.core.settings import settings
 from PIL import Image
-
-try:
-    import torch
-    from transformers import AutoFeatureExtractor, AutoModelForImageClassification
-except ImportError:
-    if not settings.AI_USE_MOCK:
-        raise ImportError(
-            "The required libraries for image moderation are not installed. "
-            "Please install the necessary libraries or set AI_USE_MOCK to True."
-        )
+from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 
 
 class ImageClassifier(ABC):
@@ -47,7 +39,7 @@ class ImageModeration(ImageClassifier):
             >>> print(results)
             {'normal': 0.95, 'nsfw': 0.05}
         """
-        image = Image.open(image_path)
+        image = Image.open(image_path).convert("RGB")
         inputs = self.extractor(images=image, return_tensors="pt")
         outputs = self.model(**inputs)
         probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
@@ -66,20 +58,6 @@ class ImageModeration(ImageClassifier):
         )
 
 
-class ImageModerationFake(ImageClassifier):
-    def classify(self, image_path: str) -> ClassifyResult:
-        return ClassifyResult(
-            content_type="image",
-            automated_flag=False,
-            automated_flag_reason="",
-            model_version="fake_model",
-            analysis_metadata={},
-        )
-
-
 @cache
 def get_image_moderation() -> ImageClassifier:
-    """Get the image moderation instance."""
-    if settings.AI_USE_MOCK:
-        return ImageModerationFake()
     return ImageModeration()

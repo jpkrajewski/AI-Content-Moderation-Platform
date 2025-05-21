@@ -1,4 +1,4 @@
-from typing import List
+from typing import Callable, ContextManager, List
 
 from moderation.db.analysis import ContentAnalysis as DBContentAnalysis
 from moderation.db.content import Content as DBContent
@@ -27,65 +27,71 @@ def from_record(record: DBContent) -> Content:
 class DatabaseContentRepository(AbstractDBContentRepository):
     """Database implementation of the content repository."""
 
-    def __init__(self, session: Session):
-        self.session = session
+    def __init__(self, db: Callable[[], ContextManager[Session]]) -> None:
+        """Initialize the repository with a database session factory."""
+        self.db = db
 
     def list(self, status: str | None = None) -> List[Content]:
         """List all content."""
-        if status:
-            return (
-                self.session.query(DBContent)
-                .select_from(DBContent)
-                .join(DBContentAnalysis)
-                .filter(DBContent.status == status)
-                .all()
-            )
-        return self.session.query(DBContent).select_from(DBContent).join(DBContentAnalysis).all()
+        with self.db() as session:
+            query = session.query(DBContent).select_from(DBContent).join(DBContentAnalysis)
+            if status:
+                query = query.filter(DBContent.status == status)
+            return [from_record(record) for record in query.all()]
 
-    def get_by_id(self, content_id: str) -> Content:
+    def get_by_id(self, content_id: str) -> Content | None:
         """Get content by ID."""
-        return self.session.query(DBContent).filter(DBContent.id == content_id).first()
+        with self.db() as session:
+            record = session.query(DBContent).filter(DBContent.id == content_id).first()
+            return from_record(record) if record else None
 
     def create(self, content: Content) -> Content:
         """Create new content."""
-        record = DBContent(
-            user_id=content.user_id,
-            username=content.username,
-            title=content.title,
-            body=content.body,
-            tags=content.tags,
-            localization=content.localization,
-            source=content.source,
-            image_paths=content.image_paths,
-        )
-        self.session.add(record)
-        self.session.commit()
-        return from_record(record)
+        with self.db() as session:
+            record = DBContent(
+                user_id=content.user_id,
+                username=content.username,
+                title=content.title,
+                body=content.body,
+                tags=content.tags,
+                localization=content.localization,
+                source=content.source,
+                image_paths=content.image_paths,
+            )
+            session.add(record)
+            session.commit()
+            session.refresh(record)
+            return from_record(record)
 
-    def update(self, content_id: str, data: Content) -> Content:
+    def update(self, content_id: str, data: Content) -> Content | None:
         """Update content properties."""
-        content = self.get_by_id(content_id)
-        if content:
+        with self.db() as session:
+            record = session.query(DBContent).filter(DBContent.id == content_id).first()
+            if not record:
+                return None
             for key, value in data.items():
-                setattr(content, key, value)
-            self.session.commit()
-            return from_record(content)
-        return None
+                setattr(record, key, value)
+            session.commit()
+            session.refresh(record)
+            return from_record(record)
 
-    def update_status(self, content_id: str, status: str) -> Content:
+    def update_status(self, content_id: str, status: str) -> Content | None:
         """Update content moderation status."""
-        content = self.get_by_id(content_id)
-        if content:
-            content.status = status
-            self.session.commit()
-            return from_record(content)
-        return None
+        with self.db() as session:
+            record = session.query(DBContent).filter(DBContent.id == content_id).first()
+            if not record:
+                return None
+            record.status = status
+            session.commit()
+            session.refresh(record)
+            return from_record(record)
 
     def delete(self, content_id: str) -> bool:
         """Delete content by ID."""
-        content = self.get_by_id(content_id)
-        if content:
-            self.session.delete(content)
-            self.session.commit()
+        with self.db() as session:
+            record = session.query(DBContent).filter(DBContent.id == content_id).first()
+            if not record:
+                return False
+            session.delete(record)
+            session.commit()
             return True
-        return False

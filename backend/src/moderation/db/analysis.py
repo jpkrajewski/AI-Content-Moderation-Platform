@@ -19,5 +19,6 @@ class ContentAnalysis(Base):
     model_version = Column(String)
     analysis_metadata = Column(JSON)
     analyzed_at = Column(DateTime, default=datetime.utcnow)
+    filename = Column(String, nullable=True)
 
     content = relationship("Content", back_populates="analysis")

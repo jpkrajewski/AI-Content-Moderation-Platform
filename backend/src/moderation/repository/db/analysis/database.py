@@ -1,40 +1,87 @@
 import logging
+from typing import Callable, ContextManager, Optional
 
 from moderation.db.analysis import ContentAnalysis as DBContentAnalysis
 from moderation.repository.db.analysis.base import AbstractAnalysisRepository, AnalysisResult
+from sqlalchemy import insert
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
 
 class DatabaseAnalysisRepository(AbstractAnalysisRepository):
-    def __init__(self, session: Session):
-        self.session = session
+    """Database-backed implementation of the analysis repository."""
 
-    def save_result(self, content_id: str, result: AnalysisResult) -> bool:
+    def __init__(self, db: Callable[[], ContextManager[Session]]) -> None:
+        """Initialize the repository with a database session context factory."""
+        self.db = db
 
-        record = DBContentAnalysis(
-            content_id=content_id,
-            content_type=result.content_type,
-            automated_flag=result.automated_flag,
-            automated_flag_reason=result.automated_flag_reason,
-            model_version=result.model_version,
-            analysis_metadata=result.analysis_metadata,
+    def save_result(self, content_id: str, result: AnalysisResult) -> Optional[DBContentAnalysis]:
+        """Save a new analysis result to the database and return the saved record."""
+        logger.info(f"Saving analysis result for content ID {content_id}: {result}")
+        stmt = (
+            insert(DBContentAnalysis)
+            .values(
+                content_id=content_id,
+                content_type=result.content_type,
+                automated_flag=result.automated_flag,
+                automated_flag_reason=result.automated_flag_reason,
+                model_version=result.model_version,
+                analysis_metadata=result.analysis_metadata,
+                filename=result.filename,
+            )
+            .returning(DBContentAnalysis)  # return all columns of the inserted row
         )
 
-        self.session.add(record)
         try:
-            self.session.commit()
-            return True
-        except Exception:
-            self.session.rollback()
-            return False
-        return False
+            with self.db() as session:
+                result_proxy = session.execute(stmt)
+                inserted_record = result_proxy.fetchone()
+                session.commit()
+                return inserted_record  # This will be a DBContentAnalysis instance (if mapped correctly)
+        except SQLAlchemyError:
+            logger.exception("Failed to save analysis result.")
+            session.rollback()
+            return None
 
     def get_results(self, content_id: str) -> list[AnalysisResult] | None:
-        results = self.session.query(DBContentAnalysis).filter(DBContentAnalysis.content_id == content_id)
-        return (
-            [
+        """Retrieve all analysis results for a given content ID."""
+        with self.db() as session:
+            results = session.query(DBContentAnalysis).filter(DBContentAnalysis.content_id == content_id).all()
+            if not results:
+                return None
+            return [
+                AnalysisResult(
+                    content_id=result.content_id,
+                    content_type=result.content_type,
+                    automated_flag=result.automated_flag,
+                    automated_flag_reason=result.automated_flag_reason,
+                    model_version=result.model_version,
+                    analysis_metadata=result.analysis_metadata,
+                    filename=result.filename,
+                )
+                for result in results
+            ]
+
+    def delete_result(self, content_id: str) -> bool:
+        """Delete all analysis results for a given content ID."""
+        with self.db() as session:
+            try:
+                session.query(DBContentAnalysis).filter(DBContentAnalysis.content_id == content_id).delete()
+                session.commit()
+                return True
+            except SQLAlchemyError:
+                logger.exception("Failed to delete analysis result.")
+                session.rollback()
+                return False
+
+    def list_results(self) -> list[AnalysisResult]:
+        """List all analysis results in the database."""
+        with self.db() as session:
+            results = session.query(DBContentAnalysis).all()
+            logger.debug(f"Fetched {len(results)} results from the database.")
+            return [
                 AnalysisResult(
                     content_id=result.content_id,
                     content_type=result.content_type,
@@ -45,34 +92,7 @@ class DatabaseAnalysisRepository(AbstractAnalysisRepository):
                 )
                 for result in results
             ]
-            if results
-            else None
-        )
-
-    def delete_result(self, content_id: str) -> bool:
-        self.session.query(DBContentAnalysis).filter(DBContentAnalysis.content_id == content_id).delete()
-        try:
-            self.session.commit()
-            return True
-        except Exception:
-            self.session.rollback()
-            return False
-        return False
-
-    def list_results(self) -> list[AnalysisResult]:
-        results = self.session.query(DBContentAnalysis).all()
-        logger.debug(f"Fetched {len(results)} results from the database.")
-        return [
-            AnalysisResult(
-                content_id=result.content_id,
-                content_type=result.content_type,
-                automated_flag=result.automated_flag,
-                automated_flag_reason=result.automated_flag_reason,
-                model_version=result.model_version,
-                analysis_metadata=result.analysis_metadata,
-            )
-            for result in results
-        ]
 
     def update_result(self, content_id: str, result: AnalysisResult) -> bool:
+        """Update an analysis result. (Unimplemented placeholder)."""
         return False

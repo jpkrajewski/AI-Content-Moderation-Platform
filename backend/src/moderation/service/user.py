@@ -17,7 +17,7 @@ class UserService:
         """Get user details by user ID."""
         return self.user_repository.get_user_by_id(user_id)
 
-    def list_users(self) -> list[dict]:
+    def list_users(self) -> list[User]:
         """List all users in the database."""
         return self.user_repository.list_users()
 

@@ -16,29 +16,37 @@ logger = logging.getLogger(__name__)
 def create_content(
     body: dict,
     images: list[FileStorage],
-    user: str,
-    token_info: dict,
     content_service: ContentService = Provide[Container.content_service],
     kafka: KafkaProducerService = Provide[Container.kafka_producer_service],
 ) -> Tuple[Dict, HTTPStatus]:
-    paths = LocalImageStorage().save_images(images)
-    content = content_service.create_content(body, paths)
-    kafka.send_message_for_text_classifier(content.id, content.body, message_type="text")
-    kafka.send_message_for_image_classifier_bulk(content.id, paths, message_type="image")
+    stored_images = LocalImageStorage().save_images(images)
+    content = content_service.create_content(body, stored_images.filenames)
+    kafka.send_message_for_text_classifier(content.id, content.title + content.body, message_type="text")
+    kafka.send_message_for_image_classifier_bulk(content.id, stored_images, message_type="image")
     return content, HTTPStatus.CREATED
 
 
 @inject
 def list_content(
-    status: str | None = None, content_service: ContentService = Provide[Container.content_service]
+    status: str | None = None,
+    content_service: ContentService = Provide[Container.content_service],
 ) -> Tuple[Dict, HTTPStatus]:
-    """List all content with optional status filter"""
-    return content_service.list_content(status=status)
+    """List all content with optional status filter."""
+    try:
+        return content_service.list_content(status=status), HTTPStatus.OK
+    except Exception as e:
+        return {"error": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 @inject
 def get_content(
-    content_id: str, content_service: ContentService = Provide[Container.content_service]
+    content_id: str,
+    content_service: ContentService = Provide[Container.content_service],
 ) -> Tuple[Dict, HTTPStatus]:
-    """Get specific content by ID"""
-    return content_service.get_content(content_id)
+    """Get specific content by ID."""
+    try:
+        return content_service.get_content(content_id), HTTPStatus.OK
+    except ValueError as e:
+        return {"error": str(e)}, HTTPStatus.NOT_FOUND
+    except Exception as e:
+        return {"error": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR

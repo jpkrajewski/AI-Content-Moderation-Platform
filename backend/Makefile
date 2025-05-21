@@ -16,3 +16,14 @@ help:
 	@echo "Available commands:"
 	@echo "  make migration message=\"<migration message>\"  - Run alembic revision with autogenerate"
 	@echo "  make migrate  - Run alembic upgrade database"
+
+
+run_all_tests:
+	@echo "Running all unit tests"
+	@pytest
+
+makemigrations:
+	@alembic revision --autogenerate -m "$(message)"
+
+migrate:
+	@alembic upgrade head
