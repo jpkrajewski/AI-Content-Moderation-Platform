@@ -1,33 +1,47 @@
+from http import HTTPStatus
+from typing import List, Literal
+
 from dependency_injector.wiring import Provide, inject
 from moderation.core.container import Container
-from moderation.service.content import ContentService
+from moderation.repository.db.content.base import Content
+from moderation.service.content import ContentService, ContentWithAnalysis
 
 
 @inject
-def list_pending_content(content_service: ContentService = Provide[Container.content_service]):
+def list_pending_content(
+    content_service: ContentService = Provide[Container.content_service],
+) -> tuple[List[ContentWithAnalysis], Literal[HTTPStatus.OK]]:
     """List all pending content"""
-    return content_service.list_pending()
+    return content_service.list_pending(), HTTPStatus.OK
 
 
 @inject
-def get_content_analysis(content_id, content_service: ContentService = Provide[Container.content_service]):
-    result, http = content_service.get_analysis_result(content_id)
-    return result, http
+def get_content_analysis(
+    content_id: str, content_service: ContentService = Provide[Container.content_service]
+) -> tuple[ContentWithAnalysis, Literal[HTTPStatus.OK]]:
+    result = content_service.get_analysis_result(content_id)
+    return result, HTTPStatus.OK
 
 
 @inject
-def approve_content(content_id: str, content_service: ContentService = Provide[Container.content_service]):
+def approve_content(
+    content_id: str, content_service: ContentService = Provide[Container.content_service]
+) -> tuple[Content, Literal[HTTPStatus.OK]]:
     """Approve content by ID"""
-    return content_service.update_content_status(content_id, "approved")
+    return content_service.update_content_status(content_id, "approved"), HTTPStatus.OK
 
 
 @inject
-def reject_content(content_id: str, content_service: ContentService = Provide[Container.content_service]):
+def reject_content(
+    content_id: str, content_service: ContentService = Provide[Container.content_service]
+) -> tuple[Content, Literal[HTTPStatus.OK]]:
     """Reject content by ID"""
-    return content_service.update_content_status(content_id, "rejected")
+    return content_service.update_content_status(content_id, "rejected"), HTTPStatus.OK
 
 
 @inject
-def flag_content(content_id: str, content_service: ContentService = Provide[Container.content_service]):
+def flag_content(
+    content_id: str, content_service: ContentService = Provide[Container.content_service]
+) -> tuple[Content, Literal[HTTPStatus.OK]]:
     """Flag content by ID"""
-    return content_service.update_content_status(content_id, "flagged")
+    return content_service.update_content_status(content_id, "flagged"), HTTPStatus.OK
