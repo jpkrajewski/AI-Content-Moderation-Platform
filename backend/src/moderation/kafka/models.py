@@ -18,3 +18,17 @@ class KafkaModerationMessage:
             filename=data.get("filename"),
             filepath=data.get("filepath"),
         )
+
+    def validate(self) -> None:
+        if self.type not in ["text", "image", "document"]:
+            raise ValueError(f"Invalid type: {self.type}")
+
+    def get_input_data(self) -> str:
+        if self.type == "text":
+            return self.message
+        if self.filepath is None:
+            raise ValueError("File path is required for image or document types")
+        return self.filepath
+
+    def is_text(self) -> bool:
+        return self.type == "text"

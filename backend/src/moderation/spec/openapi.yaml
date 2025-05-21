@@ -305,6 +305,12 @@ components:
             type: string
             format: binary
           description: List of image files.
+        documents:
+          type: array
+          items:
+            type: string
+            format: binary
+          description: List of uploaded document files (PDF, DOCX, etc.)
         timestamp:
           type: string
           format: date-time

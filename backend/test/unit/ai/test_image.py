@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from moderation.ai.image import ImageModeration
+from moderation.ai.image import ImageModeration, get_image_moderation
 from pytest import fixture
 
 IMAGES_FOLDER_PATH = Path(__name__).cwd() / "test" / "unit" / "ai"
@@ -8,7 +8,7 @@ IMAGES_FOLDER_PATH = Path(__name__).cwd() / "test" / "unit" / "ai"
 
 @fixture
 def image_classifier():
-    return ImageModeration()
+    return get_image_moderation()
 
 
 def test_classify_jpg(image_classifier: ImageModeration):

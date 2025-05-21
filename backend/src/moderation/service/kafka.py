@@ -5,7 +5,7 @@ from typing import Literal
 from kafka import KafkaProducer
 from moderation.core.settings import settings
 from moderation.kafka.models import KafkaModerationMessage
-from moderation.service.image_storage import StoredImages
+from moderation.service.file_storage import StoredFile
 
 logger = logging.getLogger("moderation.kafka_producer")
 
@@ -29,11 +29,11 @@ class KafkaProducerService:
         self.kafka_producer.flush()
 
     def send_message_for_image_classifier_bulk(
-        self, content_id: str, stored_images: StoredImages, message_type: MessageType
+        self, content_id: str, stored_images: StoredFile, message_type: MessageType
     ) -> None:
         """Send a message to the Kafka topic."""
         logger.info(f"Sending message to Kafka topic {settings.KAFKA_TOPIC}")
-        for image in stored_images.images:
+        for image in stored_images.files:
             kafka_message = KafkaModerationMessage(
                 content_id=content_id,
                 type=message_type,

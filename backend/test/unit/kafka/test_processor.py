@@ -49,7 +49,7 @@ def test_classify_and_save_image(mock_save, mock_get_image_mod, image_message, m
     mock_save.assert_called_once()
 
 
-@patch("moderation.kafka.processor.get_text_moderation")
+@patch("moderation.kafka.processor.get_text_classifier")
 @patch("moderation.kafka.processor.save_analysis_result")
 def test_classify_and_save_text(mock_save, mock_get_text_mod, text_message, mock_classify_result):
     mock_classifier = MagicMock()

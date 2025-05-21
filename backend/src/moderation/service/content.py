@@ -63,7 +63,7 @@ class ContentService:
         self.content_repository = content_repository
         self.analysis_repository = analysis_repository
 
-    def create_content(self, input: Dict[str, Any], image_paths: List[str]) -> Content:
+    def create_content(self, input: Dict[str, Any], image_paths: List[str], document_paths: List[str]) -> Content:
         try:
             content = Content(
                 user_id=input["user_id"],
@@ -74,6 +74,7 @@ class ContentService:
                 localization=input["localization"],
                 source=input["source"],
                 image_paths=image_paths,
+                document_paths=document_paths,
             )
         except KeyError as e:
             raise ValueError(f"Missing required field: {e.args[0]}")
