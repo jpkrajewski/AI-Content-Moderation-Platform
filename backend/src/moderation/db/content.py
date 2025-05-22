@@ -22,6 +22,7 @@ class Content(Base):
     source = Column(String, nullable=False)  # e.g. "acme_corp"
     status = Column(String(50), default="pending")  # pending, approved, rejected, flagged
     image_paths: Column[List[str]] = Column(ARRAY(String), default=[])  # List of image paths
+    document_paths: Column[List[str]] = Column(ARRAY(String), default=[])  # List of document paths
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

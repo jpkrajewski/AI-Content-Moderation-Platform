@@ -30,7 +30,7 @@ class DatabaseUserRepository(AbstractUserRepository):
 
     def get_user_by_username(self, username: str) -> User | None:
         with self.db() as session:
-            user = session.query(DBUser).filter(DBUser.username == username).first()
+            user = session.query(DBUser).filter_by(username=username).first()
             return to_user(user) if user else None
 
     def delete_user(self, user_id: str) -> bool:

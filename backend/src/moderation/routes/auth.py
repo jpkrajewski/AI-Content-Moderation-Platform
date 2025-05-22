@@ -25,9 +25,6 @@ def register(
     except KeyError as e:
         raise ClientProblem(title=f"Invalid payload: Missing required field: {e.args[0]}")
 
-    if auth_service.check_email_exists(email):
-        raise ClientProblem(title="Email already exists")
-
     result, _ = auth_service.register(email=email, username=username, password=password)
     if not result:
         raise ServerError(title="Failed to create user, please try again")
@@ -48,6 +45,7 @@ def login(
         raise ClientProblem(title=f"Invalid payload: Missing required field: {e.args[0]}")
 
     result, user = auth_service.authenticate(email, password)
+    print(result, user)
     if not result or user is None:
         raise ClientProblem(title="Invalid credentials")
 

@@ -21,6 +21,7 @@ def from_record(record: DBContent) -> Content:
         created_at=record.created_at.isoformat() if record.created_at else None,
         updated_at=record.updated_at.isoformat() if record.updated_at else None,
         image_paths=record.image_paths,
+        document_paths=record.document_paths,
     )
 
 
@@ -57,6 +58,7 @@ class DatabaseContentRepository(AbstractDBContentRepository):
                 localization=content.localization,
                 source=content.source,
                 image_paths=content.image_paths,
+                document_paths=content.document_paths,
             )
             session.add(record)
             session.commit()

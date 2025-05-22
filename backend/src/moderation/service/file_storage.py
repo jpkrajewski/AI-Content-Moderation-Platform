@@ -9,35 +9,35 @@ from werkzeug.datastructures import FileStorage
 
 
 @dataclass
-class StoredImage:
+class StoredFile:
     filename: str
     filepath: str
 
 
 @dataclass
-class StoredImages:
-    images: List[StoredImage]
+class StoredFiles:
+    files: List[StoredFile]
 
     @property
     def paths(self) -> List[str]:
-        return [image.filepath for image in self.images]
+        return [image.filepath for image in self.files]
 
     @property
     def filenames(self) -> List[str]:
-        return [image.filename for image in self.images]
+        return [image.filename for image in self.files]
 
 
-class LocalImageStorage:
+class Storage:
     def __init__(self, upload_dir: Path = settings.APP_UPLOAD_DIR):
         self.upload_dir = upload_dir
         os.makedirs(upload_dir, exist_ok=True)
 
-    def save_images(self, images: List[FileStorage]) -> StoredImages:
-        saved_paths: List[StoredImage] = []
+    def save(self, images: List[FileStorage]) -> StoredFiles:
+        saved_paths: List[StoredFile] = []
         for image in images:
             ext = os.path.splitext(image.filename)[-1]
             filename = f"{uuid4()}{ext}"
             filepath = self.upload_dir / filename
             image.save(filepath)
-            saved_paths.append(StoredImage(filename=filename, filepath=str(filepath)))
-        return StoredImages(images=saved_paths)
+            saved_paths.append(StoredFile(filename=filename, filepath=str(filepath)))
+        return StoredFiles(files=saved_paths)
