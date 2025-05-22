@@ -13,5 +13,8 @@ start:
 
 
 rebuild:
-	@docker compose down
+	@docker compose down -v
 	@docker compose up --build -d
+
+load_fixtures:
+	@docker compose exec -T backend python /app/src/moderation/scripts/load_fixtures.py

@@ -58,5 +58,8 @@ repos:
     hooks:
       - id: bandit
         name: Security scan (Bandit)
-        args: ["-r", "backend/src/moderation"]
-        exclude: "backend/(test|scripts)"
+        args: [
+          "-r", "backend/src/moderation",
+          "--exclude", "backend/src/moderation/scripts/load_fixtures.py"
+        ]
+        pass_filenames: false

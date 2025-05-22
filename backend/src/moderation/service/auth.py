@@ -14,13 +14,14 @@ class AuthService:
         return password == hashed_password
         # return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
-    def authenticate(self, username: str, password: str) -> Tuple[bool, User | None]:
-        password = self.user_repository.get_password_hash_by_email(username)
-        if not password:
+    def authenticate(self, email: str, password: str) -> Tuple[bool, User | None]:
+        hash_password = self.user_repository.get_password_hash_by_email(email)
+        if not hash_password:
             return False, None
-        if not self._check_password(password, password):
+        if not self._check_password(hash_password, password):
+            print("failed password check")
             return False, None
-        return True, self.user_repository.get_user_by_username(username)
+        return True, self.user_repository.get_by_criteria(email=email)
 
     def register(self, username: str, password: str, email: str) -> Tuple[bool, User | None]:
         user = self.user_repository.get_by_criteria(email=email)
