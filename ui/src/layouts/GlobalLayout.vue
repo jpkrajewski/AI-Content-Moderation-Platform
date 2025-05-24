@@ -60,6 +60,17 @@
                   {{ pendingCountStore.count }}
                 </span>
               </router-link>
+              <router-link 
+                to="/secure/content/submit"
+                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                :class="[
+                  $route.path === '/secure/content/submit'
+                    ? 'border-blue-500 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                ]"
+              >
+                Submit Content
+              </router-link>
             </div>
           </div>
 
@@ -194,7 +205,8 @@ const mobileMenuItems = [
       text: pendingCountStore.count.toString(),
       class: 'bg-yellow-100 text-yellow-800'
     }
-  }
+  },
+  { name: 'Submit Content', path: '/secure/content/submit' }
 ]
 
 const logout = () => {

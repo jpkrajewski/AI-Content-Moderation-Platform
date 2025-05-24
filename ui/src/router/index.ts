@@ -2,8 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useJwtStore } from '@/stores/jwt';
 import GlobalLayout from '../layouts/GlobalLayout.vue';
 
-import Login from '../views/UserLogin.vue';
-import Register from '../views/UserRegister.vue';
+import LoginView from '../views/auth/LoginView.vue';
+import RegisterView from '../views/auth/RegisterView.vue';
 
 import DashboardSummary from '../views/dashboard/DashboardSummary.vue';
 import DashboardActivityMetrics from '../views/dashboard/DashboardActivityMetrics.vue';
@@ -11,6 +11,7 @@ import DashboardKPI from '../views/dashboard/DashboardKPI.vue';
 
 import ModerationListPending from '../views/moderation/ModerationListPending.vue';
 import ModerationContentAnalysis from '../views/moderation/ModerationContentAnalysis.vue';
+import ContentSubmissionView from '../views/content/ContentSubmissionView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,13 +19,13 @@ const router = createRouter({
     {
       path: '/login',
       name: 'Login',
-      component: Login,
+      component: LoginView,
       meta: { requiresAuth: false },
     },
     {
       path: '/register',
       name: 'Register',
-      component: Register,
+      component: RegisterView,
       meta: { requiresAuth: false },
     },
 
@@ -60,6 +61,11 @@ const router = createRouter({
           props: true,
         },
         {
+          path: 'secure/content/submit',
+          name: 'ContentSubmission',
+          component: ContentSubmissionView,
+        },
+        {
           path: '',
           redirect: 'secure/dashboard/summary',
         },
@@ -75,7 +81,7 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && !jwtStore.isLoggedIn) {
     next({ path: '/login' });
   } else if (!requiresAuth && jwtStore.isLoggedIn && to.path === '/login') {
-    next({ path: '/dashboard/summary' });
+    next({ path: '/secure/dashboard/summary' });
   } else {
     next();
   }
