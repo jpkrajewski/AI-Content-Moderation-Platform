@@ -40,21 +40,19 @@ const handleSubmit = async () => {
       .map(s => s.trim())
       .filter(s => s.length > 0);
 
-    const payload = {
-      title: title.value,
-      body: body.value,
-      tags: tagArray,
-      source: sourceArray.join(','),  
-      localization: localization.value,
-      user_id: userId.value,
-      username: username.value,
-      timestamp: new Date().toISOString(),
-    };
+    const formData = new FormData();
+    formData.append('title', title.value);
+    formData.append('body', body.value);
+    formData.append('tags', JSON.stringify(tagArray));
+    formData.append('source', sourceArray.join(','));
+    formData.append('localization', localization.value);
+    formData.append('user_id', userId.value);
+    formData.append('username', username.value);
+    formData.append('timestamp', new Date().toISOString());
 
-    await axiosInstance.post(endpoints.moderation.submitContent, payload, {
+    await axiosInstance.post(endpoints.moderation.submitContent, formData, {
       headers: {
         'X-API-Key': API_KEY,
-        'Content-Type': 'multipart/form-data'
       },
     });
 
