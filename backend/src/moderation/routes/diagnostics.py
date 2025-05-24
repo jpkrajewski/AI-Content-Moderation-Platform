@@ -27,7 +27,8 @@ def check_jwt(token_info, user, *args, **kwargs):
             HTTPStatus.OK,
         )
     except Exception as e:
-        return jsonify({"message": "JWT validation failed", "error": str(e)}), HTTPStatus.BAD_REQUEST
+        logger.error("JWT validation failed", exc_info=True)
+        return jsonify({"message": "JWT validation failed"}), HTTPStatus.BAD_REQUEST
 
 
 def check_client_api_key(token_info, user, *args, **kwargs):
@@ -54,4 +55,5 @@ def check_client_api_key(token_info, user, *args, **kwargs):
             HTTPStatus.OK,
         )
     except Exception as e:
-        return jsonify({"message": "API key validation failed", "error": str(e)}), HTTPStatus.BAD_REQUEST
+        logger.error("API key validation failed", exc_info=True)
+        return jsonify({"message": "API key validation failed"}), HTTPStatus.BAD_REQUEST
