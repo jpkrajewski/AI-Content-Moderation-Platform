@@ -1,8 +1,14 @@
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Callable, ContextManager, List
+from uuid import UUID
 
 from moderation.db.analysis import ContentAnalysis as DBContentAnalysis
 from moderation.db.content import Content as DBContent
+from moderation.db.moderation import ModerationAction as DBModerationAction
 from moderation.repository.db.content.base import AbstractDBContentRepository, Content
+from sqlalchemy import and_
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 
@@ -23,6 +29,15 @@ def from_record(record: DBContent) -> Content:
         image_paths=record.image_paths,
         document_paths=record.document_paths,
     )
+
+
+@dataclass
+class ContentSummisionCounts:
+    """Data class to hold submission counts."""
+
+    today: int
+    week: int
+    month: int
 
 
 class DatabaseContentRepository(AbstractDBContentRepository):
@@ -77,16 +92,35 @@ class DatabaseContentRepository(AbstractDBContentRepository):
             session.refresh(record)
             return from_record(record)
 
-    def update_status(self, content_id: str, status: str) -> Content | None:
+    def update_status(self, content_id: str, user: UUID, status: str) -> Content | None:
         """Update content moderation status."""
         with self.db() as session:
-            record = session.query(DBContent).filter(DBContent.id == content_id).first()
-            if not record:
+            try:
+                record = session.query(DBContent).filter(DBContent.id == content_id).one()
+
+                # Try to get existing moderation action by this user on this content
+                mod_action = (
+                    session.query(DBModerationAction)
+                    .filter(and_(DBModerationAction.content_id == content_id, DBModerationAction.moderator_id == user))
+                    .one_or_none()
+                )
+
+                if mod_action:
+                    mod_action.action = status
+                    mod_action.created_at = datetime.now(timezone.utc)
+                else:
+                    mod_action = DBModerationAction(
+                        content_id=content_id,
+                        moderator_id=user,
+                        action=status,
+                        reason="",
+                        created_at=datetime.now(timezone.utc),
+                    )
+                    session.add(mod_action)
+                record.status = status
+                return from_record(record)
+            except NoResultFound:
                 return None
-            record.status = status
-            session.commit()
-            session.refresh(record)
-            return from_record(record)
 
     def delete(self, content_id: str) -> bool:
         """Delete content by ID."""

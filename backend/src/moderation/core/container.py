@@ -12,6 +12,7 @@ from moderation.repository.db.user.database import DatabaseUserRepository
 from moderation.service.auth import AuthService
 from moderation.service.content import ContentService
 from moderation.service.kafka import KafkaProducerService
+from moderation.service.summary import SummaryService
 from moderation.service.user import UserService
 
 
@@ -32,9 +33,9 @@ class Container(containers.DeclarativeContainer):
         packages=[
             "moderation.routes.content",
             "moderation.routes.moderation_action",
-            "moderation.kafka.processor",
-            "moderation.routes.user",
             "moderation.routes.auth",
+            "moderation.routes.dashboard",
+            "moderation.kafka.processor",
         ]
     )
     content_service = providers.Singleton(
@@ -57,4 +58,8 @@ class Container(containers.DeclarativeContainer):
     user_service = providers.Singleton(
         UserService,
         user_repository=providers.Factory(_get_user_and_auth_repository),
+    )
+    summary_service = providers.Singleton(
+        SummaryService,
+        db=get_db,
     )

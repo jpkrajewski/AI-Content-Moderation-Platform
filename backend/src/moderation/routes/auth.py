@@ -1,6 +1,7 @@
 import logging
 from http import HTTPStatus
 from typing import Any, Dict, Tuple
+from uuid import UUID
 
 from connexion.exceptions import ClientProblem, ServerError
 from dependency_injector.wiring import Provide, inject
@@ -55,7 +56,7 @@ def login(
 
 @inject
 def me(
-    user: int,
+    user: UUID,
     user_service: UserService = Provide[Container.user_service],
 ) -> Tuple[Dict[str, str], HTTPStatus]:
     """Retrieve the authenticated user's profile."""

@@ -47,46 +47,6 @@ paths:
         '200':
           description: Current user data
 
-  /users:
-    get:
-      summary: Admin - list all users
-      operationId: moderation.routes.user.list_users
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: List of users
-
-  /users/{user_id}:
-    get:
-      summary: Admin - view specific user
-      operationId: moderation.routes.user.get_user
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: user_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: User details
-    delete:
-      summary: Admin - delete user
-      operationId: moderation.routes.user.delete_user
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: user_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: User deleted
-
   /content:
     post:
       summary: Create new content
@@ -113,20 +73,6 @@ paths:
       responses:
         '200':
           description: List of content
-
-  /content/{content_id}:
-    get:
-      summary: View specific content
-      operationId: moderation.routes.content.get_content
-      parameters:
-        - name: content_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Content details
 
   /moderation/pending:
     get:
@@ -208,9 +154,14 @@ paths:
       operationId: moderation.routes.dashboard.get_summary
       security:
         - BearerAuth: []
+
       responses:
         '200':
           description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
 
   /dashboard/user-activity:
     get:
@@ -320,6 +271,113 @@ components:
           type: string
           description: Identifier or name of the company or service using the SaaS
           example: acme_corp
+
+    ContentPeakHours:
+      type: object
+      additionalProperties:
+        type: integer
+      description: "Mapping of hour to value"
+
+    SubmissionCounts:
+      type: object
+      properties:
+        month:
+          type: integer
+        today:
+          type: integer
+        week:
+          type: integer
+      required:
+        - month
+        - today
+        - week
+
+    SubmissionSources:
+      type: object
+      additionalProperties:
+        type: integer
+      description: "Mapping of submission source to count"
+
+    Content:
+      type: object
+      properties:
+        growth_rate:
+          type: number
+          format: float
+        peak_hours:
+          $ref: '#/components/schemas/ContentPeakHours'
+        submission_counts:
+          $ref: '#/components/schemas/SubmissionCounts'
+        submission_sources:
+          $ref: '#/components/schemas/SubmissionSources'
+      required:
+        - growth_rate
+        - peak_hours
+        - submission_counts
+        - submission_sources
+
+    Insights:
+      type: object
+      properties:
+        most_common_pii_types:
+          type: object
+          additionalProperties:
+            type: integer
+        most_common_toxicity_labels:
+          type: object
+          additionalProperties:
+            type: integer
+        pii_detected_rate:
+          type: number
+          format: float
+      required:
+        - most_common_pii_types
+        - most_common_toxicity_labels
+        - pii_detected_rate
+
+    ModerationStatuses:
+      type: object
+      properties:
+        approved:
+          type: integer
+        flagged:
+          type: integer
+        rejected:
+          type: integer
+      required:
+        - approved
+        - flagged
+        - rejected
+
+    Moderation:
+      type: object
+      properties:
+        auto_flag_accuracy:
+          type: number
+          format: float
+        false_positive_rate:
+          type: number
+          format: float
+        statuses:
+          $ref: '#/components/schemas/ModerationStatuses'
+      required:
+        - auto_flag_accuracy
+        - false_positive_rate
+        - statuses
+
+    DashboardSummary:
+      type: object
+      properties:
+        content:
+          $ref: '#/components/schemas/Content'
+        insights:
+          $ref: '#/components/schemas/Insights'
+        moderation:
+          $ref: '#/components/schemas/Moderation'
+      required:
+        - content
+        - insights
+        - moderation
 
   securitySchemes:
     BearerAuth:

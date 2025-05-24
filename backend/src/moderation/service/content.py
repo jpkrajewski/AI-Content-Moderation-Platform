@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
+from uuid import UUID
 
 from moderation.repository.db.analysis.base import AbstractAnalysisRepository
 from moderation.repository.db.analysis.base import AnalysisResult as DBAnalysisResult
@@ -95,8 +96,8 @@ class ContentService:
             raise ValueError("Content not found")
         return updated
 
-    def update_content_status(self, content_id: str, status: str) -> Content:
-        updated = self.content_repository.update_status(content_id, status)
+    def update_content_status(self, content_id: str, user: UUID, status: str) -> Content:
+        updated = self.content_repository.update_status(content_id, user, status)
         if not updated:
             raise ValueError("Content not found")
         return updated
