@@ -25,6 +25,7 @@ const endpoints = {
     approveContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/approve`,
     rejectContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/reject`,
     flagContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/flag`,
+    submitContent: `${BASE_URL}/content`,
   },
 
   misc: {
