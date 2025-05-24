@@ -1,4 +1,8 @@
+import logging
+
 from connexion.exceptions import ClientProblem
+
+logger = logging.getLogger(__name__)
 
 
 def check_scopes(scopes: list[str] | None, required_scopes: list[str] | None):

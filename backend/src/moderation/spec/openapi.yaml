@@ -52,7 +52,7 @@ paths:
       summary: Create new content
       operationId: moderation.routes.content.create_content
       security:
-        - APIKeyAuth: [test]
+        - APIKeyAuth: [create_content]
       requestBody:
         required: true
         content:
@@ -62,21 +62,28 @@ paths:
       responses:
         '201':
           description: Content created
-    get:
-      summary: List all content
-      operationId: moderation.routes.content.list_content
-      parameters:
-        - name: status
-          in: query
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of content
 
   /moderation/pending:
     get:
       summary: Admin - list flagged content
+      parameters:
+        - name: page
+          in: query
+          description: The page number to retrieve (1-based index).
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          description: The number of items per page.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
       operationId: moderation.routes.moderation_action.list_pending_content
       security:
         - BearerAuth: []
@@ -183,6 +190,93 @@ paths:
         '200':
           description: Moderation KPIs
 
+  /clients/apikeys:
+    post:
+      summary: Create API Key
+      operationId: moderation.routes.api_keys.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiKeyCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyResponse'
+    get:
+      summary: Get API Keys
+      operationId: moderation.routes.api_keys.get
+      parameters:
+        - name: client_id
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiKeyResponse'
+        '404':
+          description: No API keys found for this client
+
+  /clients/apikeys/{api_key_id}:
+    delete:
+      summary: Delete API Key
+      operationId: moderation.routes.api_keys.delete
+      parameters:
+        - name: api_key_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: API key deleted successfully
+        '404':
+          description: API key not found
+    patch:
+      summary: Deactivate API Key
+      operationId: moderation.routes.api_keys.deactivate
+      parameters:
+        - name: api_key_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: API key deactivated successfully
+        '404':
+          description: API key not found
+
+  /clients/apikeys/{api_key_id}/reactivate:
+    patch:
+      summary: Reactivate API Key
+      operationId: moderation.routes.api_keys.reactivate
+      parameters:
+        - name: api_key_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: API key reactivated successfully
+        '404':
+          description: API key not found
+
   /health:
     get:
       summary: Health check
@@ -199,6 +293,29 @@ paths:
         '200':
           description: Version info
 
+  /diagnostics/check-jwt:
+    get:
+      summary: Check JWT authentication
+      operationId: moderation.routes.diagnostics.check_jwt
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: JWT is valid
+        '400':
+          description: JWT validation failed
+
+  /diagnostics/check-client-api-key:
+    get:
+      summary: Check API key authentication
+      operationId: moderation.routes.diagnostics.check_client_api_key
+      security:
+        - APIKeyAuth: [create_content]
+      responses:
+        '200':
+          description: API key is valid
+        '400':
+          description: API key validation failed
 
 components:
   schemas:
@@ -378,6 +495,72 @@ components:
         - content
         - insights
         - moderation
+
+    ApiKeyCreate:
+      type: object
+      required:
+        - source
+        - client_id
+        - current_scope
+      properties:
+        source:
+          type: string
+          description: The source of the API key (e.g., "acme_corp").
+          example: "facebook.com"  # Example value
+        client_id:
+          type: string
+          description: The ID of the client.
+          example: "123"  # Example value
+        current_scope:
+          type: array
+          items:
+            type: string
+            example: "create_content"  # Example value for each item
+          description: The scope of the API key (e.g., "create_content").
+      example:  # Full example object
+        source: "facebook.com"
+        client_id: "123"
+        current_scope:
+          - "create_content"
+
+    ApiKeyResponse:
+      type: object
+      required:
+        - id
+        - source
+        - client_id
+        - api_key
+        - current_scope
+        - created_at
+        - is_active
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique ID of the API key.
+        source:
+          type: string
+          description: The source of the API key (e.g., "acme_corp").
+        client_id:
+          type: string
+          description: The ID of the client.
+        api_key:
+          type: string
+          description: The generated API key.
+        current_scope:
+          type: array
+          items:
+            type: string
+          description: The scope of the API key (e.g., "moderation", "content").
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the API key was created.
+        is_active:
+          type: boolean
+          description: Whether the API key is active or not.
+
+
 
   securitySchemes:
     BearerAuth:

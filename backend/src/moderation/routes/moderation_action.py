@@ -10,10 +10,12 @@ from moderation.service.content import ContentService, ContentWithAnalysis
 
 @inject
 def list_pending_content(
+    page: int,
+    page_size: int,
     content_service: ContentService = Provide[Container.content_service],
 ) -> tuple[List[ContentWithAnalysis], Literal[HTTPStatus.OK]]:
     """List all pending content"""
-    return content_service.list_pending(), HTTPStatus.OK
+    return content_service.list_pending(page=page, page_size=page_size), HTTPStatus.OK
 
 
 @inject

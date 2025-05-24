@@ -101,3 +101,24 @@ def invalidate_cache(key: str, pop_user: bool = True, pop_token: bool = True):
         return wrapper
 
     return inner
+
+
+def update_cached_repository_single_result(
+    prefix: str,
+    obj_identifier_attribute: str,
+):
+    def inner(func):
+        def wrapper(*args, **kwargs):
+            client = get_redis_client()
+            result = func(*args, **kwargs)
+            serialized_result = try_serialize(result)
+            cache_key = f"{prefix}:{serialized_result[obj_identifier_attribute]}"
+            client.set(
+                cache_key,
+                serialized_result,
+            )
+            return result
+
+        return wrapper
+
+    return inner

@@ -1,47 +1,53 @@
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Callable, ContextManager, Dict
 
 from moderation.db.analysis import ContentAnalysis as DBContentAnalysis
 from moderation.db.content import Content as DBContent
 from moderation.db.moderation import ModerationAction as DBModerationAction
-from pydantic import BaseModel
 from sqlalchemy import Float, and_, case, cast, func, text, true
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
 
 
-class ContentInsight(BaseModel):
+@dataclass
+class ContentInsight:
     most_common_toxicity_labels: Dict[str, int]
     most_common_pii_types: Dict[str, int]
     pii_detected_rate: float
 
 
-class StatusCounts(BaseModel):
+@dataclass
+class StatusCounts:
     flagged: int
     rejected: int
     approved: int
 
 
-class ModerationSummary(BaseModel):
+@dataclass
+class ModerationSummary:
     statuses: StatusCounts
     auto_flag_accuracy: float
     false_positive_rate: float
 
 
-class SubmissionCounts(BaseModel):
+@dataclass
+class SubmissionCounts:
     today: int
     week: int
     month: int
 
 
-class ContentSummary(BaseModel):
+@dataclass
+class ContentSummary:
     submission_counts: SubmissionCounts
     growth_rate: float
     peak_hours: Dict[int, int]
     submission_sources: Dict[str, int]
 
 
-class DashboardSummary(BaseModel):
+@dataclass
+class DashboardSummary:
     content: ContentSummary
     moderation: ModerationSummary
     insights: ContentInsight
@@ -88,13 +94,14 @@ class SummaryService:
                 return 0.0
             return (this_week - last_week) / last_week * 100.0 if last_week > 0 else 0.0
 
-    def peak_submission_hours(self) -> dict[int, int]:
+    def peak_submission_hours(self, top: int = 5) -> dict[int, int]:
         """Get the peak submission time."""
         with self.db() as session:
             peak_hours = (
                 session.query(func.extract("hour", DBContent.created_at).label("hour"), func.count().label("count_"))
                 .group_by("hour")
                 .order_by(func.count().desc())
+                .limit(top)
                 .all()
             )
             if not peak_hours:
@@ -240,7 +247,7 @@ class SummaryService:
             WHERE content_type = :content_type
             AND (elem->>'score')::float > :score_threshold
             GROUP BY entity_type
-            ORDER BY count DESC
+            ORDER BY count_ DESC
             LIMIT :top;
             """
             )

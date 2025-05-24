@@ -47,12 +47,29 @@ class DatabaseContentRepository(AbstractDBContentRepository):
         """Initialize the repository with a database session factory."""
         self.db = db
 
-    def list(self, status: str | None = None) -> List[Content]:
-        """List all content."""
+    def list(self, status: str | None = None, offset: int = 0, limit: int = 10) -> List[Content]:
+        """
+        List content with optional status filtering and pagination.
+
+        Args:
+            status (str | None): The status of the content to filter by (e.g., "pending").
+            offset (int): The starting point for pagination (default is 0).
+            limit (int): The number of items to fetch (default is 10).
+
+        Returns:
+            List[Content]: A list of content records.
+        """
         with self.db() as session:
             query = session.query(DBContent).select_from(DBContent).join(DBContentAnalysis)
+
+            # Apply status filter if provided
             if status:
                 query = query.filter(DBContent.status == status)
+
+            # Apply pagination
+            query = query.offset(offset).limit(limit)
+
+            # Fetch and return the results
             return [from_record(record) for record in query.all()]
 
     def get_by_id(self, content_id: str) -> Content | None:

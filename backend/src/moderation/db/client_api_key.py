@@ -7,11 +7,12 @@ from sqlalchemy import ARRAY, Boolean, Column, DateTime, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 
 
-class ClientAccess(Base):
-    __tablename__ = "access"
+class ClientApiKey(Base):
+    __tablename__ = "client_api_key"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     source = Column(String, nullable=False)  # e.g. "acme_corp"
+    client_id = Column(String, nullable=False)
     api_key = Column(String, nullable=False, unique=True)  # hashed api key
     current_scope: Column[List[str]] = Column(ARRAY(String), nullable=False)  # e.g. "moderation", "content"
     created_at = Column(DateTime, default=datetime.utcnow)

@@ -21,7 +21,7 @@ def get_db() -> Generator[Session, Any, None]:
         yield db
         db.commit()
     except Exception as e:
-        logger.error(f"Database operation failed: {e}")
+        logger.exception(e)
         db.rollback()
         raise
     finally:
