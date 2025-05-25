@@ -94,7 +94,7 @@ def invalidate_cache(key: str, pop_user: bool = True, pop_token: bool = True):
             if pop_token:
                 kwargs.pop("token_info", None)
 
-            print(args, kwargs)
+            logger.debug(f"Function arguments: args={args}, kwargs={kwargs}")
 
             return func(*args, **pop(kwargs, user=pop_user, token=pop_token))
 
