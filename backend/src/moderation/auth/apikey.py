@@ -17,7 +17,7 @@ redis_client = get_redis_client()
 
 
 def get_client_api_key_from_cache(redis: Redis, api_key: str) -> ClientApiKey | None:
-    result = redis.get(api_key)
+    result = redis.get(f"{REDIS_CLIENT_API_KEY}:{api_key}")
     if result is None:
         return None
     try:
