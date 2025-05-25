@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Callable, ContextManager, List
@@ -6,10 +7,12 @@ from uuid import UUID
 from moderation.db.analysis import ContentAnalysis as DBContentAnalysis
 from moderation.db.content import Content as DBContent
 from moderation.db.moderation import ModerationAction as DBModerationAction
-from moderation.repository.db.content.base import AbstractDBContentRepository, Content
+from moderation.repository.db.content.base import AbstractDBContentRepository, Content, content_with_analysis
 from sqlalchemy import and_
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, subqueryload
+
+logger = logging.getLogger(__name__)
 
 
 def from_record(record: DBContent) -> Content:
@@ -60,7 +63,7 @@ class DatabaseContentRepository(AbstractDBContentRepository):
             List[Content]: A list of content records.
         """
         with self.db() as session:
-            query = session.query(DBContent).select_from(DBContent).join(DBContentAnalysis)
+            query = session.query(DBContent).select_from(DBContent).outerjoin(DBContentAnalysis)
 
             # Apply status filter if provided
             if status:
@@ -71,6 +74,20 @@ class DatabaseContentRepository(AbstractDBContentRepository):
 
             # Fetch and return the results
             return [from_record(record) for record in query.all()]
+
+    def list_with_analysis(self, status: str, offset: int, limit: int) -> List[Content]:
+        with self.db() as session:
+            content_list = (
+                session.query(DBContent)
+                .options(subqueryload(DBContent.analysis))
+                .filter(DBContent.status == status)
+                .order_by(DBContent.id)
+                .offset(offset)
+                .limit(limit)
+                .all()
+            )
+            logger.info(f"Content analysis count: {len(content_list)}")
+            return [content_with_analysis(content, content.analysis) for content in content_list]
 
     def get_by_id(self, content_id: str) -> Content | None:
         """Get content by ID."""

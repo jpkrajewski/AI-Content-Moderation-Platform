@@ -46,7 +46,6 @@ def login(
         raise ClientProblem(title=f"Invalid payload: Missing required field: {e.args[0]}")
 
     result, user = auth_service.authenticate(email, password)
-    print(result, user)
     if not result or user is None:
         raise ClientProblem(title="Invalid credentials")
 

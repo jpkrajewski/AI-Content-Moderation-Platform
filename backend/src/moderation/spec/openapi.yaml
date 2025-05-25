@@ -567,10 +567,10 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      x-bearerInfoFunc: auth.jwt.bearer_auth
+      x-bearerInfoFunc: moderation.auth.jwt.bearer_auth
     APIKeyAuth:
       type: apiKey
       in: header
       name: X-API-Key
       description: API key for authentication
-      x-apikeyInfoFunc: auth.apikey.apikey_auth
+      x-apikeyInfoFunc: moderation.auth.apikey.apikey_auth

@@ -1,56 +1,13 @@
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from moderation.repository.db.analysis.base import AbstractAnalysisRepository
-from moderation.repository.db.analysis.base import AnalysisResult as DBAnalysisResult
-from moderation.repository.db.content.base import AbstractDBContentRepository, Content
-
-
-@dataclass
-class AnalysisResult:
-    content_type: str
-    automated_flag: bool
-    automated_flag_reason: str
-    model_version: str
-    analysis_metadata: Dict[str, Any]
-    filename: str | None = None
-
-
-@dataclass
-class ContentWithAnalysis:
-    id: str
-    body: str
-    tags: List[str]
-    localization: str
-    source: str
-    status: str
-    created_at: str
-    results: List[AnalysisResult]
-
-
-def content_with_analysis(content: Content, results: List[DBAnalysisResult]) -> ContentWithAnalysis:
-    """Combine content and analysis results into a single object."""
-    return ContentWithAnalysis(
-        id=content.id,
-        body=content.body,
-        tags=content.tags,
-        localization=content.localization,
-        source=content.source,
-        status=content.status,
-        created_at=content.created_at,
-        results=[
-            AnalysisResult(
-                content_type=result.content_type,
-                automated_flag=result.automated_flag,
-                automated_flag_reason=result.automated_flag_reason,
-                model_version=result.model_version,
-                analysis_metadata=result.analysis_metadata,
-                filename=result.filename,
-            )
-            for result in results
-        ],
-    )
+from moderation.repository.db.analysis.base import AbstractAnalysisRepository, AnalysisResult
+from moderation.repository.db.content.base import (
+    AbstractDBContentRepository,
+    Content,
+    ContentWithAnalysis,
+    content_with_analysis,
+)
 
 
 class ContentService:
@@ -143,11 +100,4 @@ class ContentService:
         limit = page_size
 
         # Fetch the paginated list of pending content
-        content_list = self.content_repository.list(status="pending", offset=offset, limit=limit)
-        if not content_list:
-            raise ValueError("No pending content found")
-
-        # Return the content with analysis
-        return [
-            content_with_analysis(content, self.analysis_repository.get_results(content.id)) for content in content_list
-        ]
+        return self.content_repository.list_with_analysis(status="pending", offset=offset, limit=limit)

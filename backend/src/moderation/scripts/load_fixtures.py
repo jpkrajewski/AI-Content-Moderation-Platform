@@ -1,6 +1,7 @@
 # bandit: skip=B105
 import random
 import uuid
+from collections import defaultdict
 from datetime import timedelta
 
 from faker import Faker
@@ -24,7 +25,7 @@ def generate_analysis_metadata(content_type):
     """
     Generate structured metadata based on the content type.
     """
-    if content_type == "text":
+    if content_type in ["text", "document"]:
         return {
             "toxicity": round(random.uniform(0.2, 0.95), 3),
             "severe_toxicity": round(random.uniform(0.0, 0.1), 3),
@@ -142,22 +143,24 @@ def load_fixtures():
 
         contents = []
         analyses = []
-
         sources = [fake.url() for _ in range(30)]
+        status_count = defaultdict(int)
 
         for _ in range(5000):
             content_id = uuid.uuid4()
             content_created_at = fake.date_time_this_month()
+            status = random.choice(["pending", "approved", "rejected", "flagged"])
+            status_count[status] += 1
             content = Content(
                 id=content_id,
                 user_id=uuid.uuid4(),
                 username=fake.user_name(),
                 title=fake.sentence(),
-                body=fake.paragraph(nb_sentences=6),
+                body=fake.paragraph(nb_sentences=20),
                 tags=[fake.word() for _ in range(3)],
                 localization={"lang": "en", "region": "US"},
                 source=random.choice(sources),
-                status=random.choice(["pending", "approved", "rejected"]),
+                status=status,
                 image_paths=["/uploads/" + fake.file_name(extension="jpg")],
                 created_at=content_created_at,
             )
@@ -177,6 +180,9 @@ def load_fixtures():
                 )
                 analyses.append(analysis)
 
+        print(f"Created contents: {len(contents)}")
+        print(f"Content statuses: {str(status_count)}")
+
         db.add_all(contents)
         db.flush()
         db.add_all(analyses)
@@ -187,7 +193,7 @@ def load_fixtures():
         half_content = random.sample(contents, k=len(contents) // 2)  # Select half of the content
         for content in half_content:
             moderator_id = random.choice(selected_moderator_ids)  # Randomly assign a moderator
-            action = random.choice(["approve", "reject", "flag"])  # Randomly choose an action
+            action = random.choice(["approve", "reject", "flagged"])  # Randomly choose an action
             reason = fake.sentence()  # Generate a random reason
 
             random_time_offset = timedelta(
