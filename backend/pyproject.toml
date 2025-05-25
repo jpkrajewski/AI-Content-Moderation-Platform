@@ -25,4 +25,8 @@ dependencies = [
     "presidio-anonymizer>=2.2.358",
     "presidio-analyzer>=2.2.358",
     "pytest-env>=1.1.5",
+    "bcrypt>=4.3.0",
+    "torch>=2.7.0",
+    "torchvision>=0.22.0",
+    "transformers>=4.52.3",
 ]

@@ -49,5 +49,5 @@ class ImageClassifier:
 
 
 @cache
-def get_image_moderation() -> ImageClassifier:
+def get_image_classifier() -> ImageClassifier:
     return ImageClassifier()

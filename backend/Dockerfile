@@ -22,11 +22,4 @@ COPY src/ ./src
 COPY alembic/ ./alembic
 COPY alembic.ini .
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install transformers
-
-# Install torch separately for proper CUDA support and to avoid conflicts
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install torch torchvision -f https://download.pytorch.org/whl/torch_stable.html
-
 EXPOSE 8000

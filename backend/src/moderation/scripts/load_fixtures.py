@@ -14,12 +14,17 @@ from moderation.db.moderation import ModerationAction
 from moderation.db.session import get_db
 from moderation.db.user import User
 from moderation.jwt.jwt_handler import JwtTokenHandler
+from moderation.service.auth import AuthService
 
 fake = Faker()
 
 
 def generate_fake_api_key():
     return str(uuid.uuid4())
+
+
+def generate_hash_password(password):
+    return AuthService.hash_password(password)
 
 
 def generate_analysis_metadata(content_type):
@@ -89,14 +94,14 @@ def load_fixtures():
             id=uuid.uuid4(),
             username="admin",
             email="admin@example.com",
-            password_hash=admin_password,  # NOTE: hash in prod
+            password_hash=generate_hash_password(admin_password),  # NOTE: hash in prod
             role="admin",
         )
         primary_moderator = User(
             id=uuid.uuid4(),
             username="moderator",
             email="moderator@example.com",
-            password_hash=moderator_password,
+            password_hash=generate_hash_password(moderator_password),
             role="moderator",
         )
         handler = JwtTokenHandler()
@@ -128,7 +133,7 @@ def load_fixtures():
                 id=uuid.uuid4(),
                 username=moderator_name,
                 email=moderator_email,
-                password_hash=moderator_password,  # All moderators share the same password
+                password_hash=generate_hash_password(moderator_password),  # All moderators share the same password
                 role="moderator",
             )
             moderators.append(moderator)
