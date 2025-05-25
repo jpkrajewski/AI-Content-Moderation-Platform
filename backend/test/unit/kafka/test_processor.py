@@ -32,7 +32,7 @@ def text_message():
     )
 
 
-@patch("moderation.kafka.processor.get_image_moderation")
+@patch("moderation.kafka.processor.get_image_classifier")
 @patch("moderation.kafka.processor.save_analysis_result")
 def test_classify_and_save_image(mock_save, mock_get_image_mod, image_message, mock_classify_result):
     # Mock classifier
@@ -64,8 +64,9 @@ def test_classify_and_save_text(mock_save, mock_get_text_mod, text_message, mock
     mock_save.assert_called_once()
 
 
+@patch("moderation.kafka.processor.analyze_pii")
 @patch("moderation.kafka.processor.classify_and_save")
-def test_process_message_valid(mock_classify_save):
+def test_process_message_valid(mock_classify_save, mock_analyze_pii):
     msg_dict = {
         "content_id": "789",
         "type": "text",
@@ -93,7 +94,8 @@ def test_process_message_valid(mock_classify_save):
     mock_classify_save.assert_called_once()
 
 
-def test_process_message_invalid():
+@patch("moderation.kafka.processor.analyze_pii")
+def test_process_message_invalid(analyze_pii_mock):
     # Send in bad data (e.g., missing required fields)
     record = ConsumerRecord(
         topic="moderation",

@@ -13,7 +13,7 @@ rebuild:
 	docker compose down -v
 	docker compose up --build -d
 
-restart: rebuild start load_fixtures
+reset: rebuild load_fixtures start
 
 load_fixtures:
 	docker compose down backend

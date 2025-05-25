@@ -3,7 +3,7 @@ from typing import Callable, Optional
 
 from dependency_injector.wiring import Provide, inject
 from kafka.consumer.fetcher import ConsumerRecord
-from moderation.ai.image import get_image_moderation
+from moderation.ai.image import get_image_classifier
 from moderation.ai.models import ClassifyResult
 from moderation.ai.pii import get_pii_analyzer
 from moderation.ai.text import get_text_classifier
@@ -17,7 +17,7 @@ logger = logging.getLogger("moderation")
 
 def get_classifier(message_type: str) -> Callable[[str], ClassifyResult]:
     classifier = {
-        "image": get_image_moderation().classify,
+        "image": get_image_classifier().classify,
         "text": get_text_classifier().classify,
         "document": get_text_classifier().classify_from_document,
     }
@@ -90,8 +90,13 @@ def analyze_pii(
 
 
 def process_message(record: ConsumerRecord) -> None:
-    message = KafkaModerationMessage(**record.value)
-    message.validate()
+    try:
+        message = KafkaModerationMessage(**record.value)
+        message.validate()
+    except Exception as e:
+        logger.exception(f"Failed to process message: {e}")
+        logger.error(f"Consumer record: {record}")
+        return
     classify_and_save(message)
     if message.is_text():
         analyze_pii(message)

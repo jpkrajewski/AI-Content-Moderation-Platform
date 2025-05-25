@@ -18,6 +18,7 @@ class User:
     username: str
     email: str
     role: str
+    hashed_password: str
     created_at: str
     updated_at: str
 
@@ -28,6 +29,7 @@ def to_user(user: DBUser) -> User:
         username=user.username,
         email=user.email,
         role=user.role,
+        hashed_password=user.password_hash,
         created_at=user.created_at.isoformat(),
         updated_at=user.updated_at.isoformat(),
     )

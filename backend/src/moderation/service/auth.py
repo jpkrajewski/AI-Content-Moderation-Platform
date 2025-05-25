@@ -1,6 +1,7 @@
 import logging
-from typing import Tuple
+from typing import Optional, Tuple
 
+import bcrypt
 from moderation.repository.db.user.base import AbstractUserRepository, User, UserCreate
 
 logger = logging.getLogger(__name__)
@@ -10,27 +11,41 @@ class AuthService:
     def __init__(self, user_repository: AbstractUserRepository):
         self.user_repository = user_repository
 
-    def _check_password(self, password: str, hashed_password: str) -> bool:
-        return password == hashed_password
-        # return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+    @staticmethod
+    def _check_password(password: str, hashed_password: str) -> bool:
+        try:
+            return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
+        except Exception as e:
+            logger.exception(f"Password check failed: {e}")
+            return False
 
-    def authenticate(self, email: str, password: str) -> Tuple[bool, User | None]:
-        hash_password = self.user_repository.get_password_hash_by_email(email)
-        if not hash_password:
-            return False, None
-        if not self._check_password(hash_password, password):
-            print("failed password check")
-            return False, None
-        return True, self.user_repository.get_by_criteria(email=email)
+    @staticmethod
+    def hash_password(password: str) -> str:
+        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-    def register(self, username: str, password: str, email: str) -> Tuple[bool, User | None]:
+    def authenticate(self, email: str, password: str) -> Tuple[bool, Optional[User]]:
         user = self.user_repository.get_by_criteria(email=email)
-        if user:
+        if not user:
+            logger.info(f"Authentication failed: no user found for email {email}")
             return False, None
+        if not self._check_password(password, user.hashed_password):
+            logger.info(f"Authentication failed: invalid password for email {email}")
+            return False, None
+        return True, user
+
+    def register(
+        self, username: str, password: str, email: str, role: str = "moderator"
+    ) -> Tuple[bool, Optional[User]]:
+        existing_user = self.user_repository.get_by_criteria(email=email)
+        if existing_user:
+            logger.info(f"Registration failed: user already exists for email {email}")
+            return False, None
+
         user = UserCreate(
             email=email,
             username=username,
-            password_hash=password,
-            role="moderator",
+            password_hash=self.hash_password(password),
+            role=role,
         )
-        return True, self.user_repository.save_user(user)
+        created_user = self.user_repository.save_user(user)
+        return True, created_user

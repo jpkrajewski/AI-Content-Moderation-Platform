@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from moderation.ai.image import ImageModeration, get_image_moderation
+from moderation.ai.image import ImageClassifier, get_image_classifier
 from pytest import fixture
 
 IMAGES_FOLDER_PATH = Path(__name__).cwd() / "test" / "unit" / "ai"
@@ -8,10 +8,10 @@ IMAGES_FOLDER_PATH = Path(__name__).cwd() / "test" / "unit" / "ai"
 
 @fixture
 def image_classifier():
-    return get_image_moderation()
+    return get_image_classifier()
 
 
-def test_classify_jpg(image_classifier: ImageModeration):
+def test_classify_jpg(image_classifier: ImageClassifier):
     result = image_classifier.classify(str(IMAGES_FOLDER_PATH / "cat.jpg"))
     assert result is not None
     assert result.content_type == "image"
@@ -22,7 +22,7 @@ def test_classify_jpg(image_classifier: ImageModeration):
     assert "nsfw" in result.analysis_metadata
 
 
-def test_classify_png(image_classifier: ImageModeration):
+def test_classify_png(image_classifier: ImageClassifier):
     result = image_classifier.classify(str(IMAGES_FOLDER_PATH / "diagram.png"))
     assert result is not None
     assert result.content_type == "image"
