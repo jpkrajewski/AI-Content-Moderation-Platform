@@ -32,7 +32,7 @@ def from_record(record: DBContent) -> Content:
 
 
 @dataclass
-class ContentSummisionCounts:
+class ContentSubmissionCounts:
     """Data class to hold submission counts."""
 
     today: int
