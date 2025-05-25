@@ -94,20 +94,26 @@ def invalidate_cache(key: str, pop_user: bool = True, pop_token: bool = True):
     return inner
 
 
-def update_cached_repository_single_result(
+def cache_dataclass(
     prefix: str,
-    obj_identifier_attribute: str,
+    suffix_attr: str,
 ):
     def inner(func):
         def wrapper(*args, **kwargs):
             client = get_redis_client()
             result = func(*args, **kwargs)
-            serialized_result = try_serialize(result)
-            cache_key = f"{prefix}:{serialized_result[obj_identifier_attribute]}"
-            client.set(
-                cache_key,
-                serialized_result,
-            )
+            if not result:
+                return result
+            try:
+                serialized_result = try_serialize(result)
+                cache_key = f"{prefix}:{serialized_result[suffix_attr]}"
+                client.set(
+                    cache_key,
+                    serialized_result,
+                )
+            except Exception as e:
+                logger.error(f"Could not cache the {func.__name__} result {result}. Exception: {e}")
+
             return result
 
         return wrapper

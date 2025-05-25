@@ -1,8 +1,8 @@
 import secrets
 import uuid
 
-from moderation.cache.redis import update_cached_repository_single_result
-from moderation.constants.general import REDIS_CLIENT_API_KEY
+from moderation.cache.redis import cache_dataclass
+from moderation.constants.general import REDIS_PREFIX_KEY_CLIENT_API_KEY
 from moderation.repository.db.client_api_key.base import AbstractClientApiKeyRepository, ClientApiKey
 
 
@@ -29,7 +29,7 @@ class ClientApiKeyService:
         """
         return self.api_key_repository.get_by_id(api_key_id)
 
-    @update_cached_repository_single_result(REDIS_CLIENT_API_KEY, obj_identifier_attribute="api_key")
+    @cache_dataclass(REDIS_PREFIX_KEY_CLIENT_API_KEY, suffix_attr="api_key")
     def create_api_key(self, client_id: str, current_scope: list[str], source: str) -> ClientApiKey:
         """
         Create a new API key.
@@ -62,7 +62,7 @@ class ClientApiKeyService:
         result = self.api_key_repository.create(api_key_object)
         return result
 
-    @update_cached_repository_single_result(REDIS_CLIENT_API_KEY, obj_identifier_attribute="api_key")
+    @cache_dataclass(REDIS_PREFIX_KEY_CLIENT_API_KEY, suffix_attr="api_key")
     def update_api_key(self, api_key_id: str, api_key_data: dict) -> ClientApiKey | None:
         """
         Update an API key's properties.
@@ -72,7 +72,7 @@ class ClientApiKeyService:
         """
         return self.api_key_repository.update(api_key_id, api_key_data)
 
-    @update_cached_repository_single_result(REDIS_CLIENT_API_KEY, obj_identifier_attribute="api_key")
+    @cache_dataclass(REDIS_PREFIX_KEY_CLIENT_API_KEY, suffix_attr="api_key")
     def deactivate_api_key(self, api_key_id: str) -> ClientApiKey | None:
         """
         Deactivate an API key.
@@ -81,7 +81,7 @@ class ClientApiKeyService:
         """
         return self.api_key_repository.deactivate(api_key_id)
 
-    @update_cached_repository_single_result(REDIS_CLIENT_API_KEY, obj_identifier_attribute="api_key")
+    @cache_dataclass(REDIS_PREFIX_KEY_CLIENT_API_KEY, suffix_attr="api_key")
     def reactivate_api_key(self, api_key_id: str) -> ClientApiKey | None:
         """
         Reactivate an API key.
