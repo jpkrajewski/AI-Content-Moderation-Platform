@@ -1,5 +1,5 @@
 export interface PeakHours {
-  [hour: string]: number; // e.g. "1": 227
+  [hour: string]: number;
 }
 
 export interface SubmissionCounts {
@@ -9,7 +9,7 @@ export interface SubmissionCounts {
 }
 
 export interface SubmissionSources {
-  [url: string]: number; // e.g. "http://turner.com/": 196
+  [url: string]: number;
 }
 
 export interface ContentItem {
