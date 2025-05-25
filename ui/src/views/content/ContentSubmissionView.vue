@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import type { Ref } from 'vue';
 import axiosInstance from '@/services/interceptor.ts';
 import endpoints from '@/services/endpoints.ts';
 
@@ -17,7 +18,7 @@ const success = ref('');
 const userId = ref('06826a12-e7e5-47a7-bbcd-61b31b897ccd');
 const username = ref('admin');
 
-const API_KEY = 'JRGnmGwJ!)KShUUgDv5dz1uOl&2';
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const localizations = [
   { value: 'en', label: 'English' },
@@ -27,10 +28,11 @@ const localizations = [
   { value: 'pl', label: 'Polish' }
 ];
 
-const handleFileChange = (event: Event, target: typeof images | typeof documents) => {
+const handleFileChange = (event: Event, target: Ref<File[]>) => {
   const input = event.target as HTMLInputElement;
   if (input.files) {
-    target.value = Array.from(input.files);
+    const files = Array.from(input.files) as unknown as File[];
+    target.value = files;
   }
 };
 
@@ -58,7 +60,8 @@ const handleSubmit = async () => {
     formData.append('localization', localization.value);
     formData.append('user_id', userId.value);
     formData.append('username', username.value);
-    formData.append('timestamp', new Date().toISOString());
+    formData.append('created_at', new Date().toISOString());
+    formData.append('updated_at', new Date().toISOString());
 
     images.value.forEach(file => {
       formData.append('images', file);
@@ -68,22 +71,23 @@ const handleSubmit = async () => {
       formData.append('documents', file);
     });
 
-    await axiosInstance.post(endpoints.moderation.submitContent, formData, {
+    const response = await axiosInstance.post(endpoints.moderation.submitContent, formData, {
       headers: {
         'X-API-Key': API_KEY,
-        'content-type': 'multipart-data'
+        'Content-Type': 'multipart/form-data'
       },
     });
 
-    success.value = 'Content submitted successfully!';
-    // Clear form
-    title.value = '';
-    body.value = '';
-    tags.value = '';
-    source.value = '';
-    localization.value = 'en';
-    images.value = [];
-    documents.value = [];
+    if (response.data) {
+      success.value = 'Content submitted successfully!';
+      title.value = '';
+      body.value = '';
+      tags.value = '';
+      source.value = '';
+      localization.value = 'en';
+      images.value = [];
+      documents.value = [];
+    }
 
   } catch (e) {
     error.value = 'Failed to submit content. Please try again.';
@@ -108,56 +112,58 @@ const handleSubmit = async () => {
         <div>
           <label class="block mb-1 font-medium text-gray-700">Title</label>
           <input v-model="title" type="text" required placeholder="Post title"
-                 class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500" />
+            class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500" />
         </div>
 
         <div>
           <label class="block mb-1 font-medium text-gray-700">Content</label>
-          <textarea v-model="body" rows="5" required
-                    placeholder="Enter your content..."
-                    class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"></textarea>
+          <textarea v-model="body" rows="5" required placeholder="Enter your content..."
+            class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"></textarea>
         </div>
 
         <div>
           <label class="block mb-1 font-medium text-gray-700">Tags (comma-separated)</label>
-          <input v-model="tags" type="text"
-                 placeholder="e.g., news, politics"
-                 class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500" />
+          <input v-model="tags" type="text" placeholder="e.g., news, politics"
+            class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500" />
         </div>
 
         <div>
           <label class="block mb-1 font-medium text-gray-700">Source</label>
-          <input v-model="source" type="text" required
-                 placeholder="e.g., acme_corp"
-                 class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500" />
+          <input v-model="source" type="text" required placeholder="e.g., acme_corp"
+            class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500" />
         </div>
 
         <div>
           <label class="block mb-1 font-medium text-gray-700">Language</label>
-          <select v-model="localization" class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500">
+          <select v-model="localization"
+            class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500">
             <option v-for="lang in localizations" :key="lang.value" :value="lang.value">{{ lang.label }}</option>
           </select>
         </div>
 
         <div>
           <label class="block mb-1 font-medium text-gray-700">Upload Images</label>
-          <label class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700">
+          <label
+            class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700">
             Choose Images
-            <input type="file" accept="image/*" multiple @change="e => handleFileChange(e, images)" class="hidden" />
+            <input type="file" accept="image/*" multiple
+              @change="(e) => handleFileChange(e, images as unknown as Ref<File[]>)" class="hidden" />
           </label>
         </div>
 
         <div class="mt-4">
           <label class="block mb-1 font-medium text-gray-700">Upload Documents</label>
-          <label class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700">
+          <label
+            class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700">
             Choose Documents
-            <input type="file" accept=".pdf,.doc,.docx" multiple @change="e => handleFileChange(e, documents)" class="hidden" />
+            <input type="file" accept=".pdf,.doc,.docx" multiple
+              @change="(e) => handleFileChange(e, documents as unknown as Ref<File[]>)" class="hidden" />
           </label>
         </div>
 
         <div>
           <button type="submit" :disabled="loading || !body || !title || !source"
-                  class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50">
+            class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50">
             <span v-if="loading">Submitting...</span>
             <span v-else>Submit Content</span>
           </button>
