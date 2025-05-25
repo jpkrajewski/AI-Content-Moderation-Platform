@@ -1,6 +1,6 @@
-from moderation.db.access import ClientAccess
 from moderation.db.analysis import ContentAnalysis
 from moderation.db.base import Base
+from moderation.db.client_api_key import ClientApiKey
 from moderation.db.content import Content
 from moderation.db.customer_user import CustomerContentCreatorUser
 from moderation.db.moderation import ModerationAction
@@ -14,6 +14,6 @@ __all__ = [
     "User",
     "ModerationAction",
     "get_db",
-    "ClientAccess",
+    "ClientApiKey",
     "CustomerContentCreatorUser",
 ]

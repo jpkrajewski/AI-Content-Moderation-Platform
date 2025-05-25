@@ -1,6 +1,7 @@
 import logging
 from http import HTTPStatus
 from typing import Any, Dict, Tuple
+from uuid import UUID
 
 from connexion.exceptions import ClientProblem, ServerError
 from dependency_injector.wiring import Provide, inject
@@ -45,7 +46,6 @@ def login(
         raise ClientProblem(title=f"Invalid payload: Missing required field: {e.args[0]}")
 
     result, user = auth_service.authenticate(email, password)
-    print(result, user)
     if not result or user is None:
         raise ClientProblem(title="Invalid credentials")
 
@@ -55,7 +55,7 @@ def login(
 
 @inject
 def me(
-    user: int,
+    user: UUID,
     user_service: UserService = Provide[Container.user_service],
 ) -> Tuple[Dict[str, str], HTTPStatus]:
     """Retrieve the authenticated user's profile."""

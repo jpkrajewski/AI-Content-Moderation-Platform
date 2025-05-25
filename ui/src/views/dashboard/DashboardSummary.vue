@@ -28,143 +28,155 @@
         </div>
       </div>
 
-      <!-- Recent Content -->
-      <div class="bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b">
-          <h3 class="text-lg font-medium text-gray-900">Recent Content</h3>
-        </div>
-        <div class="divide-y">
-          <div v-for="content in recentContent" :key="content.id" class="p-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4">
-                <div class="flex-shrink-0">
-                  <img :src="content.thumbnail" :alt="content.title" class="w-12 h-12 rounded-lg object-cover">
-                </div>
-                <div>
-                  <h4 class="text-sm font-medium text-gray-900">{{ content.title }}</h4>
-                  <p class="text-sm text-gray-500">{{ content.type }} • {{ content.date }}</p>
-                </div>
-              </div>
-              <div class="flex items-center space-x-4">
-                <div class="flex items-center">
-                  <div class="w-24 bg-gray-200 rounded-full h-2.5">
-                    <div 
-                      class="h-2.5 rounded-full" 
-                      :class="getToxicityColor(content.toxicity)"
-                      :style="{ width: `${content.toxicity}%` }"
-                    ></div>
-                  </div>
-                  <span class="ml-2 text-sm font-medium" :class="getToxicityTextColor(content.toxicity)">
-                    {{ content.toxicity }}%
-                  </span>
-                </div>
-                <button class="text-gray-400 hover:text-gray-500">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium mb-4 text-gray-900">Moderation Statuses</h3>
+        <ul>
+          <li v-for="(count, status) in moderation.statuses" :key="status" class="capitalize">
+            {{ status }}: {{ count }}
+          </li>
+        </ul>
+        <p class="mt-4">Auto-flag Accuracy: {{ (moderation.auto_flag_accuracy * 100).toFixed(2) }}%</p>
+        <p>False Positive Rate: {{ (moderation.false_positive_rate * 100).toFixed(2) }}%</p>
+      </div>
+
+      <!-- Insights -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium mb-4 text-gray-900">Insights</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <h4 class="font-semibold mb-2">Most Common PII Types</h4>
+            <ul class="list-disc list-inside">
+              <li v-for="(count, pii) in insights.most_common_pii_types" :key="pii">
+                {{ pii }}: {{ count }}
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-2">Most Common Toxicity Labels</h4>
+            <ul class="list-disc list-inside">
+              <li v-for="(count, label) in insights.most_common_toxicity_labels" :key="label">
+                {{ label }}: {{ count }}
+              </li>
+            </ul>
+          </div>
+          <div class="list-disc list-inside">
+            <h4 class="font-semibold mb-2">PII Detected Rate</h4>
+            <p>{{ insights.pii_detected_rate.toFixed(2) }}%</p>
           </div>
         </div>
       </div>
+
+      <!-- Submission Sources -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium mb-4 text-gray-900">Submission Sources</h3>
+        <ul>
+          <li v-for="(count, source) in content.submission_sources" :key="source">
+            <a :href="source" target="_blank" class="text-blue-600 hover:underline">{{ source }}</a>: {{ count }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Recent Content -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b">
+          <h3 class="text-lg font-medium text-gray-900">Peak hours</h3>
+        </div>
+        <div class="divide-y">
+          <div
+            v-for="([hour, count]) in sortedPeakHours"
+            :key="hour"
+            class="p-6 flex justify-between"
+          >
+            <span>Hour: {{ hour }}:00</span>
+            <span class="font-semibold">{{ count }} submissions</span>
+          </div>
+        </div>
+      </div>
+
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { getDashboardSummary } from '@/services/dashboard'
+import { ref, onMounted, computed } from 'vue'
+import { getDashboardSummary } from "@/services/dashboard.ts";
+import type {DashboardData, Insights, ContentItem, Moderation} from '@/models/dashboard.ts'
 
 const loading = ref(true)
 const error = ref('')
+const moderation = ref<Moderation | null>(null);
+const insights = ref<Insights | null>(null);
+const content = ref<ContentItem | null>(null);
+const data = ref<DashboardData | null>(null);
+
+// Stats: We'll show pending, high risk, reviewed today, average response
 const stats = ref([
-  {
-    title: 'Pending Review',
-    value: '0',
-    icon: 'ClockIcon',
-    bgColor: 'bg-blue-500'
-  },
-  {
-    title: 'High Risk Content',
-    value: '0',
-    icon: 'ExclamationIcon',
-    bgColor: 'bg-red-500'
-  },
-  {
-    title: 'Reviewed Today',
-    value: '0',
-    icon: 'CheckIcon',
-    bgColor: 'bg-green-500'
-  },
-  {
-    title: 'Average Response',
-    value: '0m',
-    icon: 'ChartIcon',
-    bgColor: 'bg-purple-500'
-  }
+  { title: 'Pending Review', value: '0', icon: 'ClockIcon', bgColor: 'bg-blue-500' },
+  { title: 'High Risk Content', value: '0', icon: 'ExclamationIcon', bgColor: 'bg-red-500' },
+  { title: 'Reviewed Today', value: '0', icon: 'CheckIcon', bgColor: 'bg-green-500' },
+  { title: 'Average Response', value: '0m', icon: 'ChartIcon', bgColor: 'bg-purple-500' }
 ])
 
-const recentContent = ref([])
-
-const getToxicityColor = (toxicity: number) => {
-  if (toxicity >= 70) return 'bg-red-500'
-  if (toxicity >= 40) return 'bg-yellow-500'
-  return 'bg-green-500'
-}
-
-const getToxicityTextColor = (toxicity: number) => {
-  if (toxicity >= 70) return 'text-red-500'
-  if (toxicity >= 40) return 'text-yellow-500'
-  return 'text-green-500'
-}
-
+// Simulate fetch
 const fetchDashboardData = async () => {
+
   try {
-    const data = await getDashboardSummary()
-    
+    try {
+      const response = await getDashboardSummary();
+      data.value = response;
+    } catch (err) {
+      error.value = 'Failed to fetch content analysis.';
+    } finally {
+      loading.value = false;
+    }
+    if (!data.value) {
+      return
+    }
+    moderation.value = data.value.moderation
+    insights.value = data.value.insights
+    content.value = data.value.content
+
+
+    // Set stats values
     stats.value = [
       {
         title: 'Pending Review',
-        value: data.pendingReview?.toString() || '0',
+        value: data.value.moderation.statuses.rejected.toString(),
         icon: 'ClockIcon',
         bgColor: 'bg-blue-500'
       },
       {
         title: 'High Risk Content',
-        value: data.highRiskContent?.toString() || '0',
+        value: data.value.insights.most_common_toxicity_labels.toxicity.toString(),
         icon: 'ExclamationIcon',
         bgColor: 'bg-red-500'
       },
       {
         title: 'Reviewed Today',
-        value: data.reviewedToday?.toString() || '0',
+        value: data.value.content.submission_counts.today.toString(),
         icon: 'CheckIcon',
         bgColor: 'bg-green-500'
       },
       {
         title: 'Average Response',
-        value: `${data.averageResponseTime || 0}m`,
+        value: `${Math.abs(data.value.content.growth_rate).toFixed(1)}m`,  // Example usage
         icon: 'ChartIcon',
         bgColor: 'bg-purple-500'
       }
     ]
 
-    recentContent.value = data.recentContent?.map((content: any) => ({
-      id: content.id,
-      title: content.title,
-      type: content.type,
-      date: content.date,
-      toxicity: content.toxicity,
-      thumbnail: content.thumbnail || 'https://via.placeholder.com/48'
-    })) || []
-
-  } catch (err) {
+  } catch (e) {
+    console.log(e)
     error.value = 'Failed to fetch dashboard data'
   } finally {
     loading.value = false
   }
 }
 
+const sortedPeakHours = computed(() => {
+  return Object.entries(content.value.peak_hours)
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+})
+
 onMounted(fetchDashboardData)
-</script> 
+</script>

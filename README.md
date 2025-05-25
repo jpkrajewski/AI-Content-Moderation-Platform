@@ -71,7 +71,7 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
 - docker compose
 - npm
 
-### Setup
+### Manudal setup
 1. Clone the repository
     ```bash
     git clone ...
@@ -90,10 +90,12 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
     npm run dev
     ```
 
-### Automated setup using Makefile
+### 🛠️ Available Makefile Targets
 
-You can use the provided Makefile to automate the setup process. The Makefile includes targets for building, running, and restarting the application, as well as running fixtures.
-To use the Makefile, simply run the following commands in your terminal:
-```bash
-make restart
-```
+| Command             | Description                                                         |
+|---------------------|---------------------------------------------------------------------|
+| `make start`        | Starts Docker containers and launches the frontend dev server.      |
+| `make stop`         | Stops all running services and the frontend dev server.             |
+| `make rebuild`      | Rebuilds Docker containers from scratch.                            |
+| `make restart`      | Full teardown, rebuild, startup, and fixture loading.               |
+| `make load_fixtures`| Loads predefined database fixtures into the backend container.

@@ -1,42 +1,124 @@
 import json
 import logging
-from dataclasses import dataclass
+from dataclasses import asdict, is_dataclass
+from functools import cache
+from http import HTTPStatus
+from typing import Any
 
-import redis
 from moderation.core.settings import settings
+from pydantic import BaseModel
 from redis import Redis
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class ClientAccess:
-    user_id: str
-    source: str
-    scopes: list
-    is_active: bool
-    access_count: int
+@cache
+def get_redis_client() -> Redis:
+    return Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, decode_responses=True)
 
 
-class RedisClient(Redis):
-    def get_client_access(self, key: str) -> ClientAccess | None:
-        key_ = f"{settings.REDIS_API_KEY_PREFIX}:{key}"
+def try_serialize(obj: Any) -> dict | list | None:
+    """Attempt to serialize an object to JSON-compatible data, or return None on failure."""
+    if is_dataclass(obj):
+        obj = asdict(obj)
+    elif isinstance(obj, BaseModel):
+        obj = obj.model_dump()
+    if isinstance(obj, (list, tuple)):
+        return [try_serialize(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {k: try_serialize(v) for k, v in obj.items()}
+    else:
         try:
-            response = self.get(key_)
-            if response is None:
-                return None
-            client = json.loads(response)
-            return ClientAccess(
-                user_id=client["user_id"],
-                source=client["source"],
-                scopes=client["scopes"],
-                is_active=client["is_active"],
-                access_count=client["access_count"],
+            json.dumps(obj)  # Check if it can be serialized
+        except (TypeError, ValueError):
+            logger.warning(f"Object of type {type(obj)} cannot be serialized to JSON.")
+            return None
+    return obj
+
+
+def pop(kwargs: dict, user: bool = True, token: bool = True):
+    """
+    Connexion adds 'user' and 'token_info' to kwargs if JWT auth is used.
+    Since we pass **kwargs in wrappers, every route ends up with them — even if not needed.
+    This just pops them so routes don’t have to care.
+    """
+    if user:
+        kwargs.pop("user", None)
+    if token:
+        kwargs.pop("token_info", None)
+    return kwargs
+
+
+def cached_response(key: str | None = None, pop_user: bool = True, pop_token: bool = True):
+    """Decorator to cache function results in Redis."""
+
+    def inner(func):
+        def wrapper(*args, **kwargs):
+            client = get_redis_client()
+            if key is not None:
+                cache_key = f"{key}:{kwargs.get('user', '')}"
+            else:
+                cache_key = f"{func.__name__}:{json.dumps(args)}:{json.dumps(kwargs)}"
+
+            cached_result = client.get(cache_key)
+            if cached_result:
+                logger.info(f"Cache hit for {cache_key}")
+                data = json.loads(cached_result)
+                return data["result"], data["status"]
+
+            logger.info(f"Cache miss for {cache_key}")
+            result, status = func(*args, **pop(kwargs, user=pop_user, token=pop_token))
+            serialized_result = try_serialize(result)
+            if not HTTPStatus(status).is_success:
+                return serialized_result, status
+            client.set(cache_key, json.dumps({"result": serialized_result, "status": status}), ex=300)
+            return serialized_result, status
+
+        return wrapper
+
+    return inner
+
+
+def invalidate_cache(key: str, pop_user: bool = True, pop_token: bool = True):
+    def inner(func):
+        """Decorator to invalidate cache for a function."""
+
+        def wrapper(*args, **kwargs):
+            client = get_redis_client()
+            cache_key = f"{key}:{kwargs['user']}"
+            client.delete(cache_key)
+            logger.info(f"Cache invalidated for {cache_key}")
+
+            if pop_user:
+                kwargs.pop("user", None)
+            if pop_token:
+                kwargs.pop("token_info", None)
+
+            logger.debug(f"Function arguments: args={args}, kwargs={kwargs}")
+
+            return func(*args, **pop(kwargs, user=pop_user, token=pop_token))
+
+        return wrapper
+
+    return inner
+
+
+def update_cached_repository_single_result(
+    prefix: str,
+    obj_identifier_attribute: str,
+):
+    def inner(func):
+        def wrapper(*args, **kwargs):
+            client = get_redis_client()
+            result = func(*args, **kwargs)
+            serialized_result = try_serialize(result)
+            cache_key = f"{prefix}:{serialized_result[obj_identifier_attribute]}"
+            client.set(
+                cache_key,
+                serialized_result,
             )
-        except (json.JSONDecodeError, KeyError):
-            logger.critical(f"Corrupted data in Redis for key: {key}")
-            raise redis.exceptions.ResponseError("Corrupted data in Redis")
+            return result
 
+        return wrapper
 
-def get_redis_client() -> RedisClient:
-    return RedisClient(host=settings.REDIS_HOST, port=settings.REDIS_PORT, decode_responses=True)
+    return inner

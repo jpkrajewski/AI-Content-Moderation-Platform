@@ -22,10 +22,62 @@ class Content:
     document_paths: List[str] | None = None
 
 
+@dataclass
+class AnalysisResult:
+    content_type: str
+    automated_flag: bool
+    automated_flag_reason: str
+    model_version: str
+    analysis_metadata: Dict[str, Any]
+    filename: str | None = None
+
+
+@dataclass
+class ContentWithAnalysis:
+    id: str | None
+    body: str
+    tags: List[str]
+    localization: dict | None
+    source: str
+    status: str | None
+    results: List[AnalysisResult]
+    created_at: str | None = None
+
+
+def content_with_analysis(content: Content, results: List[AnalysisResult]) -> ContentWithAnalysis:
+    """Combine content and analysis results into a single object."""
+    return ContentWithAnalysis(
+        id=content.id,
+        body=content.body,
+        tags=content.tags,
+        localization=content.localization,
+        source=content.source,
+        status=content.status,
+        created_at=content.created_at,
+        results=[
+            AnalysisResult(
+                content_type=result.content_type,
+                automated_flag=result.automated_flag,
+                automated_flag_reason=result.automated_flag_reason,
+                model_version=result.model_version,
+                analysis_metadata=result.analysis_metadata,
+                filename=result.filename,
+            )
+            for result in results
+        ],
+    )
+
+
 class AbstractDBContentRepository(ABC):
 
     @abstractmethod
-    def list(self, status: str | None = None) -> List[Content]:
+    def list(self, status: str | None = None, offset: int = 0, limit: int = 10) -> List[Content]:
+        """List all content."""
+
+    @abstractmethod
+    def list_with_analysis(
+        self, status: str | None = None, offset: int = 0, limit: int = 10
+    ) -> List[ContentWithAnalysis]:
         """List all content."""
 
     @abstractmethod
