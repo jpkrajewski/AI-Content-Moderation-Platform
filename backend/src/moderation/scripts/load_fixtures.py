@@ -1,4 +1,5 @@
 # bandit: skip=B105
+import os
 import random
 import uuid
 from collections import defaultdict
@@ -81,7 +82,6 @@ def load_fixtures():
         db.commit()
 
         print("🚀 Loading fixtures...")
-
         # Admin & Moderator passwords (plaintext for logging only)
         admin_password = "admin"
         moderator_password = "moderator"
@@ -213,6 +213,17 @@ def load_fixtures():
         db.add_all(moderation_actions)
         db.commit()
 
+        frontend_id = 10000
+        frontend_api_key = os.getenv("FRONTEND_API_KEY")
+        api_key_frontend = ClientApiKey(
+            client_id=frontend_id,
+            source="frontend",
+            api_key=frontend_api_key,
+            current_scope=["create_content", "delete_content", "read_content", "edit_content"],
+            access_count=0,
+            is_active=True,
+        )
+
         # Create API keys
         client_id_1 = "123"
         client_id_2 = "456"
@@ -236,12 +247,14 @@ def load_fixtures():
         )
 
         # Print the created API keys
-        print(f"🔐Created API key 1: client_id: {client_id_1}, api_key: {api_key_1.api_key} -> Active")
+        print(f"🔐 Created frontend API key: {frontend_api_key}")
+        print(f"🔐 Created API key 1: client_id: {client_id_1}, api_key: {api_key_1.api_key} -> Active")
         print(f"🔐 Created API key 2: client_id: {client_id_2}, api_key: {api_key_2.api_key} -> Deactivated")
 
         # Add both API keys to the database
         db.add(api_key_1)
         db.add(api_key_2)
+        db.add(api_key_frontend)
         db.commit()
 
         # Create 20 API keys
