@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from functools import cache
 
 import torch
@@ -8,16 +7,7 @@ from PIL import Image
 from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 
 
-class ImageClassifier(ABC):
-    """
-    Abstract base class for image classifiers.
-    """
-
-    @abstractmethod
-    def classify(self, image_path: str) -> ClassifyResult: ...
-
-
-class ImageModeration(ImageClassifier):
+class ImageClassifier:
     def __init__(self) -> None:
 
         self.extractor: AutoFeatureExtractor = AutoFeatureExtractor.from_pretrained(settings.AI_IMAGE_MODERATION_MODEL)
@@ -60,4 +50,4 @@ class ImageModeration(ImageClassifier):
 
 @cache
 def get_image_moderation() -> ImageClassifier:
-    return ImageModeration()
+    return ImageClassifier()

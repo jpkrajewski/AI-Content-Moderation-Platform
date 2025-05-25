@@ -1,14 +1,15 @@
 from dependency_injector.wiring import Provide, inject
+from moderation.cache.redis import cached_response
+from moderation.constants.general import DASHBOARD_SUMMARY
 from moderation.core.container import Container
 from moderation.service.summary import SummaryService
 
 
-# @cached_response(DASHBOARD_SUMMARY)
+@cached_response(DASHBOARD_SUMMARY)
 @inject
 def get_summary(
     summary_service: SummaryService = Provide[Container.summary_service],
 ):
-
     return summary_service.get_dashboard_summary(), 200
 
 

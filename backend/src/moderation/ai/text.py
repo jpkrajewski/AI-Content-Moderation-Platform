@@ -10,11 +10,6 @@ from moderation.core.settings import settings
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
-class TextClassifier(ABC):
-    @abstractmethod
-    def classify(self, text: str) -> ClassifyResult: ...
-
-
 class DocumentTextExtractor(ABC):
     @abstractmethod
     def __init__(self, document_path: str) -> None: ...
@@ -53,10 +48,9 @@ def create_extractor(document_path: str) -> DocumentTextExtractor:
         "odt": WordTextExtractor,
         "rtf": WordTextExtractor,
     }
-
-    if ext in extractors:
+    try:
         return extractors[ext](document_path)
-    else:
+    except KeyError:
         raise ValueError(f"Unsupported file extension: {ext} for {document_path}")
 
 
@@ -64,7 +58,7 @@ def extract_text_from_document(document_path: str) -> str:
     return create_extractor(document_path).extract_text()
 
 
-class TextModeration(TextClassifier):
+class TextClassifier:
     def __init__(self) -> None:
         self.tokenizer: AutoTokenizer = AutoTokenizer.from_pretrained(settings.AI_TEXT_MODERATION_MODEL)
         self.model: AutoModelForSequenceClassification = AutoModelForSequenceClassification.from_pretrained(
@@ -114,4 +108,4 @@ class TextModeration(TextClassifier):
 
 @cache
 def get_text_classifier() -> TextClassifier:
-    return TextModeration()
+    return TextClassifier()

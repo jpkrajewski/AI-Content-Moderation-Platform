@@ -13,7 +13,7 @@ from moderation.db.customer_user import CustomerContentCreatorUser
 from moderation.db.moderation import ModerationAction
 from moderation.db.session import get_db
 from moderation.db.user import User
-from moderation.helpers.jwt_token import JwtTokenHandler
+from moderation.jwt.jwt_handler import JwtTokenHandler
 
 fake = Faker()
 

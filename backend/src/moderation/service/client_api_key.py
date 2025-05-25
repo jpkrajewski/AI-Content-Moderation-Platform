@@ -2,7 +2,7 @@ import secrets
 import uuid
 
 from moderation.cache.redis import update_cached_repository_single_result
-from moderation.constants.cache import REDIS_CLIENT_API_KEY
+from moderation.constants.general import REDIS_CLIENT_API_KEY
 from moderation.repository.db.client_api_key.base import AbstractClientApiKeyRepository, ClientApiKey
 
 

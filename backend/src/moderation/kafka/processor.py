@@ -44,8 +44,7 @@ def save_analysis_result(
     logger.info(f"Saving analysis result: {analysis}")
 
     try:
-        saved = content_service.save_analysis_result(content_id, analysis)
-        logger.info(f"Saved analysis result: {saved}")
+        content_service.save_analysis_result(content_id, analysis)
         return True
     except Exception as e:
         logger.exception(f"Failed to save analysis result: {e}")
@@ -83,8 +82,7 @@ def analyze_pii(
     logger.info(f"Saving PII analysis result: {analysis}")
 
     try:
-        saved = content_service.save_analysis_result(message.content_id, analysis)
-        logger.info(f"Saved PII analysis result: {saved}")
+        content_service.save_analysis_result(message.content_id, analysis)
         return True
     except Exception as e:
         logger.exception(f"Failed to save PII analysis result: {e}")

@@ -1,4 +1,4 @@
-from moderation.helpers.jwt_token import JwtTokenHandler
+from moderation.jwt.jwt_handler import JwtTokenHandler
 
 
 def test_register(client):

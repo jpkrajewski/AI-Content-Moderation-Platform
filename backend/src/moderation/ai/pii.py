@@ -25,7 +25,7 @@ class PIIAnalyzer:
         return PIIResult(
             content_type="text/plain",
             results=results,
-            model_version="",
+            model_version=self.analyzer.nlp_engine.engine_name,
         )
 
     def anonymize(self, text: str, analyzer_results: list) -> str:

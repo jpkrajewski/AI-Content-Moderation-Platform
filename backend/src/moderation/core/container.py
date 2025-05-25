@@ -15,6 +15,7 @@ from moderation.service.auth import AuthService
 from moderation.service.client_api_key import ClientApiKeyService
 from moderation.service.content import ContentService
 from moderation.service.kafka import KafkaProducerService
+from moderation.service.storage import Storage
 from moderation.service.summary import SummaryService
 from moderation.service.user import UserService
 
@@ -76,3 +77,4 @@ class Container(containers.DeclarativeContainer):
         api_key_repository=providers.Factory(_get_client_api_key_repository),
     )
     redis = providers.Factory(get_redis_client)
+    storage_service = providers.Factory(Storage)

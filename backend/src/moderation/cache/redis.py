@@ -2,7 +2,6 @@ import json
 import logging
 from dataclasses import asdict, is_dataclass
 from functools import cache
-from http import HTTPStatus
 from typing import Any
 
 from moderation.core.settings import settings
@@ -69,8 +68,6 @@ def cached_response(key: str | None = None, pop_user: bool = True, pop_token: bo
             logger.info(f"Cache miss for {cache_key}")
             result, status = func(*args, **pop(kwargs, user=pop_user, token=pop_token))
             serialized_result = try_serialize(result)
-            if not HTTPStatus(status).is_success:
-                return serialized_result, status
             client.set(cache_key, json.dumps({"result": serialized_result, "status": status}), ex=300)
             return serialized_result, status
 
@@ -88,14 +85,8 @@ def invalidate_cache(key: str, pop_user: bool = True, pop_token: bool = True):
             cache_key = f"{key}:{kwargs['user']}"
             client.delete(cache_key)
             logger.info(f"Cache invalidated for {cache_key}")
-
-            if pop_user:
-                kwargs.pop("user", None)
-            if pop_token:
-                kwargs.pop("token_info", None)
-
+            pop(kwargs, pop_user, token=pop_token)
             logger.debug(f"Function arguments: args={args}, kwargs={kwargs}")
-
             return func(*args, **pop(kwargs, user=pop_user, token=pop_token))
 
         return wrapper
