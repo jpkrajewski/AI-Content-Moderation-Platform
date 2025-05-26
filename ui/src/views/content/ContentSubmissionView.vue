@@ -44,9 +44,6 @@ const handleSubmit = async () => {
   error.value = '';
   success.value = '';
 
-  images.value.forEach(file => console.log('ZDJECIE:', file));
-  documents.value.forEach(file => console.log('DOKUMENT:', file));
-
   try {
     const tagArray = tags.value
       .split(',')
