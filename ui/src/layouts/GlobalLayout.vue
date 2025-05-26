@@ -78,7 +78,7 @@
           <div class="flex items-center">
             <!-- Version -->
             <div class="hidden sm:flex items-center mr-4">
-              <span class="text-sm text-gray-500">v{{ version }}</span>
+              <span class="text-sm text-gray-500">v{{ versionStore.version }}</span>
             </div>
 
             <!-- User Menu -->
@@ -176,13 +176,13 @@ const router = useRouter()
 const jwtStore = useJwtStore()
 const versionStore = useVersionStore()
 const pendingCountStore = usePendingCountStore()
-const version = versionStore.version
 const isProfileMenuOpen = ref(false)
 
 let countInterval: number | null = null
 
 onMounted(() => {
   pendingCountStore.fetchPendingCount()
+  versionStore.fetchVersion()
   countInterval = window.setInterval(() => {
     pendingCountStore.fetchPendingCount()
   }, 30000)
@@ -214,9 +214,3 @@ const logout = () => {
   router.push('/login')
 }
 </script>
-
-<style scoped>
-.router-link-active {
-  @apply border-blue-500 text-gray-900;
-}
-</style>
