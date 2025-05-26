@@ -8,14 +8,14 @@ const loading = ref(true);
 const error = ref("");
 
 const fetchActivityMetrics = async () => {
-    try {
+  try {
     const data = await getUserActivityMetrics();
     metricsData.value = JSON.stringify(data, null, 2);
-    } catch {
+  } catch {
     error.value = 'Failed to fetch dashboard summary.';
-    } finally {
+  } finally {
     loading.value = false;
-    }
+  }
 };
 
 onMounted(fetchActivityMetrics);
