@@ -82,6 +82,7 @@ class DatabaseContentRepository(AbstractDBContentRepository):
                 .options(subqueryload(DBContent.analysis))
                 .filter(DBContent.status == status)
                 .order_by(DBContent.id)
+                .order_by(DBContent.created_at)
                 .offset(offset)
                 .limit(limit)
                 .all()

@@ -54,6 +54,7 @@ def me(
     if not user_:
         raise ClientProblem(title="User not found")
     return {
+        "uid": str(user),
         "email": user_.email,
         "username": user_.username,
         "scope": user_.role,
