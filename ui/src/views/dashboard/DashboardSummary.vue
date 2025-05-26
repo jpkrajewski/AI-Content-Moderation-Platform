@@ -4,8 +4,11 @@
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
     </div>
 
-    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-      role="alert">
+    <div
+      v-else-if="error"
+      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
       <strong class="font-bold">Error!</strong>
       <span class="block sm:inline"> {{ error }}</span>
     </div>
@@ -32,7 +35,9 @@
             {{ status }}: {{ count }}
           </li>
         </ul>
-        <p class="mt-4">Auto-flag Accuracy: {{ (moderation.auto_flag_accuracy * 100).toFixed(2) }}%</p>
+        <p class="mt-4">
+          Auto-flag Accuracy: {{ (moderation.auto_flag_accuracy * 100).toFixed(2) }}%
+        </p>
         <p>False Positive Rate: {{ (moderation.false_positive_rate * 100).toFixed(2) }}%</p>
       </div>
 
@@ -66,8 +71,10 @@
         <h3 class="text-lg font-medium mb-4 text-gray-900">Submission Sources</h3>
         <ul>
           <li v-for="(count, source) in content.submission_sources" :key="source">
-            <a :href="String(source)" target="_blank" class="text-blue-600 hover:underline">{{ source }}</a>: {{ count
-            }}
+            <a :href="String(source)" target="_blank" class="text-blue-600 hover:underline">{{
+              source
+            }}</a
+            >: {{ count }}
           </li>
         </ul>
       </div>
@@ -77,45 +84,49 @@
           <h3 class="text-lg font-medium text-gray-900">Peak hours</h3>
         </div>
         <div class="divide-y">
-          <div v-for="([hour, count]) in sortedPeakHours" :key="hour" class="p-6 flex justify-between">
+          <div
+            v-for="[hour, count] in sortedPeakHours"
+            :key="hour"
+            class="p-6 flex justify-between"
+          >
             <span>Hour: {{ hour }}:00</span>
             <span class="font-semibold">{{ count }} submissions</span>
           </div>
         </div>
       </div>
-
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { getDashboardSummary } from "@/services/dashboard.ts";
+import { getDashboardSummary } from '@/services/dashboard.ts'
 import type { DashboardData, Insights, ContentItem, Moderation } from '@/models/dashboard.ts'
 
 const loading = ref(true)
 const error = ref('')
-const moderation = ref<Moderation | null>(null);
-const insights = ref<Insights | null>(null);
-const content = ref<ContentItem | null>(null);
-const data = ref<DashboardData | null>(null);
+const moderation = ref<Moderation | null>(null)
+const insights = ref<Insights | null>(null)
+const content = ref<ContentItem | null>(null)
+const data = ref<DashboardData | null>(null)
 
 const stats = ref([
   { title: 'Pending Review', value: '0', icon: 'ClockIcon', bgColor: 'bg-blue-500' },
   { title: 'High Risk Content', value: '0', icon: 'ExclamationIcon', bgColor: 'bg-red-500' },
   { title: 'Reviewed Today', value: '0', icon: 'CheckIcon', bgColor: 'bg-green-500' },
-  { title: 'Average Response', value: '0m', icon: 'ChartIcon', bgColor: 'bg-purple-500' }
+  { title: 'Average Response', value: '0m', icon: 'ChartIcon', bgColor: 'bg-purple-500' },
 ])
 
 const fetchDashboardData = async () => {
   try {
     try {
-      const response = await getDashboardSummary();
-      data.value = response;
+      const response = await getDashboardSummary()
+      data.value = response
     } catch (err) {
-      error.value = 'Failed to fetch content analysis.';
+      error.value = 'Failed to fetch content analysis.'
+      console.error('Failed to fetch content analysis:', err)
     } finally {
-      loading.value = false;
+      loading.value = false
     }
     if (!data.value) {
       return
@@ -129,28 +140,27 @@ const fetchDashboardData = async () => {
         title: 'Pending Review',
         value: data.value.moderation.statuses.rejected.toString(),
         icon: 'ClockIcon',
-        bgColor: 'bg-blue-500'
+        bgColor: 'bg-blue-500',
       },
       {
         title: 'High Risk Content',
         value: data.value.insights.most_common_toxicity_labels.toxicity.toString(),
         icon: 'ExclamationIcon',
-        bgColor: 'bg-red-500'
+        bgColor: 'bg-red-500',
       },
       {
         title: 'Reviewed Today',
         value: data.value.content.submission_counts.today.toString(),
         icon: 'CheckIcon',
-        bgColor: 'bg-green-500'
+        bgColor: 'bg-green-500',
       },
       {
         title: 'Average Response',
         value: `${Math.abs(data.value.content.growth_rate).toFixed(1)}m`,
         icon: 'ChartIcon',
-        bgColor: 'bg-purple-500'
-      }
+        bgColor: 'bg-purple-500',
+      },
     ]
-
   } catch (e) {
     console.log(e)
     error.value = 'Failed to fetch dashboard data'
@@ -161,8 +171,7 @@ const fetchDashboardData = async () => {
 
 const sortedPeakHours = computed(() => {
   if (!content.value) return []
-  return Object.entries(content.value.peak_hours)
-    .sort((a, b) => Number(a[0]) - Number(b[0]))
+  return Object.entries(content.value.peak_hours).sort((a, b) => Number(a[0]) - Number(b[0]))
 })
 
 onMounted(fetchDashboardData)

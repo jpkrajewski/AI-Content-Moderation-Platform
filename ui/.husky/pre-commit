@@ -1,3 +1,37 @@
-echo "Husky pre-commit hook triggered!" # Temporary test message
+cd ui # Navigate to the ui directory
 
-exit 0 # Exit successfully for testin
+echo "🔍 Running pre-commit checks..."
+
+# Run ESLint
+echo "📝 Running ESLint..."
+npm run lint --fix
+if [ $? -ne 0 ]; then
+  echo "❌ ESLint found errors. Please fix them before committing."
+  exit 1
+fi
+
+# Run Prettier
+echo "🎨 Running Prettier..."
+npm run format
+if [ $? -ne 0 ]; then
+  echo "❌ Prettier found formatting issues. Please fix them before committing."
+  exit 1
+fi
+
+# Run TypeScript type checking
+echo "🔍 Running TypeScript type checking..."
+npm run type-check
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript found type errors. Please fix them before committing."
+  exit 1
+fi
+
+# # Run tests
+# echo "🧪 Running tests..."
+# # npm run test
+# # if [ $? -ne 0 ]; then
+# #   echo "❌ Tests failed. Please fix them before committing."
+# #   exit 1
+# # fi
+
+echo "✅ All pre-commit checks passed!"

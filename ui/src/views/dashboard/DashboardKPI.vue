@@ -1,24 +1,23 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { getModerationKPI } from '@/services/dashboard';
+import { ref, onMounted } from 'vue'
+import { getModerationKPI } from '@/services/dashboard'
 
-
-const kpiData = ref("");
-const loading = ref(true);
-const error = ref("");
+const kpiData = ref('')
+const loading = ref(true)
+const error = ref('')
 
 const fetchKPI = async () => {
-    try {
-    const data = await getModerationKPI();
-    kpiData.value = JSON.stringify(data, null, 2);
-    } catch {
-    error.value = 'Failed to fetch dashboard summary.';
-    } finally {
-    loading.value = false;
-    }
-};
+  try {
+    const data = await getModerationKPI()
+    kpiData.value = JSON.stringify(data, null, 2)
+  } catch {
+    error.value = 'Failed to fetch dashboard summary.'
+  } finally {
+    loading.value = false
+  }
+}
 
-onMounted(fetchKPI);
+onMounted(fetchKPI)
 </script>
 
 <template>

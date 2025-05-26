@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080/api/v1';
+const BASE_URL = 'http://localhost:8080/api/v1'
 
 const endpoints = {
   auth: {
@@ -21,7 +21,7 @@ const endpoints = {
 
   moderation: {
     listPending: `${BASE_URL}/moderation/pending`,
-    getContentAnalysis: (contentId: string) => `${BASE_URL}/moderation/${contentId}`, 
+    getContentAnalysis: (contentId: string) => `${BASE_URL}/moderation/${contentId}`,
     approveContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/approve`,
     rejectContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/reject`,
     flagContent: (contentId: string) => `${BASE_URL}/moderation/${contentId}/flag`,
@@ -30,7 +30,7 @@ const endpoints = {
 
   misc: {
     version: `${BASE_URL}/version`,
-  }
-};
+  },
+}
 
-export default endpoints;
+export default endpoints

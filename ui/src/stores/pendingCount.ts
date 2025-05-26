@@ -24,6 +24,6 @@ export const usePendingCountStore = defineStore('pendingCount', () => {
     count,
     loading,
     error,
-    fetchPendingCount
+    fetchPendingCount,
   }
-}) 
+})

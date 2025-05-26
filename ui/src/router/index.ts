@@ -1,17 +1,17 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { useJwtStore } from '@/stores/jwt';
-import GlobalLayout from '../layouts/GlobalLayout.vue';
+import { createRouter, createWebHistory } from 'vue-router'
+import { useJwtStore } from '@/stores/jwt'
+import GlobalLayout from '../layouts/GlobalLayout.vue'
 
-import LoginView from '../views/auth/LoginView.vue';
-import RegisterView from '../views/auth/RegisterView.vue';
+import LoginView from '../views/auth/LoginView.vue'
+import RegisterView from '../views/auth/RegisterView.vue'
 
-import DashboardSummary from '../views/dashboard/DashboardSummary.vue';
-import DashboardActivityMetrics from '../views/dashboard/DashboardActivityMetrics.vue';
-import DashboardKPI from '../views/dashboard/DashboardKPI.vue';
+import DashboardSummary from '../views/dashboard/DashboardSummary.vue'
+import DashboardActivityMetrics from '../views/dashboard/DashboardActivityMetrics.vue'
+import DashboardKPI from '../views/dashboard/DashboardKPI.vue'
 
-import ModerationListPending from '../views/moderation/ModerationListPending.vue';
-import ModerationContentAnalysis from '../views/moderation/ModerationContentAnalysis.vue';
-import ContentSubmissionView from '../views/content/ContentSubmissionView.vue';
+import ModerationListPending from '../views/moderation/ModerationListPending.vue'
+import ModerationContentAnalysis from '../views/moderation/ModerationContentAnalysis.vue'
+import ContentSubmissionView from '../views/content/ContentSubmissionView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -72,19 +72,19 @@ const router = createRouter({
       ],
     },
   ],
-});
+})
 
 router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-  const jwtStore = useJwtStore();
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+  const jwtStore = useJwtStore()
 
   if (requiresAuth && !jwtStore.isLoggedIn) {
-    next({ path: '/login' });
+    next({ path: '/login' })
   } else if (!requiresAuth && jwtStore.isLoggedIn && to.path === '/login') {
-    next({ path: '/secure/dashboard/summary' });
+    next({ path: '/secure/dashboard/summary' })
   } else {
-    next();
+    next()
   }
-});
+})
 
-export default router;
+export default router

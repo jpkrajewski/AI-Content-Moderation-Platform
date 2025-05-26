@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia';
-import { getCurrentVersion } from '@/services/misc';
+import { defineStore } from 'pinia'
+import { getCurrentVersion } from '@/services/misc'
 
 export const useVersionStore = defineStore('version', {
   state: () => ({
@@ -8,11 +8,11 @@ export const useVersionStore = defineStore('version', {
   actions: {
     async fetchVersion() {
       try {
-        const data = await getCurrentVersion();
-        this.version = data.version;
+        const data = await getCurrentVersion()
+        this.version = data.version
       } catch (error) {
         console.error(`Fetch version error! ${error}`)
       }
     },
   },
-});
+})
