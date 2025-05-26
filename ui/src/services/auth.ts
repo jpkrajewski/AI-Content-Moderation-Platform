@@ -17,7 +17,7 @@ interface AuthResponse {
 }
 
 interface UserData {
-  id: string;
+  uid: string;
   username: string;
   email: string;
 }
