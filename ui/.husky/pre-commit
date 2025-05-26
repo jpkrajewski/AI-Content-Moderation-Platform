@@ -3,4 +3,4 @@
 
 echo "Husky pre-commit hook triggered!" # Temporary test message
 
-exit 0 # Exit successfully for testing
+exit 0 # Exit successfully for testin
