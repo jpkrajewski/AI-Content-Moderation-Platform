@@ -71,26 +71,10 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
 - docker compose
 - npm
 
-### Manudal setup
-1. Clone the repository
-    ```bash
-    git clone ...
-    cd ai-content-moderation
-    ```
-
-2. Start the services
-    ```bash
-    docker-compose up --build
-    ```
-
-3. Start the frontend
-    ```bash
-    cd ui
-    npm install
-    npm run dev
-    ```
-
 ### 🛠️ Available Makefile Targets
+
+Please use `make restart` to setup the whole project
+
 
 | Command             | Description                                                         |
 |---------------------|---------------------------------------------------------------------|
@@ -99,3 +83,20 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
 | `make rebuild`      | Rebuilds Docker containers from scratch.                            |
 | `make restart`      | Full teardown, rebuild, startup, and fixture loading.               |
 | `make load_fixtures`| Loads predefined database fixtures into the backend container.
+
+
+### 📘 Swagger API Docs
+
+To view the Swagger UI for the API, navigate to:
+http://localhost:4040/api/v1/ui
+
+
+### 🧪 Testing Backend
+
+To run backend tests locally:
+
+```bash
+cd backend
+make run_test_db
+pytest
+```

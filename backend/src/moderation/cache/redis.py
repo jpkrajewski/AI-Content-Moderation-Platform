@@ -1,8 +1,8 @@
 import json
 import logging
 from dataclasses import asdict, is_dataclass
-from functools import cache
-from typing import Any
+from functools import cache, wraps
+from typing import Any, Callable, Union, get_args, get_origin, get_type_hints
 
 from moderation.core.settings import settings
 from pydantic import BaseModel
@@ -94,28 +94,51 @@ def invalidate_cache(key: str, pop_user: bool = True, pop_token: bool = True):
     return inner
 
 
-def cache_dataclass(
-    prefix: str,
-    suffix_attr: str,
-):
-    def inner(func):
+def unwrap_optional(t):
+    """Unwrap Optional[Dataclass] or Union[Dataclass, None]."""
+    if get_origin(t) is Union:
+        non_none = [arg for arg in get_args(t) if arg is not type(None)]
+        if len(non_none) == 1:
+            return non_none[0]
+    return t
+
+
+def cached_dataclass(prefix: str, suffix_attr: str):
+    def decorator(func: Callable):
+        ret_type = unwrap_optional(get_type_hints(func).get("return"))
+
+        @wraps(func)
         def wrapper(*args, **kwargs):
-            client = get_redis_client()
             result = func(*args, **kwargs)
-            if not result:
+            if result is None or not is_dataclass(result):
                 return result
+
+            suffix = getattr(result, suffix_attr, None)
+            if not suffix:
+                return result
+
+            key = f"{prefix}:{suffix}"
+            client = get_redis_client()
+
+            # Attempt to fetch from cache
+            cached = client.get(key)
+            if cached:
+                try:
+                    data = json.loads(cached)
+                    if is_dataclass(ret_type):
+                        return ret_type(**data)
+                    return data
+                except Exception as e:
+                    logger.warning(f"Deserialization error for key {key}: {e}")
+
+            # Cache the fresh result
             try:
-                serialized_result = try_serialize(result)
-                cache_key = f"{prefix}:{serialized_result[suffix_attr]}"
-                client.set(
-                    cache_key,
-                    serialized_result,
-                )
+                client.set(key, json.dumps(asdict(result)))
             except Exception as e:
-                logger.error(f"Could not cache the {func.__name__} result {result}. Exception: {e}")
+                logger.error(f"Error caching result for {func.__name__}: {e}")
 
             return result
 
         return wrapper
 
-    return inner
+    return decorator
