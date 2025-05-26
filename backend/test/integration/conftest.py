@@ -12,7 +12,7 @@ from sqlalchemy import create_engine, text
 @pytest.fixture(autouse=True)
 def disable_cache_decorator():
     with patch(
-        "moderation.service.client_api_key.cache_dataclass",
+        "moderation.service.client_api_key.cached_dataclass",
         lambda *args, **kwargs: lambda fn: fn,
     ):
         yield

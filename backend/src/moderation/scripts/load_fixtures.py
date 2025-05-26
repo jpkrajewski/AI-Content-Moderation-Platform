@@ -106,12 +106,10 @@ def load_fixtures():
         )
         handler = JwtTokenHandler()
         admin_jwt = handler.generate_token(
-            user_id=str(admin.id),
-            scopes=["admin", "moderator"],
+            user_id=str(admin.id), scopes=["admin", "moderator"], expires_in_minutes=3600
         )
         moderator_jwt = handler.generate_token(
-            user_id=str(primary_moderator.id),
-            scopes=["moderator"],
+            user_id=str(primary_moderator.id), scopes=["moderator"], expires_in_minutes=3600
         )
 
         print(f"🔐 Admin 'admin' admin@example.com:{admin_password}:{admin_jwt}")
@@ -218,7 +216,7 @@ def load_fixtures():
         db.add_all(moderation_actions)
         db.commit()
 
-        frontend_id = 10000
+        frontend_id = "10000"
         frontend_api_key = os.getenv("FRONTEND_API_KEY")
         api_key_frontend = ClientApiKey(
             client_id=frontend_id,
