@@ -29,10 +29,15 @@ const localizations = [
 ];
 
 const handleFileChange = (event: Event, target: Ref<File[]>) => {
+  console.log('handleFileChange target:', target);
+  console.log('handleFileChange target.value:', target.value);
   const input = event.target as HTMLInputElement;
   if (input.files) {
-    const files = Array.from(input.files) as unknown as File[];
-    target.value = files;
+    const files = Array.from(input.files);
+    if (!Array.isArray(target.value)) {
+      target.value = [];
+    }
+    target.value = [...target.value, ...files];
   }
 };
 
@@ -40,6 +45,9 @@ const handleSubmit = async () => {
   loading.value = true;
   error.value = '';
   success.value = '';
+
+  images.value.forEach(file => console.log('ZDJECIE:', file));
+  documents.value.forEach(file => console.log('DOKUMENT:', file));
 
   try {
     const tagArray = tags.value
@@ -60,21 +68,18 @@ const handleSubmit = async () => {
     formData.append('localization', localization.value);
     formData.append('user_id', userId.value);
     formData.append('username', username.value);
-    formData.append('created_at', new Date().toISOString());
-    formData.append('updated_at', new Date().toISOString());
+    formData.append('timestamp', Date.now().toString());
 
-    images.value.forEach(file => {
-      formData.append('images', file);
+    [...images.value].forEach(file => {
+      formData.append('images[]', file);
     });
-
-    documents.value.forEach(file => {
-      formData.append('documents', file);
+    [...documents.value].forEach(file => {
+      formData.append('documents[]', file);
     });
 
     const response = await axiosInstance.post(endpoints.moderation.submitContent, formData, {
       headers: {
-        'X-API-Key': API_KEY,
-        'Content-Type': 'multipart/form-data'
+        'X-API-Key': API_KEY
       },
     });
 
