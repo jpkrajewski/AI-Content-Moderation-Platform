@@ -29,8 +29,6 @@ const localizations = [
 ];
 
 const handleFileChange = (event: Event, target: Ref<File[]>) => {
-  console.log('handleFileChange target:', target);
-  console.log('handleFileChange target.value:', target.value);
   const input = event.target as HTMLInputElement;
   if (input.files) {
     const files = Array.from(input.files);
