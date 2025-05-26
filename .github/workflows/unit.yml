@@ -1,0 +1,27 @@
+name: Unit Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  uv-unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies with uv
+        run: |
+          cd backend
+          uv venv
+          uv pip install -e .
+
+      - name: Run unit tests
+        run: |
+          cd backend
+          uv run pytest test/unit
