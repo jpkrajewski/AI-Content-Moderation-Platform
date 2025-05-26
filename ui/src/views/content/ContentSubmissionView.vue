@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 import axiosInstance from '@/services/interceptor.ts';
 import endpoints from '@/services/endpoints.ts';
+import { getCurrentUser } from '@/services/auth';
 
 const title = ref('');
 const body = ref('');
@@ -15,10 +16,28 @@ const documents = ref<File[]>([]);
 const loading = ref(false);
 const error = ref('');
 const success = ref('');
-const userId = ref('06826a12-e7e5-47a7-bbcd-61b31b897ccd');
-const username = ref('admin');
+const uid = ref('');
+const username = ref('');
 
 const API_KEY = import.meta.env.VITE_API_KEY;
+
+const initializeUser = async () => {
+  try {
+    const user = await getCurrentUser();
+    if (user) {
+      uid.value = user.uid;
+      username.value = user.username;
+    }
+    console.log(user)
+  } catch (e) {
+    console.error('Failed to get current user:', e);
+    error.value = 'Failed to get user information';
+  }
+};
+
+onMounted(() => {
+  initializeUser();
+});
 
 const localizations = [
   { value: 'en', label: 'English' },
@@ -31,8 +50,11 @@ const localizations = [
 const handleFileChange = (event: Event, target: Ref<File[]>) => {
   const input = event.target as HTMLInputElement;
   if (input.files) {
-    const files = Array.from(input.files) as unknown as File[];
-    target.value = files;
+    const files = Array.from(input.files);
+    if (!Array.isArray(target.value)) {
+      target.value = [];
+    }
+    target.value = [...target.value, ...files];
   }
 };
 
@@ -58,23 +80,20 @@ const handleSubmit = async () => {
     formData.append('tags', JSON.stringify(tagArray));
     formData.append('source', sourceArray.join(','));
     formData.append('localization', localization.value);
-    formData.append('user_id', userId.value);
+    formData.append('user_id', uid.value);
     formData.append('username', username.value);
-    formData.append('created_at', new Date().toISOString());
-    formData.append('updated_at', new Date().toISOString());
+    formData.append('timestamp', Date.now().toString());
 
-    images.value.forEach(file => {
-      formData.append('images', file);
+    [...images.value].forEach(file => {
+      formData.append('images[]', file);
     });
-
-    documents.value.forEach(file => {
-      formData.append('documents', file);
+    [...documents.value].forEach(file => {
+      formData.append('documents[]', file);
     });
 
     const response = await axiosInstance.post(endpoints.moderation.submitContent, formData, {
       headers: {
-        'X-API-Key': API_KEY,
-        'Content-Type': 'multipart/form-data'
+        'X-API-Key': API_KEY
       },
     });
 
