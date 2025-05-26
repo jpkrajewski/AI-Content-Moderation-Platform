@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 import axiosInstance from '@/services/interceptor.ts';
 import endpoints from '@/services/endpoints.ts';
+import { getCurrentUser } from '@/services/auth';
 
 const title = ref('');
 const body = ref('');
@@ -15,10 +16,28 @@ const documents = ref<File[]>([]);
 const loading = ref(false);
 const error = ref('');
 const success = ref('');
-const userId = ref('06826a12-e7e5-47a7-bbcd-61b31b897ccd');
-const username = ref('admin');
+const userId = ref('');
+const username = ref('');
 
 const API_KEY = import.meta.env.VITE_API_KEY;
+
+const initializeUser = async () => {
+  try {
+    const user = await getCurrentUser();
+    if (user) {
+      userId.value = user.id;
+      username.value = user.username;
+    }
+    console.log(user)
+  } catch (e) {
+    console.error('Failed to get current user:', e);
+    error.value = 'Failed to get user information';
+  }
+};
+
+onMounted(() => {
+  initializeUser();
+});
 
 const localizations = [
   { value: 'en', label: 'English' },
