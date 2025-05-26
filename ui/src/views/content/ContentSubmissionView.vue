@@ -16,7 +16,7 @@ const documents = ref<File[]>([]);
 const loading = ref(false);
 const error = ref('');
 const success = ref('');
-const userId = ref('');
+const uid = ref('');
 const username = ref('');
 
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -25,7 +25,7 @@ const initializeUser = async () => {
   try {
     const user = await getCurrentUser();
     if (user) {
-      userId.value = user.id;
+      uid.value = user.uid;
       username.value = user.username;
     }
     console.log(user)
@@ -80,7 +80,7 @@ const handleSubmit = async () => {
     formData.append('tags', JSON.stringify(tagArray));
     formData.append('source', sourceArray.join(','));
     formData.append('localization', localization.value);
-    formData.append('user_id', userId.value);
+    formData.append('user_id', uid.value);
     formData.append('username', username.value);
     formData.append('timestamp', Date.now().toString());
 
