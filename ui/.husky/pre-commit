@@ -1,4 +1,4 @@
-cd ui # Navigate to the ui directory
+cd ui #Navigate to the ui directory
 
 echo "🔍 Running pre-commit checks..."
 
