@@ -20,7 +20,7 @@ const processing = ref(false)
 const fetchContentAnalysis = async () => {
   try {
     const data = await getContentAnalysis(contentId)
-    content.value = (data as unknown as ContentItem[])?.[0] || null
+    content.value = (data as unknown as ContentItem) || null
   } catch {
     error.value = 'Failed to fetch content analysis.'
   } finally {

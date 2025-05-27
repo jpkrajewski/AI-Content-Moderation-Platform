@@ -104,15 +104,15 @@ import { getDashboardSummary } from '@/features/dashboard/services/dashboard'
 import type {
   DashboardData,
   Insights,
-  ContentItem,
   Moderation,
+  Content,
 } from '@/features/dashboard/types/dashboard'
 
 const loading = ref(true)
 const error = ref('')
 const moderation = ref<Moderation | null>(null)
 const insights = ref<Insights | null>(null)
-const content = ref<ContentItem | null>(null)
+const content = ref<Content | null>(null)
 const data = ref<DashboardData | null>(null)
 
 const stats = ref([
@@ -127,38 +127,36 @@ const fetchDashboardData = async () => {
     const response = await getDashboardSummary()
     data.value = response
 
-    if (data.value) {
-      moderation.value = data.value.moderation_stats
-      insights.value = data.value.insights
-      content.value = data.value.recent_content?.[0] || null
+    moderation.value = data.value.moderation
+    insights.value = data.value.insights
+    content.value = data.value.content || null
 
-      stats.value = [
-        {
-          title: 'Pending Review',
-          value: (data.value.pending_review ?? 0).toString(),
-          icon: 'ClockIcon',
-          bgColor: 'bg-blue-500',
-        },
-        {
-          title: 'High Risk Content',
-          value: (data.value.flagged_content ?? 0).toString(),
-          icon: 'ExclamationIcon',
-          bgColor: 'bg-red-500',
-        },
-        {
-          title: 'Reviewed Today',
-          value: (data.value.total_submissions ?? 0).toString(),
-          icon: 'CheckIcon',
-          bgColor: 'bg-green-500',
-        },
-        {
-          title: 'Average Response',
-          value: `${(data.value.insights?.average_response_time ?? 0).toFixed(1)}m`,
-          icon: 'ChartIcon',
-          bgColor: 'bg-purple-500',
-        },
-      ]
-    }
+    stats.value = [
+      {
+        title: 'Pending Review',
+        value: (data.value?.moderation?.statuses?.rejected ?? 0).toString(),
+        icon: 'ClockIcon',
+        bgColor: 'bg-blue-500',
+      },
+      {
+        title: 'High Risk Content',
+        value: (data.value?.insights?.most_common_toxicity_labels?.toxicity ?? 0).toString(),
+        icon: 'ExclamationIcon',
+        bgColor: 'bg-red-500',
+      },
+      {
+        title: 'Reviewed Today',
+        value: (data.value?.content?.submission_counts?.today ?? 0).toString(),
+        icon: 'CheckIcon',
+        bgColor: 'bg-green-500',
+      },
+      {
+        title: 'Average Response',
+        value: `${Math.abs(data.value?.content?.growth_rate ?? 0).toFixed(1)}m`,
+        icon: 'ChartIcon',
+        bgColor: 'bg-purple-500',
+      },
+    ]
   } catch (e) {
     console.error(e)
     error.value = 'Failed to fetch dashboard data'

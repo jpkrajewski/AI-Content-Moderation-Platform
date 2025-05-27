@@ -11,10 +11,8 @@ export const moderateContent = async (
   decision: 'approve' | 'reject',
   reason?: string,
 ) => {
-  const response = await axiosInstance.post(`/moderation/${contentId}`, {
-    decision,
-    reason,
-  })
+  const url = `/moderation/${contentId}/${decision}`
+  const response = await axiosInstance.post(url, { reason })
   return response.data
 }
 
@@ -24,12 +22,12 @@ export const getContentHistory = async (): Promise<ContentItem[]> => {
 }
 
 export const analyzeContent = async (contentId: string) => {
-  const response = await axiosInstance.post(`/moderation/${contentId}/analyze`)
+  const response = await axiosInstance.post(`/moderation/${contentId}`)
   return response.data
 }
 
 export const getContentAnalysis = async (contentId: string): Promise<ContentItem> => {
-  const response = await axiosInstance.get(`/moderation/${contentId}/analysis`)
+  const response = await axiosInstance.get(`/moderation/${contentId}`)
   return response.data
 }
 
