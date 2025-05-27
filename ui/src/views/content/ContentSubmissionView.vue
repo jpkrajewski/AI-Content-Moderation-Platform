@@ -131,10 +131,10 @@ const handleSubmit = async () => {
     formData.append('username', username.value)
     formData.append('timestamp', Date.now().toString())
     ;[...images.value].forEach((file) => {
-      formData.append('images[]', file)
+      formData.append('images', file)
     })
     ;[...documents.value].forEach((file) => {
-      formData.append('documents[]', file)
+      formData.append('documents', file)
     })
 
     const response = await axiosInstance.post(endpoints.moderation.submitContent, formData, {

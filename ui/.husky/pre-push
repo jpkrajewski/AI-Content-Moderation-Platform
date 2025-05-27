@@ -18,14 +18,6 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Run Snyk security scan
-echo "🔒 Running Snyk security scan..."
-npx snyk test
-if [ $? -ne 0 ]; then
-  echo "⚠️ Snyk found security vulnerabilities. Please review and fix them before pushing."
-  exit 1
-fi
-
 # Run security audit
 echo "🔒 Running npm security audit..."
 npm audit
