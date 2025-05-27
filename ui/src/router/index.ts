@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useJwtStore } from '@/stores/jwt'
-import GlobalLayout from '../layouts/GlobalLayout.vue'
+import GlobalLayout from '../components/layout/GlobalLayout.vue'
 
 import LoginView from '../views/auth/LoginView.vue'
 import RegisterView from '../views/auth/RegisterView.vue'

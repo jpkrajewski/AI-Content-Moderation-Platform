@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { registerUser } from '@/services/auth.ts'
+import { authService } from '@/features/auth/services/auth'
 
 const router = useRouter()
 const email = ref('')
@@ -41,8 +41,8 @@ const handleRegister = async () => {
   }
 
   try {
-    await registerUser({
-      username: fullName.value,
+    await authService.register({
+      name: fullName.value,
       email: email.value,
       password: password.value,
     })

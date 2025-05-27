@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { loginUser } from '@/services/auth.ts'
-import { useJwtStore } from '@/stores/jwt.ts'
+import { authService } from '@/features/auth/services/auth'
+import { useJwtStore } from '@/features/auth/stores/jwt'
 
 const router = useRouter()
 const jwtStore = useJwtStore()
@@ -16,11 +16,11 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
-    const token = await loginUser({
+    const response = await authService.login({
       email: email.value,
       password: password.value,
     })
-    jwtStore.setJwt(token)
+    jwtStore.setJwt(response.token)
     router.push('/secure/dashboard/summary')
   } catch (e) {
     error.value = 'Invalid email or password'

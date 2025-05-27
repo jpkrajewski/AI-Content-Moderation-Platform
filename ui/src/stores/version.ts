@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getCurrentVersion } from '@/services/misc'
+import { getCurrentVersion } from '@/shared/utils/misc'
 
 export const useVersionStore = defineStore('version', {
   state: () => ({

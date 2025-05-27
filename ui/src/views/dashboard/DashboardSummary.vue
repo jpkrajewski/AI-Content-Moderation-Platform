@@ -36,9 +36,9 @@
           </li>
         </ul>
         <p class="mt-4">
-          Auto-flag Accuracy: {{ (moderation.auto_flag_accuracy * 100).toFixed(2) }}%
+          Auto-flag Accuracy: {{ ((moderation.auto_flag_accuracy ?? 0) * 100).toFixed(2) }}%
         </p>
-        <p>False Positive Rate: {{ (moderation.false_positive_rate * 100).toFixed(2) }}%</p>
+        <p>False Positive Rate: {{ ((moderation.false_positive_rate ?? 0) * 100).toFixed(2) }}%</p>
       </div>
 
       <div v-if="insights" class="bg-white rounded-lg shadow p-6">
@@ -47,7 +47,7 @@
           <div>
             <h4 class="font-semibold mb-2">Most Common PII Types</h4>
             <ul class="list-disc list-inside">
-              <li v-for="(count, pii) in insights.most_common_pii_types" :key="pii">
+              <li v-for="(count, pii) in insights.most_common_pii_types ?? {}" :key="pii">
                 {{ pii }}: {{ count }}
               </li>
             </ul>
@@ -55,14 +55,14 @@
           <div>
             <h4 class="font-semibold mb-2">Most Common Toxicity Labels</h4>
             <ul class="list-disc list-inside">
-              <li v-for="(count, label) in insights.most_common_toxicity_labels" :key="label">
+              <li v-for="(count, label) in insights.most_common_toxicity_labels ?? {}" :key="label">
                 {{ label }}: {{ count }}
               </li>
             </ul>
           </div>
           <div class="list-disc list-inside">
             <h4 class="font-semibold mb-2">PII Detected Rate</h4>
-            <p>{{ insights.pii_detected_rate.toFixed(2) }}%</p>
+            <p>{{ (insights.pii_detected_rate ?? 0).toFixed(2) }}%</p>
           </div>
         </div>
       </div>
@@ -70,7 +70,7 @@
       <div v-if="content" class="bg-white rounded-lg shadow p-6">
         <h3 class="text-lg font-medium mb-4 text-gray-900">Submission Sources</h3>
         <ul>
-          <li v-for="(count, source) in content.submission_sources" :key="source">
+          <li v-for="(count, source) in content.submission_sources ?? {}" :key="source">
             <a :href="String(source)" target="_blank" class="text-blue-600 hover:underline">{{
               source
             }}</a
@@ -100,8 +100,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { getDashboardSummary } from '@/services/dashboard.ts'
-import type { DashboardData, Insights, ContentItem, Moderation } from '@/models/dashboard.ts'
+import { getDashboardSummary } from '@/features/dashboard/services/dashboard'
+import type {
+  DashboardData,
+  Insights,
+  ContentItem,
+  Moderation,
+} from '@/features/dashboard/types/dashboard'
 
 const loading = ref(true)
 const error = ref('')
@@ -119,50 +124,43 @@ const stats = ref([
 
 const fetchDashboardData = async () => {
   try {
-    try {
-      const response = await getDashboardSummary()
-      data.value = response
-    } catch (err) {
-      error.value = 'Failed to fetch content analysis.'
-      console.error('Failed to fetch content analysis:', err)
-    } finally {
-      loading.value = false
-    }
-    if (!data.value) {
-      return
-    }
-    moderation.value = data.value.moderation
-    insights.value = data.value.insights
-    content.value = data.value.content
+    const response = await getDashboardSummary()
+    data.value = response
 
-    stats.value = [
-      {
-        title: 'Pending Review',
-        value: data.value.moderation.statuses.rejected.toString(),
-        icon: 'ClockIcon',
-        bgColor: 'bg-blue-500',
-      },
-      {
-        title: 'High Risk Content',
-        value: data.value.insights.most_common_toxicity_labels.toxicity.toString(),
-        icon: 'ExclamationIcon',
-        bgColor: 'bg-red-500',
-      },
-      {
-        title: 'Reviewed Today',
-        value: data.value.content.submission_counts.today.toString(),
-        icon: 'CheckIcon',
-        bgColor: 'bg-green-500',
-      },
-      {
-        title: 'Average Response',
-        value: `${Math.abs(data.value.content.growth_rate).toFixed(1)}m`,
-        icon: 'ChartIcon',
-        bgColor: 'bg-purple-500',
-      },
-    ]
+    if (data.value) {
+      moderation.value = data.value.moderation_stats
+      insights.value = data.value.insights
+      content.value = data.value.recent_content?.[0] || null
+
+      stats.value = [
+        {
+          title: 'Pending Review',
+          value: (data.value.pending_review ?? 0).toString(),
+          icon: 'ClockIcon',
+          bgColor: 'bg-blue-500',
+        },
+        {
+          title: 'High Risk Content',
+          value: (data.value.flagged_content ?? 0).toString(),
+          icon: 'ExclamationIcon',
+          bgColor: 'bg-red-500',
+        },
+        {
+          title: 'Reviewed Today',
+          value: (data.value.total_submissions ?? 0).toString(),
+          icon: 'CheckIcon',
+          bgColor: 'bg-green-500',
+        },
+        {
+          title: 'Average Response',
+          value: `${(data.value.insights?.average_response_time ?? 0).toFixed(1)}m`,
+          icon: 'ChartIcon',
+          bgColor: 'bg-purple-500',
+        },
+      ]
+    }
   } catch (e) {
-    console.log(e)
+    console.error(e)
     error.value = 'Failed to fetch dashboard data'
   } finally {
     loading.value = false
@@ -170,7 +168,7 @@ const fetchDashboardData = async () => {
 }
 
 const sortedPeakHours = computed(() => {
-  if (!content.value) return []
+  if (!content.value?.peak_hours) return []
   return Object.entries(content.value.peak_hours).sort((a, b) => Number(a[0]) - Number(b[0]))
 })
 

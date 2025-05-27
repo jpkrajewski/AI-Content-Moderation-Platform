@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { flagContent } from '@/services/moderation'
+import { flagContent } from '@/features/moderation/services/moderation'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()

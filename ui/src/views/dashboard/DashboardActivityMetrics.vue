@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getUserActivityMetrics } from '@/services/dashboard'
+import { getActivityMetrics } from '@/features/dashboard/services/dashboard'
 
 const metricsData = ref('')
 const loading = ref(true)
@@ -8,7 +8,7 @@ const error = ref('')
 
 const fetchActivityMetrics = async () => {
   try {
-    const data = await getUserActivityMetrics()
+    const data = await getActivityMetrics()
     metricsData.value = JSON.stringify(data, null, 2)
   } catch {
     error.value = 'Failed to fetch dashboard summary.'
