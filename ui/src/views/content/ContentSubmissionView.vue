@@ -70,12 +70,30 @@ const handleFileChange = (event: Event, target: Ref<File[]>) => {
   const input = event.target as HTMLInputElement
   if (input.files) {
     const files = Array.from(input.files)
-    if (!Array.isArray(target.value)) {
-      target.value = []
-    }
     target.value = [...target.value, ...files]
   }
 }
+
+const removeFile = (index: number, target: Ref<File[]>) => {
+  target.value = target.value.filter((_, i) => i !== index)
+}
+
+const handleImageChange = (e: Event) => {
+  handleFileChange(e, images)
+  // Reset input value to allow selecting the same file again
+  const input = e.target as HTMLInputElement
+  input.value = ''
+}
+
+const handleDocumentChange = (e: Event) => {
+  handleFileChange(e, documents)
+  // Reset input value to allow selecting the same file again
+  const input = e.target as HTMLInputElement
+  input.value = ''
+}
+
+const handleRemoveImage = (index: number) => removeFile(index, images)
+const handleRemoveDocument = (index: number) => removeFile(index, documents)
 
 const handleSubmit = async () => {
   if (!userInitialized.value) {
@@ -221,10 +239,28 @@ const handleSubmit = async () => {
               type="file"
               accept="image/*"
               multiple
-              @change="(e) => handleFileChange(e, images as unknown as Ref<File[]>)"
+              @change="handleImageChange"
               class="hidden"
             />
           </label>
+          <div v-if="images.length > 0" class="mt-2">
+            <p class="text-sm text-gray-600 mb-2">Selected images:</p>
+            <ul class="space-y-2">
+              <li
+                v-for="(file, index) in images"
+                :key="index"
+                class="flex items-center justify-between bg-gray-50 p-2 rounded"
+              >
+                <span class="text-sm text-gray-700">{{ file.name }}</span>
+                <button
+                  @click="() => handleRemoveImage(index)"
+                  class="text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div class="mt-4">
@@ -237,10 +273,28 @@ const handleSubmit = async () => {
               type="file"
               accept=".pdf,.doc,.docx"
               multiple
-              @change="(e) => handleFileChange(e, documents as unknown as Ref<File[]>)"
+              @change="handleDocumentChange"
               class="hidden"
             />
           </label>
+          <div v-if="documents.length > 0" class="mt-2">
+            <p class="text-sm text-gray-600 mb-2">Selected documents:</p>
+            <ul class="space-y-2">
+              <li
+                v-for="(file, index) in documents"
+                :key="index"
+                class="flex items-center justify-between bg-gray-50 p-2 rounded"
+              >
+                <span class="text-sm text-gray-700">{{ file.name }}</span>
+                <button
+                  @click="() => handleRemoveDocument(index)"
+                  class="text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div>
