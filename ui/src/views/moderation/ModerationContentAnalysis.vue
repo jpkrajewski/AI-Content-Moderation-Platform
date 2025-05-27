@@ -2,12 +2,11 @@
 import { ref, onMounted } from 'vue'
 import {
   getContentAnalysis,
-  approveContent,
-  rejectContent,
+  moderateContent,
   flagContent,
-} from '@/services/moderation'
+} from '@/features/moderation/services/moderation'
 import { useRoute } from 'vue-router'
-import type { ContentItem } from '@/models/moderation'
+import type { ContentItem } from '@/features/dashboard/types/dashboard'
 
 const route = useRoute()
 const contentId = route.params.contentId as string
@@ -21,7 +20,7 @@ const processing = ref(false)
 const fetchContentAnalysis = async () => {
   try {
     const data = await getContentAnalysis(contentId)
-    content.value = data
+    content.value = (data as unknown as ContentItem[])?.[0] || null
   } catch {
     error.value = 'Failed to fetch content analysis.'
   } finally {
@@ -38,12 +37,12 @@ const handleAction = async (action: 'approve' | 'reject' | 'flag') => {
   try {
     switch (action) {
       case 'approve':
-        await approveContent(contentId)
+        await moderateContent(contentId, 'approve')
         actionMessage.value = 'Content approved.'
         content.value.status = 'approved'
         break
       case 'reject':
-        await rejectContent(contentId)
+        await moderateContent(contentId, 'reject')
         actionMessage.value = 'Content rejected.'
         content.value.status = 'rejected'
         break

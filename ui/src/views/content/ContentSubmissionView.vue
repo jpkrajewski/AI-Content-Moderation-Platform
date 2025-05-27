@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
-import axiosInstance from '@/services/interceptor.ts'
-import endpoints from '@/services/endpoints.ts'
-import { getCurrentUser } from '@/services/auth'
+import axiosInstance from '@/api/interceptors/interceptor'
+import { endpoints } from '@/shared/constants/endpoints'
+import { authService } from '@/features/auth/services/auth'
+import { useJwtStore } from '@/stores/jwt'
+import type { AxiosError } from 'axios'
 
 const title = ref('')
 const body = ref('')
@@ -18,25 +20,42 @@ const error = ref('')
 const success = ref('')
 const uid = ref('')
 const username = ref('')
+const userInitialized = ref(false)
 
 const API_KEY = import.meta.env.VITE_API_KEY
 
 const initializeUser = async () => {
   try {
-    const user = await getCurrentUser()
-    if (user) {
+    const jwtStore = useJwtStore()
+
+    if (!jwtStore.isLoggedIn) {
+      error.value = 'You must be logged in to submit content'
+      return
+    }
+
+    const user = await authService.getCurrentUser()
+
+    if (user && user.uid && user.username) {
       uid.value = user.uid
       username.value = user.username
+      userInitialized.value = true
+    } else {
+      console.error('Invalid user data structure:', user)
+      error.value = 'Invalid user data received from server'
     }
-    console.log(user)
   } catch (e) {
-    console.error('Failed to get current user:', e)
-    error.value = 'Failed to get user information'
+    const axiosError = e as AxiosError
+    console.error('Failed to get current user:', axiosError)
+    if (axiosError.response?.status === 401) {
+      error.value = 'Your session has expired. Please log in again.'
+    } else {
+      error.value = 'Failed to get user information. Please try again.'
+    }
   }
 }
 
-onMounted(() => {
-  initializeUser()
+onMounted(async () => {
+  await initializeUser()
 })
 
 const localizations = [
@@ -59,6 +78,16 @@ const handleFileChange = (event: Event, target: Ref<File[]>) => {
 }
 
 const handleSubmit = async () => {
+  if (!userInitialized.value) {
+    error.value = 'Please wait while we load your user information.'
+    return
+  }
+
+  if (!uid.value || !username.value) {
+    error.value = 'User information is missing. Please refresh the page and try again.'
+    return
+  }
+
   loading.value = true
   error.value = ''
   success.value = ''

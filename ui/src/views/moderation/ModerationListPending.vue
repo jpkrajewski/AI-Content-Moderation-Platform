@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { listPendingContent } from '@/services/moderation'
+import { listPendingContent } from '@/features/moderation/services/moderation'
 import { useRouter } from 'vue-router'
-import type { ContentItem } from '@/models/moderation'
+import type { ContentItem } from '@/features/dashboard/types/dashboard'
 
 const router = useRouter()
 const contentItems = ref<ContentItem[]>([])
@@ -13,7 +13,7 @@ const error = ref('')
 const fetchPendingContent = async () => {
   try {
     const data = await listPendingContent()
-    contentItems.value = data
+    contentItems.value = data as unknown as ContentItem[]
   } catch {
     error.value = 'Failed to fetch moderation content.'
   } finally {

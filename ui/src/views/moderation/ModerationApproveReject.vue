@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { approveContent, rejectContent } from '@/services/moderation'
+import { moderateContent } from '@/features/moderation/services/moderation'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 const contentId = route.params.id as string
 
-console.log('Content ID:', contentId)
 const loading = ref(false)
 const error = ref('')
 
 const approve = async () => {
   try {
     loading.value = true
-    await approveContent(contentId)
+    await moderateContent(contentId, 'approve')
     alert('Content approved successfully!')
     router.push('/moderation/pending')
   } catch {
@@ -27,7 +26,7 @@ const approve = async () => {
 const reject = async () => {
   try {
     loading.value = true
-    await rejectContent(contentId)
+    await moderateContent(contentId, 'reject')
     alert('Content rejected successfully!')
     router.push('/moderation/pending')
   } catch {
