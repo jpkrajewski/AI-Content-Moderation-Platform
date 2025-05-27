@@ -79,6 +79,26 @@ services:
       - ./backend:/app
     command: python src/moderation/kafka/consumer.py
 
+  celery_worker:
+    build:
+      context: ./backend
+    command: celery -A moderation.celery.celery:celery_app worker --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - backend
+
+  celery_beat:
+    build:
+      context: ./backend
+    command: celery -A moderation.celery.celery:celery_app beat --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - backend
+
   nginx:
     container_name: nginx-server
     image: nginx:latest
