@@ -1,0 +1,26 @@
+{
+  "ignores": [
+    "@commitlint/cli",
+    "@commitlint/config-conventional",
+    "@testing-library/react",
+    "@testing-library/vue",
+    "@vue/test-utils",
+    "autoprefixer",
+    "commitlint",
+    "cypress",
+    "depcheck",
+    "eslint-config-prettier",
+    "jest",
+    "npm-check-updates",
+    "postcss",
+    "snyk",
+    "tailwindcss"
+  ],
+  "specials": [
+    "bin",
+    "eslint",
+    "jest",
+    "prettier",
+    "webpack"
+  ]
+} 
