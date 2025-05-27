@@ -72,6 +72,11 @@
                 ]"
               >
                 Submit Content
+                <span
+                  class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                >
+                  DEV
+                </span>
               </router-link>
             </div>
           </div>
