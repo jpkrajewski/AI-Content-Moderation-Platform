@@ -14,6 +14,7 @@ export const usePendingCountStore = defineStore('pendingCount', () => {
       count.value = Array.isArray(data) ? data.length : 0
     } catch (err) {
       error.value = 'Failed to fetch pending count'
+      console.error('Failed to fetch pending count:', err)
     } finally {
       loading.value = false
     }
@@ -23,6 +24,6 @@ export const usePendingCountStore = defineStore('pendingCount', () => {
     count,
     loading,
     error,
-    fetchPendingCount
+    fetchPendingCount,
   }
-}) 
+})

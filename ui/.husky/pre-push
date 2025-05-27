@@ -1,0 +1,45 @@
+cd ui #Navigate to the ui directory
+
+echo "🚀 Running pre-push checks..."
+
+# # Run the full test suite
+# echo "🧪 Running full test suite..."
+# npm run test
+# if [ $? -ne 0 ]; then
+#   echo "❌ Tests failed. Please fix them before pushing."
+#   exit 1
+# fi
+
+# Check for unused dependencies
+echo "📦 Running depcheck..."
+npx depcheck
+if [ $? -ne 0 ]; then
+  echo "⚠️ Unused dependencies found. Please review and clean up your dependencies."
+  exit 1
+fi
+
+# Run Snyk security scan
+echo "🔒 Running Snyk security scan..."
+npx snyk test
+if [ $? -ne 0 ]; then
+  echo "⚠️ Snyk found security vulnerabilities. Please review and fix them before pushing."
+  exit 1
+fi
+
+# Run security audit
+echo "🔒 Running npm security audit..."
+npm audit
+if [ $? -ne 0 ]; then
+  echo "⚠️ Security vulnerabilities found. Please review and fix them before pushing."
+  exit 1
+fi
+
+# Run build to ensure everything compiles correctly
+echo "🏗️ Running build..."
+npm run build
+if [ $? -ne 0 ]; then
+  echo "❌ Build failed. Please fix the issues before pushing."
+  exit 1
+fi
+
+echo "✅ All pre-push checks passed!"

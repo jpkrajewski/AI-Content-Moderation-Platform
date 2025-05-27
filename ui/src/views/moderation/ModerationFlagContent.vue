@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { flagContent } from '@/services/moderation';
-import { useRoute, useRouter } from 'vue-router';
+import { ref } from 'vue'
+import { flagContent } from '@/services/moderation'
+import { useRoute, useRouter } from 'vue-router'
 
-const route = useRoute();
-const router = useRouter();
-const contentId = route.params.contentId as string;
+const route = useRoute()
+const router = useRouter()
+const contentId = route.params.contentId as string
 
-const loading = ref(false);
-const error = ref('');
+const loading = ref(false)
+const error = ref('')
 
 const flag = async () => {
   try {
-    loading.value = true;
-    await flagContent(contentId);
-    alert('Content flagged successfully!');
-    router.push('/moderation/pending');
+    loading.value = true
+    await flagContent(contentId)
+    alert('Content flagged successfully!')
+    router.push('/moderation/pending')
   } catch {
-    error.value = 'Failed to flag content.';
+    error.value = 'Failed to flag content.'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 </script>
 
 <template>
