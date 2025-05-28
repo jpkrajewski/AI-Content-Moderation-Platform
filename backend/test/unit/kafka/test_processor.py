@@ -2,14 +2,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from kafka.consumer.fetcher import ConsumerRecord
-from moderation.ai.models import ClassifyResult
+from moderation.ai.models import Result
 from moderation.kafka.models import KafkaModerationMessage
 from moderation.kafka.processor import classify_and_save, process_message
 
 
 @pytest.fixture
 def mock_classify_result():
-    return ClassifyResult(
+    return Result(
         content_type="image",
         automated_flag=True,
         automated_flag_reason="NSFW detected",

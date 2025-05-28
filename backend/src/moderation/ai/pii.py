@@ -1,6 +1,6 @@
 from functools import cache
 
-from moderation.ai.models import PIIResult
+from moderation.ai.models import Result
 from presidio_analyzer import AnalyzerEngine
 from presidio_anonymizer import AnonymizerEngine
 
@@ -20,12 +20,11 @@ class PIIAnalyzer:
         self.analyzer = analizer
         self.anonymizer = anonymizer
 
-    def analyze(self, text: str) -> PIIResult:
+    def analyze(self, text: str) -> Result:
         results = self.analyzer.analyze(text=text, language="en")
-        return PIIResult(
-            content_type="text/plain",
-            results=results,
+        return Result.from_pii(
             model_version=self.analyzer.nlp_engine.engine_name,
+            results=results,
         )
 
     def anonymize(self, text: str, analyzer_results: list) -> str:

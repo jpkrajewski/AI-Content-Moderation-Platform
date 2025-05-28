@@ -4,18 +4,21 @@ from typing import Callable, Optional
 from dependency_injector.wiring import Provide, inject
 from kafka.consumer.fetcher import ConsumerRecord
 from moderation.ai.image import get_image_classifier
-from moderation.ai.models import ClassifyResult
+from moderation.ai.models import Result
 from moderation.ai.pii import get_pii_analyzer
 from moderation.ai.text import get_text_classifier
 from moderation.core.container import Container
 from moderation.kafka.models import KafkaModerationMessage
 from moderation.repository.db.analysis.base import AnalysisResult
 from moderation.service.content import ContentService
+from moderation.parsers.documents import extract_text_from_document
+from moderation.parsers.urls import extract_urls
+from moderation.validators.urls import AsyncGoogleSafeBrowsingClient
 
 logger = logging.getLogger("moderation")
 
 
-def get_classifier(message_type: str) -> Callable[[str], ClassifyResult]:
+def get_classifier(message_type: str) -> Callable[[str], Result]:
     classifier = {
         "image": get_image_classifier().classify,
         "text": get_text_classifier().classify,
@@ -24,10 +27,11 @@ def get_classifier(message_type: str) -> Callable[[str], ClassifyResult]:
     return classifier[message_type]
 
 
+
 @inject
 def save_analysis_result(
     content_id: str,
-    result: ClassifyResult,
+    result: Result,
     filename: Optional[str] = None,
     content_service: ContentService = Provide[Container.content_service],
 ) -> bool:
