@@ -7,6 +7,7 @@ from moderation.core.container import Container
 from moderation.kafka.models import KafkaModerationMessage
 from moderation.pipelines import PipelineType, get_pipeline
 from moderation.repository.db.analysis.base import AnalysisResult
+from moderation.service.analysis import AnalysisService
 
 logger = logging.getLogger("moderation")
 
@@ -27,9 +28,12 @@ def process_message(record: ConsumerRecord) -> None:
 
 
 @inject
-async def process_pipeline_async(message: KafkaModerationMessage, service=Provide[Container.content_service]):
+async def process_pipeline_async(
+    message: KafkaModerationMessage, service: AnalysisService = Provide[Container.analysis_service]
+):
     pipeline = get_pipeline(PipelineType(message.type))
-    results = await pipeline.process(message)
+    results = await pipeline.process(message.get_input_data())
+    logger.info(f"results: {results}")
     analysis_results = []
     for result in results:
         analysis = AnalysisResult(
@@ -43,8 +47,8 @@ async def process_pipeline_async(message: KafkaModerationMessage, service=Provid
         )
         analysis_results.append(analysis)
 
-    logger.info(f"Saving analysis result: {analysis}")
+    logger.info(f"Saving analysis result: {analysis_results}")
     try:
-        service.save_analysis_result(message.content_id, analysis)
+        service.save_analysis_result_bulk(message.content_id, analysis_results)
     except Exception as e:
         logger.exception(f"Failed to save analysis result: {e}")

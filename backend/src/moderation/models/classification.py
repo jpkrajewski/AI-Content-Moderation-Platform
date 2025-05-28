@@ -15,7 +15,7 @@ class Result:
     @classmethod
     def from_pii(cls, model_version: str, results: List[RecognizerResult]) -> "Result":
         return cls(
-            content_type="text",
+            content_type="pii",
             model_version=model_version,
             analysis_metadata={
                 "results": [

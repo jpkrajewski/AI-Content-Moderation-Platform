@@ -10,6 +10,7 @@ def flag_image(result: Result) -> Result:
     else:
         result.automated_flag = False
         result.automated_flag_reason = ""
+    return result
 
 
 def flag_text(result: Result) -> Result:
@@ -24,13 +25,19 @@ def flag_text(result: Result) -> Result:
     else:
         result.automated_flag = False
         result.automated_flag_reason = ""
+    return result
 
 
 def flag_pii(result: Result) -> Result:
-    metadata = result.analysis_metadata
-    if metadata:
+    metadata = result.analysis_metadata["results"]
+    above_threshold = 0
+    for entry in metadata:
+        if entry["score"] > settings.AI_IMAGE_MODERATION_THRESHOLD:
+            above_threshold += 1
+    if above_threshold:
         result.automated_flag = True
-        result.automated_flag_reason = f"The result for PII content is {len(metadata)}"
+        result.automated_flag_reason = f"The result for PII content is {above_threshold}"
     else:
         result.automated_flag = False
         result.automated_flag_reason = ""
+    return result

@@ -11,6 +11,7 @@ from moderation.repository.db.client_api_key.database import DatabaseClientApiKe
 from moderation.repository.db.content.database import DatabaseContentRepository
 from moderation.repository.db.user.base import AbstractUserRepository
 from moderation.repository.db.user.database import DatabaseUserRepository
+from moderation.service.analysis import AnalysisService
 from moderation.service.auth import AuthService
 from moderation.service.client_api_key import ClientApiKeyService
 from moderation.service.content import ContentService
@@ -50,6 +51,10 @@ class Container(containers.DeclarativeContainer):
     content_service = providers.Singleton(
         ContentService,
         content_repository=providers.Factory(_get_content_repository),
+        analysis_repository=providers.Factory(_get_analysis_repository),
+    )
+    analysis_service = providers.Singleton(
+        AnalysisService,
         analysis_repository=providers.Factory(_get_analysis_repository),
     )
     kafka_producer_service = providers.Singleton(
