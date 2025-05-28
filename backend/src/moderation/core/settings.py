@@ -45,5 +45,8 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
 
+    GOOGLE_API_KEY: str = "your_google_api_key"
+    GOOGLE_SAFEBROWSING_CLIENT_ID: str = "your_client_id"
+
 
 settings = Settings()

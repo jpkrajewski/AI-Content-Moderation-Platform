@@ -9,6 +9,8 @@ from sqlalchemy import Float, and_, case, cast, func, text, true
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
 
+PII_CONTENT_TYPE = ["document/pii", "text/pii"]
+
 
 @dataclass
 class ContentInsight:
@@ -216,7 +218,7 @@ class SummaryService:
                 .join(json_each, true())
                 .filter(
                     DBContentAnalysis.automated_flag.is_(True),
-                    DBContentAnalysis.content_type == "text",
+                    DBContentAnalysis.content_type.in_(["text", "document/text"]),
                 )
                 .subquery()
             )
@@ -239,32 +241,33 @@ class SummaryService:
             # Since SQLAlchemy lacks direct lateral join support with json_array_elements, use text()
             sql = text(
                 """
-            SELECT
-                elem->>'entity_type' AS entity_type,
-                COUNT(*) AS count_
-            FROM content_analysis,
-            LATERAL json_array_elements(analysis_metadata->'results') AS elem
-            WHERE content_type = :content_type
-            AND (elem->>'score')::float > :score_threshold
-            GROUP BY entity_type
-            ORDER BY count_ DESC
-            LIMIT :top;
-            """
+                SELECT elem ->>'entity_type' AS entity_type, COUNT (*) AS count_
+                FROM content_analysis, LATERAL json_array_elements(analysis_metadata->'results') AS elem
+                WHERE content_type = ANY (:content_type)
+                  AND automated_flag = TRUE
+                  AND (elem->>'score'):: float
+                    > :score_threshold
+                GROUP BY entity_type
+                ORDER BY count_ DESC
+                    LIMIT :top;
+                """
             )
 
             result = session.execute(
-                sql, {"content_type": "text/plain", "score_threshold": score_threshold, "top": top}
+                sql, {"content_type": PII_CONTENT_TYPE, "score_threshold": score_threshold, "top": top}
             )
             return {row.entity_type: row.count_ for row in result}
 
     def pii_detected_rate(self) -> float:
         with self.db() as session:
-            total_count = session.query(func.count()).filter(DBContentAnalysis.content_type == "text/plain").scalar()
+            total_count = (
+                session.query(func.count()).filter(DBContentAnalysis.content_type.in_(PII_CONTENT_TYPE)).scalar()
+            )
 
             pii_count = (
                 session.query(func.count())
                 .filter(
-                    DBContentAnalysis.content_type == "text/plain",
+                    DBContentAnalysis.content_type.in_(PII_CONTENT_TYPE),
                     func.json_array_length(DBContentAnalysis.analysis_metadata["results"]) > 0,
                 )
                 .scalar()

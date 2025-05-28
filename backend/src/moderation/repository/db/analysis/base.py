@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import List
 
 
 @dataclass
@@ -17,6 +18,10 @@ class AbstractAnalysisRepository(ABC):
     @abstractmethod
     def save_result(self, content_id: str, result: AnalysisResult) -> bool:
         """Save the moderation result to the database."""
+
+    @abstractmethod
+    def save_result_bulk(self, content_id: str, results: List[AnalysisResult]) -> bool:
+        """Save the moderation result to the database in bulk."""
 
     @abstractmethod
     def get_results(self, content_id: str) -> list[AnalysisResult] | None:

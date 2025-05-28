@@ -31,7 +31,7 @@ def generate_analysis_metadata(content_type):
     """
     Generate structured metadata based on the content type.
     """
-    if content_type in ["text", "document"]:
+    if content_type in ["text", "document/text"]:
         return {
             "toxicity": round(random.uniform(0.2, 0.95), 3),
             "severe_toxicity": round(random.uniform(0.0, 0.1), 3),
@@ -47,10 +47,7 @@ def generate_analysis_metadata(content_type):
             "nsfw": nsfw,
             "normal": normal,
         }
-    elif content_type == "text/plain":
-        if random.random() < 0.7:
-            return {}
-
+    elif content_type in ["text/pii", "document/pii"]:
         # Define possible PII entity types
         pii_entity_types = ["URL", "EMAIL", "CREDIT_CARD", "PERSON", "LOCATION", "PASSWORD", "SSN"]
 
@@ -71,6 +68,25 @@ def generate_analysis_metadata(content_type):
         return {
             "results": pii_entities,
         }
+    elif content_type in ["document/url", "text/url"]:
+        return {
+            "results": [
+                {
+                    "url": "http://allegro.pl-bilety-sprzedaz-resale.icu",
+                    "safe": False,
+                    "details": [
+                        {
+                            "threatType": "SOCIAL_ENGINEERING",
+                            "platformType": "ANY_PLATFORM",
+                            "threat": {"url": "http://allegro.pl-bilety-sprzedaz-resale.icu"},
+                            "cacheDuration": "300s",
+                            "threatEntryType": "URL",
+                        }
+                    ],
+                }
+            ]
+        }
+
     else:
         return {}
 
@@ -170,7 +186,15 @@ def load_fixtures():
             contents.append(content)
 
             # Generate analyses for different content types
-            for content_type in ["text", "image", "document", "text/plain"]:
+            for content_type in [
+                "text",
+                "image",
+                "document/text",
+                "text/pii",
+                "document/pii",
+                "document/url",
+                "text/url",
+            ]:
                 analysis = ContentAnalysis(
                     id=uuid.uuid4(),
                     content_id=content_id,

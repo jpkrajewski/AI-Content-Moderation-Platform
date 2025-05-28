@@ -1,8 +1,8 @@
 from functools import cache
 
 import torch
-from moderation.ai.models import ClassifyResult
 from moderation.core.settings import settings
+from moderation.models.classification import Result
 from PIL import Image
 from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 
@@ -15,7 +15,7 @@ class ImageClassifier:
             settings.AI_IMAGE_MODERATION_MODEL
         )
 
-    def classify(self, image_path: str) -> ClassifyResult:
+    def classify(self, image_path: str) -> Result:
         """
         Moderates an image using a pre-trained model.
         Args:
@@ -37,12 +37,8 @@ class ImageClassifier:
         # Map class indices to labels
         labels = self.model.config.id2label
         analysis_metadata = {labels[idx]: score.item() for idx, score in enumerate(probs[0])}
-        flagged = analysis_metadata["nsfw"] > settings.AI_IMAGE_MODERATION_THRESHOLD
-        flagged_reason = "NSFW content detected" if flagged else ""
-        return ClassifyResult(
+        return Result(
             content_type="image",
-            automated_flag=flagged,
-            automated_flag_reason=flagged_reason,
             model_version=settings.AI_IMAGE_MODERATION_MODEL,
             analysis_metadata=analysis_metadata,
         )

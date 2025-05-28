@@ -20,3 +20,4 @@ def test_check_scopes(scopes, required_scopes, should_raise):
             check_scopes(scopes, required_scopes)
     else:
         assert check_scopes(scopes, required_scopes) is None
+

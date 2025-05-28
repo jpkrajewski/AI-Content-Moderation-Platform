@@ -1,5 +1,5 @@
 import logging
-from typing import Callable, ContextManager, Optional
+from typing import Callable, ContextManager, List, Optional
 
 from moderation.db.analysis import ContentAnalysis as DBContentAnalysis
 from moderation.repository.db.analysis.base import AbstractAnalysisRepository, AnalysisResult
@@ -44,6 +44,37 @@ class DatabaseAnalysisRepository(AbstractAnalysisRepository):
             logger.exception("Failed to save analysis result.")
             session.rollback()
             return None
+
+    def save_result_bulk(self, content_id: str, results: List[AnalysisResult]) -> bool:
+        """Save multiple analysis results to the database in bulk."""
+        logger.info(f"Saving bulk analysis results for content ID {content_id}: {len(results)} results")
+
+        # Prepare the list of dictionaries for bulk insert
+        values = [
+            {
+                "content_id": content_id,
+                "content_type": result.content_type,
+                "automated_flag": result.automated_flag,
+                "automated_flag_reason": result.automated_flag_reason,
+                "model_version": result.model_version,
+                "analysis_metadata": result.analysis_metadata,
+                "filename": result.filename,
+            }
+            for result in results
+        ]
+
+        stmt = insert(DBContentAnalysis).values(values)
+
+        try:
+            with self.db() as session:
+                session.execute(stmt)
+                session.commit()
+                logger.info(f"Successfully saved {len(results)} analysis results for content ID {content_id}")
+                return True
+        except SQLAlchemyError:
+            logger.exception("Failed to save bulk analysis results.")
+            session.rollback()
+            return False
 
     def get_results(self, content_id: str) -> list[AnalysisResult] | None:
         """Retrieve all analysis results for a given content ID."""
