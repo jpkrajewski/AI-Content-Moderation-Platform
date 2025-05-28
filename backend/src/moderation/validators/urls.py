@@ -1,9 +1,14 @@
-import logging
-from typing import List, Union, Dict
-import httpx
 import asyncio
+import logging
+from typing import Dict, List, Union
+
+import httpx
+from moderation import MODERATION_VERSION
+from moderation.core.settings import settings
+from moderation.models.classification import Result
 
 logger = logging.getLogger(__name__)
+
 
 class AsyncGoogleSafeBrowsingClient:
     BASE_URL = "https://safebrowsing.googleapis.com/v4/threatMatches:find"
@@ -14,12 +19,12 @@ class AsyncGoogleSafeBrowsingClient:
         "POTENTIALLY_HARMFUL_APPLICATION",
     ]
 
-    def __init__(self, api_key: str, client_id: str = "yourcompanyname", client_version: str = "1.0") -> None:
-        self.api_key = api_key
+    def __init__(self) -> None:
+        self.api_key = settings.GOOGLE_API_KEY
         self.headers = {"Content-Type": "application/json"}
         self.client_info = {
-            "clientId": client_id,
-            "clientVersion": client_version,
+            "clientId": settings.GOOGLE_SAFEBROWSING_CLIENT_ID,
+            "clientVersion": MODERATION_VERSION,
         }
 
     def _prepare_payload(self, url: str) -> dict:
@@ -45,16 +50,18 @@ class AsyncGoogleSafeBrowsingClient:
             response.raise_for_status()
         except httpx.RequestError as e:
             logger.error(f"Request to Google Safe Browsing API failed for {url}: {e}")
-            return {"url": url, "error": str(e)}
+            return {}
 
         data = response.json()
         if "matches" in data:
-            logger.warning(f"Unsafe URL detected: {url} - Details: {data['matches']}")
             return {"url": url, "safe": False, "details": data["matches"]}
-        logger.info(f"URL is safe: {url}")
-        return {"url": url, "safe": True, "details": None}
+        return {"url": url, "safe": True, "details": {}}
 
-    async def check_urls(self, urls: List[str]) -> List[Dict[str, Union[str, dict, bool]]]:
+    async def check_urls(self, urls: List[str]) -> Result:
         async with httpx.AsyncClient() as client:
             tasks = [self.check_url(client, url) for url in urls]
-            return await asyncio.gather(*tasks)
+            results = await asyncio.gather(*tasks)
+            return Result.from_google_safe_websearch(
+                model_version=self.BASE_URL,
+                results=results,
+            )

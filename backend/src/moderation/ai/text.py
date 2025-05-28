@@ -1,16 +1,9 @@
-import os
-from abc import ABC, abstractmethod
 from functools import cache
 
-import pymupdf
 import torch
-from docx import Document
-from moderation.ai.models import Result
 from moderation.core.settings import settings
+from moderation.models.classification import Result
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
-
-
-
 
 
 class TextClassifier:
@@ -49,7 +42,6 @@ class TextClassifier:
             model_version=settings.AI_TEXT_MODERATION_MODEL,
             analysis_metadata={labels[i]: score.item() for i, score in enumerate(probs[0])},
         )
-
 
 
 @cache

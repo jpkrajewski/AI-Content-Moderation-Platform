@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class PipelineType(Enum):
     TEXT = "text"
     IMAGE = "image"

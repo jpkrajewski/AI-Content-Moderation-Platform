@@ -1,8 +1,8 @@
 from functools import cache
 
 import torch
-from moderation.ai.models import Result
 from moderation.core.settings import settings
+from moderation.models.classification import Result
 from PIL import Image
 from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 

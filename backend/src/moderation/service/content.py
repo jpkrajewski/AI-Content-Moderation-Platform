@@ -70,6 +70,11 @@ class ContentService:
             raise RuntimeError("Failed to save analysis result")
         return saved
 
+    def save_result_bulk(self, content_id: str, results: List[AnalysisResult]) -> None:
+        saved = self.analysis_repository.save_result_bulk(content_id, results)
+        if not saved:
+            raise RuntimeError("Failed to save analysis result")
+
     def get_analysis_result(self, content_id: str) -> ContentWithAnalysis:
         content = self.content_repository.get_by_id(content_id)
         if not content:

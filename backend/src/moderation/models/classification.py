@@ -13,7 +13,7 @@ class Result:
     automated_flag_reason: str | None = None
 
     @classmethod
-    def from_pii(cls, model_version:str, results: List[RecognizerResult]) -> "Result":
+    def from_pii(cls, model_version: str, results: List[RecognizerResult]) -> "Result":
         return cls(
             content_type="text",
             model_version=model_version,
@@ -27,7 +27,9 @@ class Result:
                     }
                     for result in results
                 ]
-            }
+            },
         )
 
     @classmethod
+    def from_google_safe_websearch(cls, model_version: str, results: List[dict]) -> "Result":
+        return cls(content_type="url", model_version=model_version, analysis_metadata={"results": results})

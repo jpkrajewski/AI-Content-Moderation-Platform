@@ -1,6 +1,6 @@
 from functools import cache
 
-from moderation.ai.models import Result
+from moderation.models.classification import Result
 from presidio_analyzer import AnalyzerEngine
 from presidio_anonymizer import AnonymizerEngine
 
