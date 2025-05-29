@@ -99,3 +99,7 @@ class AbstractDBContentRepository(ABC):
     @abstractmethod
     def delete(self, content_id: str) -> bool:
         """Delete content by ID."""
+
+    @abstractmethod
+    def count(self, **criterion: dict) -> int:
+        """Count content by criteria."""

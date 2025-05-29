@@ -91,6 +91,26 @@ paths:
         '200':
           description: List of flagged content
 
+  /moderation/info:
+    get:
+      summary: Admin - get generic info about moderated content
+      operationId: moderation.routes.moderation_action.info
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Generic moderation info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pending_count:
+                    type: integer
+                    example: 312
+        '500':
+          description: Server error
+
   /moderation/{content_id}:
     get:
       summary: Admin - view analysis of single content

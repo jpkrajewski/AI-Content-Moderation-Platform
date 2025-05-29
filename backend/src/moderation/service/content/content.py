@@ -8,6 +8,7 @@ from moderation.repository.db.content.base import (
     ContentWithAnalysis,
     content_with_analysis,
 )
+from moderation.service.content.models import GenericContentInfo
 
 
 class ContentService:
@@ -106,3 +107,9 @@ class ContentService:
 
         # Fetch the paginated list of pending content
         return self.content_repository.list_with_analysis(status="pending", offset=offset, limit=limit)
+
+    def get_info(self) -> GenericContentInfo:
+        pending_count = self.content_repository.count(status="pending")
+        return GenericContentInfo(
+            pending_count=pending_count,
+        )

@@ -165,3 +165,8 @@ class DatabaseContentRepository(AbstractDBContentRepository):
             session.delete(record)
             session.commit()
             return True
+
+    def count(self, **criterion: dict) -> int:
+        """Count content by criterion."""
+        with self.db() as session:
+            return session.query(DBContent).filter_by(**criterion).count()

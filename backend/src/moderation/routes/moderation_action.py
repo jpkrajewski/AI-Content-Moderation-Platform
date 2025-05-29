@@ -5,7 +5,7 @@ from uuid import UUID
 from dependency_injector.wiring import Provide, inject
 from moderation.core.container import Container
 from moderation.repository.db.content.base import Content
-from moderation.service.content import ContentService, ContentWithAnalysis
+from moderation.service.content.content import ContentService, ContentWithAnalysis
 
 
 @inject
@@ -48,3 +48,10 @@ def flag_content(
 ) -> tuple[Content, Literal[HTTPStatus.OK]]:
     """Flag content by ID"""
     return content_service.update_content_status(content_id, user, "flagged"), HTTPStatus.OK
+
+
+@inject
+def info(
+    content_service: ContentService = Provide[Container.content_service]
+) -> tuple[Content, Literal[HTTPStatus.OK]]:
+    return content_service.get_info(), HTTPStatus.OK
