@@ -7,7 +7,7 @@ from moderation.cache.redis import invalidate_cache
 from moderation.constants.general import DASHBOARD_SUMMARY
 from moderation.core.container import Container
 from moderation.repository.db.content.base import Content
-from moderation.service.content import ContentService
+from moderation.service.content.content import ContentService
 from moderation.service.kafka import KafkaProducerService
 from moderation.service.storage import Storage
 from werkzeug.datastructures import FileStorage

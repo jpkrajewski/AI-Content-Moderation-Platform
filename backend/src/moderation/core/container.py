@@ -14,7 +14,7 @@ from moderation.repository.db.user.database import DatabaseUserRepository
 from moderation.service.analysis import AnalysisService
 from moderation.service.auth import AuthService
 from moderation.service.client_api_key import ClientApiKeyService
-from moderation.service.content import ContentService
+from moderation.service.content.content import ContentService
 from moderation.service.kafka import KafkaProducerService
 from moderation.service.storage import Storage
 from moderation.service.summary import SummaryService
