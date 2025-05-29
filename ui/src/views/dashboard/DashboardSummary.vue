@@ -6,10 +6,10 @@
 
     <div
       v-else-if="error"
-      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"
       role="alert"
     >
-      <strong class="font-bold">Error!</strong>
+      <strong class="font-bold">Error! </strong>
       <span class="block sm:inline"> {{ error }}</span>
     </div>
 
@@ -34,7 +34,6 @@
           <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
               <div class="p-3 rounded-full bg-green-500">
-                <!-- Icon for Approved -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-6 w-6 text-white"
@@ -61,7 +60,6 @@
           <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
               <div class="p-3 rounded-full bg-yellow-500">
-                <!-- Icon for Flagged -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-6 w-6 text-white"
@@ -88,7 +86,6 @@
           <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
               <div class="p-3 rounded-full bg-red-500">
-                <!-- Icon for Rejected -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-6 w-6 text-white"
@@ -115,7 +112,6 @@
           <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
               <div class="p-3 rounded-full bg-blue-500">
-                <!-- Icon for Accuracy -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-6 w-6 text-white"
@@ -142,7 +138,6 @@
           <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
               <div class="p-3 rounded-full bg-teal-500">
-                <!-- Icon for False Positive Rate -->
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-6 w-6 text-white"
