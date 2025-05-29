@@ -58,24 +58,39 @@ class Pipeline:
             preprocessed_data[idx] = temp_data
             logger.info(f"Preprocessed data for index {idx}: {temp_data}")
 
-        # Running processors
         results = []
         for idx, runner in self.runners.items():
             logger.info(f"Running runner: {runner.name} for index {idx}")
             input_for_runner = preprocessed_data.get(idx, data)
+
+            # Normalize input to list if it isn't already
+            if not isinstance(input_for_runner, list):
+                input_for_runner = [input_for_runner]
+
             try:
-                result = await runner.run(input_for_runner)
+                # Run runner on each item sequentially and collect results
+                result = []
+                for item in input_for_runner:
+                    r = await runner.run(item)
+                    result.append(r)
+
                 logger.info(f"Runner '{runner.name}' completed with result: {result}")
+
+                # Run postprocessors if any
                 if idx in self.postprocessors:
-                    logger.info(f"Running postprocessor for index {idx}")
-                    for postprocessor in self.postprocessors[idx]:
-                        result = await postprocessor.run(result)
-                    logger.info(f"Postprocessor for index {idx} completed with result: {result}")
-                if result:
-                    results.append(result)
+                    logger.info(f"Running postprocessor(s) for index {idx}")
+                    for i, res in enumerate(result):
+                        for postprocessor in self.postprocessors[idx]:
+                            res = await postprocessor.run(res)
+                        result[i] = res
+                    logger.info(f"Postprocessor(s) for index {idx} completed with result: {result}")
+
+                results.extend(result)  # always extend because result is list
+
             except Exception as e:
                 logger.error(f"Error in runner '{runner.name}' at index {idx}: {e}", exc_info=True)
                 raise
 
         logger.info(f"Pipeline processing completed with results: {results}")
         return results
+

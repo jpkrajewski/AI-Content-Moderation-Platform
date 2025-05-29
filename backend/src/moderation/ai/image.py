@@ -1,5 +1,6 @@
 from functools import cache
 
+import numpy as np
 import torch
 from moderation.core.settings import settings
 from moderation.models.classification import Result
@@ -15,21 +16,14 @@ class ImageClassifier:
             settings.AI_IMAGE_MODERATION_MODEL
         )
 
-    def classify(self, image_path: str) -> Result:
+    def classify(self, image: Image) -> Result:
         """
-        Moderates an image using a pre-trained model.
-        Args:
-            image_path (str): Path to the image file.
-        Returns:
-            dict: A dictionary with class labels and their corresponding probabilities.
-
         Example:
             >>> image_moderation = ImageModeration()
             >>> results = image_moderation.moderate_image("path/to/image.jpg")
             >>> print(results)
             {'normal': 0.95, 'nsfw': 0.05}
         """
-        image = Image.open(image_path).convert("RGB")
         inputs = self.extractor(images=image, return_tensors="pt")
         outputs = self.model(**inputs)
         probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
@@ -42,7 +36,6 @@ class ImageClassifier:
             model_version=settings.AI_IMAGE_MODERATION_MODEL,
             analysis_metadata=analysis_metadata,
         )
-
 
 @cache
 def get_image_classifier() -> ImageClassifier:
