@@ -1,8 +1,17 @@
 import axiosInstance from '@/api/interceptors/interceptor'
-import type { ContentItem } from '../types/content'
+import type { ContentItem } from '../types/moderation'
 
-export const listPendingContent = async (): Promise<ContentItem[]> => {
-  const response = await axiosInstance.get('/moderation/pending')
+interface PaginationParams {
+  page: number
+  page_size: number
+}
+
+export interface ModerationInfo {
+  pending_count: number
+}
+
+export const listPendingContent = async (params: PaginationParams): Promise<ContentItem[]> => {
+  const response = await axiosInstance.get('/moderation/pending', { params })
   return response.data
 }
 
@@ -36,6 +45,11 @@ export const flagContent = async (contentId: string, reason?: string) => {
   return response.data
 }
 
+export const getModerationInfo = async (): Promise<ModerationInfo> => {
+  const response = await axiosInstance.get('/moderation/info')
+  return response.data
+}
+
 export const moderationService = {
   listPendingContent,
   moderateContent,
@@ -43,4 +57,5 @@ export const moderationService = {
   analyzeContent,
   getContentAnalysis,
   flagContent,
+  getModerationInfo,
 }
