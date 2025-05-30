@@ -29,11 +29,11 @@ class Settings(BaseSettings):
 
     DB_REPOSITORY: Literal["memory", "database"] = "database"
 
-    AI_USE_MOCK: bool = True
-    AI_IMAGE_MODERATION_MODEL: str = "Falconsai/nsfw_image_detection"
-    AI_TEXT_MODERATION_MODEL: str = "unitary/toxic-bert"
+    AI_IMAGE_MODEL: str = "Falconsai/nsfw_image_detection"
+    AI_TEXT_MODEL: str = "unitary/toxic-bert"
     AI_IMAGE_MODERATION_THRESHOLD: float = 0.5
     AI_TEXT_MODERATION_THRESHOLD: float = 0.5
+    AI_AUDIO_MODEL: str =     "openai/whisper-small"
 
     LOGGER_CONF_PATH: Path = BASE_DIR / "logging" / "dev.conf"
 
@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     GOOGLE_SAFEBROWSING_CLIENT_ID: str = ""
 
     PARSERS_VIDEO_FRAME_INTERVAL: int = 1
+
+
+
 
 
 settings = Settings()
