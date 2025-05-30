@@ -1,9 +1,10 @@
 from pathlib import Path
 
+from PIL.Image import Image
+
 from moderation.ai.image import ImageClassifier, get_image_classifier
 from pytest import fixture
 
-IMAGES_FOLDER_PATH = Path(__file__).parent
 
 
 @fixture
@@ -11,8 +12,8 @@ def image_classifier():
     return get_image_classifier()
 
 
-def test_classify_jpg(image_classifier: ImageClassifier):
-    result = image_classifier.classify(str(IMAGES_FOLDER_PATH / "cat.jpg"))
+def test_classify_jpg(test_folder, image_classifier: ImageClassifier):
+    result = image_classifier.classify(Image.open(str(test_folder / "cat.jpg")).convert("RGB"))
     assert result is not None
     assert result.content_type == "image"
     assert isinstance(result.analysis_metadata, dict)
@@ -21,7 +22,7 @@ def test_classify_jpg(image_classifier: ImageClassifier):
 
 
 def test_classify_png(image_classifier: ImageClassifier):
-    result = image_classifier.classify(str(IMAGES_FOLDER_PATH / "diagram.png"))
+    result = image_classifier.classify(Image.open(test_folder / "diagram.png"))
     assert result is not None
     assert result.content_type == "image"
     assert isinstance(result.analysis_metadata, dict)

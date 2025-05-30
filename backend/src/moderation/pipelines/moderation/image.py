@@ -2,8 +2,8 @@ from functools import cache
 
 from moderation.ai.flag import flag_image
 from moderation.ai.image import get_image_classifier
-from moderation.pipelines.pipeline import Pipeline, PipelineStage
-from moderation.pipelines.preprocessors import ImageFromPath
+from moderation.pipelines.moderation.pipeline import Pipeline, PipelineStage
+from moderation.pipelines.moderation.preprocessors import ImageFromPath
 
 
 @cache

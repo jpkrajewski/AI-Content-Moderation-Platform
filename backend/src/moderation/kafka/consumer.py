@@ -49,6 +49,7 @@ def initialize_consumer():
                 enable_auto_commit=True,
                 value_deserializer=value_deserializer,
                 consumer_timeout_ms=settings.KAFKA_CONSUMER_TIMEOUT_MS,
+                max_poll_interval_ms=500000,
             )
             logger.info("Successfully connected to Kafka broker")
             return consumer
