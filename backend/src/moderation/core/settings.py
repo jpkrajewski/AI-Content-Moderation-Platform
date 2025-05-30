@@ -46,7 +46,9 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
 
     GOOGLE_API_KEY: str = "your_google_api_key"
-    GOOGLE_SAFEBROWSING_CLIENT_ID: str = "your_client_id"
+    GOOGLE_SAFEBROWSING_CLIENT_ID: str = ""
+
+    PARSERS_VIDEO_FRAME_INTERVAL: int = 1
 
 
 settings = Settings()

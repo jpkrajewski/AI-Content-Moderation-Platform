@@ -31,4 +31,5 @@ dependencies = [
     "transformers>=4.52.3",
     "opencv-python>=4.11.0.86",
     "pydub>=0.25.1",
+    "pytest-asyncio>=1.0.0",
 ]

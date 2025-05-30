@@ -1,10 +1,6 @@
-from pathlib import Path
-
-from PIL.Image import Image
-
 from moderation.ai.image import ImageClassifier, get_image_classifier
+from PIL import Image
 from pytest import fixture
-
 
 
 @fixture
@@ -21,8 +17,8 @@ def test_classify_jpg(test_folder, image_classifier: ImageClassifier):
     assert "nsfw" in result.analysis_metadata
 
 
-def test_classify_png(image_classifier: ImageClassifier):
-    result = image_classifier.classify(Image.open(test_folder / "diagram.png"))
+def test_classify_png(test_folder, image_classifier: ImageClassifier):
+    result = image_classifier.classify(Image.open(test_folder / "diagram.png").convert("RGB"))
     assert result is not None
     assert result.content_type == "image"
     assert isinstance(result.analysis_metadata, dict)
