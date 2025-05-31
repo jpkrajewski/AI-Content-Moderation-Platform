@@ -1,21 +1,21 @@
-FROM nginx:latest
+# build stage
+FROM node:lts-alpine as build-stage
 
-RUN mkdir -p /app
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
-COPY ./dist /app/
+# production stage
+FROM nginx:stable-alpine as production-stage
 
-COPY ./config /app/
+# Copy built files from build stage to nginx html directory
+COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-COPY ./assets/ /app/assets/
-
+# Copy your custom nginx config template to nginx.conf
 COPY nginx.conf.template /etc/nginx/nginx.conf
-
-
-RUN apk update libexpat libxml2 libcurl libssl libxpm aom-libs libdav1d && apk upgrade
-
 
 EXPOSE 80
 
-CMD /usr/local/bin/envtpl /app/index.html -o /app/index.html && \
-    /usr/local/bin/envtpl /etc/nginx/nginx.conf.template -o /etc/nginx/nginx.conf && \
-    exec nginx -g 'daemon off;'
+CMD ["nginx", "-g", "daemon off;"]
