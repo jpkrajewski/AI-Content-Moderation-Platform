@@ -14,6 +14,8 @@ const source = ref('')
 const localization = ref('en')
 const images = ref<File[]>([])
 const documents = ref<File[]>([])
+const videos = ref<File[]>([])
+const audios = ref<File[]>([])
 
 const loading = ref(false)
 const error = ref('')
@@ -92,8 +94,22 @@ const handleDocumentChange = (e: Event) => {
   input.value = ''
 }
 
+const handleVideoChange = (e: Event) => {
+  handleFileChange(e, videos)
+  const input = e.target as HTMLInputElement
+  input.value = ''
+}
+
+const handleAudioChange = (e: Event) => {
+  handleFileChange(e, audios)
+  const input = e.target as HTMLInputElement
+  input.value = ''
+}
+
 const handleRemoveImage = (index: number) => removeFile(index, images)
 const handleRemoveDocument = (index: number) => removeFile(index, documents)
+const handleRemoveVideo = (index: number) => removeFile(index, videos)
+const handleRemoveAudio = (index: number) => removeFile(index, audios)
 
 const handleSubmit = async () => {
   if (!userInitialized.value) {
@@ -136,6 +152,12 @@ const handleSubmit = async () => {
     ;[...documents.value].forEach((file) => {
       formData.append('documents', file)
     })
+    ;[...videos.value].forEach((file) => {
+      formData.append('videos', file)
+    })
+    ;[...audios.value].forEach((file) => {
+      formData.append('audios', file)
+    })
 
     const response = await axiosInstance.post(endpoints.moderation.submitContent, formData, {
       headers: {
@@ -152,6 +174,8 @@ const handleSubmit = async () => {
       localization.value = 'en'
       images.value = []
       documents.value = []
+      videos.value = []
+      audios.value = []
     }
   } catch (e) {
     error.value = 'Failed to submit content. Please try again.'
@@ -288,6 +312,73 @@ const handleSubmit = async () => {
                 <span class="text-sm text-gray-700">{{ file.name }}</span>
                 <button
                   @click="() => handleRemoveDocument(index)"
+                  class="text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-4">
+          <label class="block mb-1 font-medium text-gray-700">Upload Videos</label>
+          <label
+            class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700"
+          >
+            Choose Videos
+            <input
+              type="file"
+              accept="video/*"
+              multiple
+              @change="handleVideoChange"
+              class="hidden"
+            />
+          </label>
+          <div v-if="videos.length > 0" class="mt-2">
+            <p class="text-sm text-gray-600 mb-2">Selected videos:</p>
+            <ul class="space-y-2">
+              <li
+                v-for="(file, index) in videos"
+                :key="index"
+                class="flex items-center justify-between bg-gray-50 p-2 rounded"
+              >
+                <span class="text-sm text-gray-700">{{ file.name }}</span>
+                <button
+                  @click="() => handleRemoveVideo(index)"
+                  class="text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <label class="block mb-1 font-medium text-gray-700">Upload Audios</label>
+          <label
+            class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700"
+          >
+            Choose Audios
+            <input
+              type="file"
+              accept="audio/*"
+              multiple
+              @change="handleAudioChange"
+              class="hidden"
+            />
+          </label>
+          <div v-if="audios.length > 0" class="mt-2">
+            <p class="text-sm text-gray-600 mb-2">Selected audios:</p>
+            <ul class="space-y-2">
+              <li
+                v-for="(file, index) in audios"
+                :key="index"
+                class="flex items-center justify-between bg-gray-50 p-2 rounded"
+              >
+                <span class="text-sm text-gray-700">{{ file.name }}</span>
+                <button
+                  @click="() => handleRemoveAudio(index)"
                   class="text-red-600 hover:text-red-800"
                 >
                   Remove
