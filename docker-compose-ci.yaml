@@ -79,18 +79,6 @@ services:
       - ./backend:/app
     command: python src/moderation/kafka/consumer.py
 
-  nginx:
-    container_name: nginx-server
-    image: nginx:latest
-    ports:
-      - "4040:4040"
-    depends_on:
-      - backend
-    volumes:
-      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
-      - ./backend/uploads:/uploads
-    restart: always
-
   frontend:
     container_name: moderation-frontend
     build:
@@ -99,6 +87,8 @@ services:
       - backend
     env_file:
       - .env
+    ports:
+      - "80:80"
 
   redis:
     container_name: redis-cache

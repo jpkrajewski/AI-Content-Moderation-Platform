@@ -48,7 +48,7 @@ http {
 
         # Forward all other requests to the Flask backend
         location / {
-            proxy_pass   # Proxy requests to the Flask backend
+            proxy_pass http://backend;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -59,7 +59,7 @@ http {
 
     # Frontend server block
     server {
-        listen 5173;
+        listen 80;
 
         # Security headers
         server_tokens off;
@@ -68,7 +68,7 @@ http {
         add_header X-XSS-Protection "1; mode=block";
 
         # Root directory for serving static files
-        root /app;
+        root /usr/share/nginx/html;  # point to where built Vue files are copied
         index index.html;
 
         # Serve static files (e.g., locales, scripts, assets, fonts, styles)

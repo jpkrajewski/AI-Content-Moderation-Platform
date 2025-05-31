@@ -25,12 +25,12 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost',
     trace: 'on-first-retry',
-    headless: false,
-    launchOptions: {
-      slowMo: 1000,
-    },
+    // headless: false,
+    // launchOptions: {
+    //   slowMo: 1000,
+    // },
   },
 
   /* Configure projects for major browsers */
