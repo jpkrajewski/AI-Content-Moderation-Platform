@@ -31,6 +31,8 @@ def from_record(record: DBContent) -> Content:
         updated_at=record.updated_at.isoformat() if record.updated_at else None,
         image_paths=record.image_paths,
         document_paths=record.document_paths,
+        video_paths=record.video_paths,
+        audio_paths=record.audio_paths,
     )
 
 
@@ -108,6 +110,8 @@ class DatabaseContentRepository(AbstractDBContentRepository):
                 source=content.source,
                 image_paths=content.image_paths,
                 document_paths=content.document_paths,
+                video_paths=content.video_paths,
+                audio_paths=content.audio_paths,
             )
             session.add(record)
             session.commit()

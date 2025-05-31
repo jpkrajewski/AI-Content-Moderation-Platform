@@ -6,3 +6,4 @@ class PipelineType(Enum):
     IMAGE = "image"
     VIDEO = "video"
     DOCUMENT = "document"
+    AUDIO = "audio"

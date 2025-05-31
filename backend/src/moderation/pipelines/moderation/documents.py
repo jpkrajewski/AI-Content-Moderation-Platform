@@ -5,8 +5,8 @@ from moderation.ai.pii import get_pii_analyzer
 from moderation.ai.text import get_text_classifier
 from moderation.parsers.documents import extract_text_from_document
 from moderation.parsers.urls import extract_urls
-from moderation.pipelines.pipeline import Pipeline, PipelineStage
-from moderation.pipelines.postprocessors import ResultExcludeEmpty, TagResult
+from moderation.pipelines.moderation.pipeline import Pipeline, PipelineStage
+from moderation.pipelines.moderation.postprocessors import ResultExcludeEmptyMetadata, TagResult
 from moderation.validators.flag import flag_url
 from moderation.validators.urls import AsyncGoogleSafeBrowsingClient
 
@@ -26,12 +26,12 @@ def get_document_pipeline() -> Pipeline:
             1: [
                 PipelineStage(flag_pii, "flag_result"),
                 PipelineStage(TagResult("document"), "tag_result"),
-                PipelineStage(ResultExcludeEmpty(), "exclude_empty_pii_result"),
+                PipelineStage(ResultExcludeEmptyMetadata(), "exclude_empty_pii_result"),
             ],
             2: [
                 PipelineStage(flag_url, "flag_result"),
                 PipelineStage(TagResult("document"), "tag_result"),
-                PipelineStage(ResultExcludeEmpty(), "exclude_empty_url_result"),
+                PipelineStage(ResultExcludeEmptyMetadata(), "exclude_empty_url_result"),
             ],
         },
     )
