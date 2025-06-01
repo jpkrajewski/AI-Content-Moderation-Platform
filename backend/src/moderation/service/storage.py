@@ -19,7 +19,7 @@ class StoredFiles:
     files: List[StoredFile]
 
     @property
-    def paths(self) -> List[str]:
+    def filepaths(self) -> List[str]:
         return [image.filepath for image in self.files]
 
     @property

@@ -33,11 +33,15 @@ def create_content(
     stored_videos = storage_service.save(videos if videos else [])
     stored_audios = storage_service.save(audios if audios else [])
     content = content_service.create_content(
-        body, stored_images.filenames, stored_documents.filenames, stored_videos.filenames, stored_audios.filenames
+        body, stored_images.filepaths, stored_documents.filepaths, stored_videos.filepaths, stored_audios.filepaths
     )
     kafka.send_message_for_text_classifier(content.id, content.title + content.body, message_type=PipelineType.TEXT)
-    kafka.send_message_for_file_classifier_bulk(content.id, stored_images, message_type=PipelineType.IMAGE)
-    kafka.send_message_for_file_classifier_bulk(content.id, stored_documents, message_type=PipelineType.DOCUMENT)
-    kafka.send_message_for_file_classifier_bulk(content.id, stored_videos, message_type=PipelineType.VIDEO)
-    kafka.send_message_for_file_classifier_bulk(content.id, stored_audios, message_type=PipelineType.AUDIO)
+    if stored_images:
+        kafka.send_message_for_file_classifier_bulk(content.id, stored_images, message_type=PipelineType.IMAGE)
+    if stored_documents:
+        kafka.send_message_for_file_classifier_bulk(content.id, stored_documents, message_type=PipelineType.DOCUMENT)
+    if stored_videos:
+        kafka.send_message_for_file_classifier_bulk(content.id, stored_videos, message_type=PipelineType.VIDEO)
+    if stored_audios:
+        kafka.send_message_for_file_classifier_bulk(content.id, stored_audios, message_type=PipelineType.AUDIO)
     return content, HTTPStatus.CREATED
