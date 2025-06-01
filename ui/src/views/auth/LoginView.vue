@@ -29,6 +29,20 @@ const handleLogin = async () => {
     loading.value = false
   }
 }
+
+const handleGoogleLogin = async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    await authService.initGoogleLogin()
+  } catch (e) {
+    error.value = 'Google login failed'
+    console.error('Login failed:', e)
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -117,6 +131,21 @@ const handleLogin = async () => {
           </span>
           <span v-else>Sign in</span>
         </button>
+
+        <div class="mt-6 text-center">
+          <button
+            @click="handleGoogleLogin"
+            type="button"
+            class="w-full inline-flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+          >
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google"
+              class="w-5 h-5 mr-3"
+            />
+            Sign in with Google
+          </button>
+        </div>
 
         <div class="text-center">
           <p class="text-sm text-gray-600">

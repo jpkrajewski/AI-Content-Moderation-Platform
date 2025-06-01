@@ -4,6 +4,7 @@ import GlobalLayout from '../components/layout/GlobalLayout.vue'
 
 import LoginView from '../views/auth/LoginView.vue'
 import RegisterView from '../views/auth/RegisterView.vue'
+import AuthCallbackView from '@/views/auth/0AuthCallbackView.vue'
 
 import DashboardSummary from '../views/dashboard/DashboardSummary.vue'
 import DashboardActivityMetrics from '../views/dashboard/DashboardActivityMetrics.vue'
@@ -26,6 +27,12 @@ const router = createRouter({
       path: '/register',
       name: 'Register',
       component: RegisterView,
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/oauth/callback',
+      name: 'OAuthCallback',
+      component: AuthCallbackView,
       meta: { requiresAuth: false },
     },
 

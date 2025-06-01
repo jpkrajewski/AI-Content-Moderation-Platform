@@ -34,7 +34,7 @@ class AuthService:
         return True, user
 
     def register(
-        self, username: str, password: str, email: str, role: str = "moderator"
+        self, username: str, password: str, email: str, role: str = "moderator", external: bool = False, profile_picture_url: str | None = None
     ) -> Tuple[bool, Optional[User]]:
         existing_user = self.user_repository.get_by_criteria(email=email)
         if existing_user:
@@ -46,6 +46,8 @@ class AuthService:
             username=username,
             password_hash=self.hash_password(password),
             role=role,
+            profile_picture_url=profile_picture_url,
+            external=external,
         )
         created_user = self.user_repository.save_user(user)
         return True, created_user

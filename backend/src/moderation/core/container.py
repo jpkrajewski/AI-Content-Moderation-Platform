@@ -19,6 +19,7 @@ from moderation.service.kafka import KafkaProducerService
 from moderation.service.storage import Storage
 from moderation.service.summary import SummaryService
 from moderation.service.user import UserService
+from moderation.service.oauth.oauth import OAuthService
 
 
 def _get_client_api_key_repository():
@@ -83,3 +84,4 @@ class Container(containers.DeclarativeContainer):
     )
     redis = providers.Factory(get_redis_client)
     storage_service = providers.Factory(Storage)
+    oauth = providers.Singleton(OAuthService)

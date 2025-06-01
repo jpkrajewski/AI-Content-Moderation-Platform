@@ -1,7 +1,7 @@
 import logging
 import logging.config
 from pathlib import Path
-
+from authlib.integrations.flask_client import OAuth
 from connexion import FlaskApp
 from connexion.middleware import MiddlewarePosition
 from moderation.core.container import Container
@@ -35,15 +35,25 @@ def add_routes(app: FlaskApp) -> None:
         auth_all_paths=True,
     )
 
+def add_oauth(app: FlaskApp) -> None:
+    container: Container = app.app.container
+    oauth = container.oauth()
+    oauth.init_and_register_app(app.app)
+
 
 def add_container(app: FlaskApp) -> None:
     app.app.container = Container()
+
+def configure_session(app: FlaskApp) -> None:
+    app.app.secret_key = settings.APP_SECRET_KEY
 
 
 def create_app():
     setup_logging()
     app = FlaskApp(__name__, specification_dir=Path(__file__).parent / "spec")
+    configure_session(app)
     add_container(app)
+    add_oauth(app)
     add_routes(app)
     add_middleware(app)
     return app
