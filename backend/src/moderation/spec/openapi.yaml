@@ -37,6 +37,48 @@ paths:
         '200':
           description: Token returned
 
+  /auth/oauth/login:
+    get:
+      summary: Start OAuth login flow
+      operationId: moderation.routes.auth.oauth_login
+      responses:
+        '302':
+          description: Redirect to OAuth provider
+
+  /auth/oauth/callback:
+    get:
+      summary: OAuth callback handler
+      operationId: moderation.routes.auth.oauth_callback
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: scope
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: authuser
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: prompt
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '203':
+          description: JWT token returned after successful login
+
   /auth/me:
     get:
       summary: Get current user

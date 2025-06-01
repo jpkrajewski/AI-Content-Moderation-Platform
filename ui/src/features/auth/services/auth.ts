@@ -20,4 +20,8 @@ export const authService = {
     const response = await axiosInstance.get('/auth/me')
     return response.data
   },
+
+  async initGoogleLogin() {
+    window.location.href = 'http://localhost:8080/api/v1/auth/oauth/login'
+  },
 }

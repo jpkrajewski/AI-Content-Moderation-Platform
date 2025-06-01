@@ -10,6 +10,9 @@ class UserCreate:
     email: str
     password_hash: str
     role: str = "moderator"
+    external: bool = False
+    profile_picture_url: str | None = None
+
 
 
 @dataclass

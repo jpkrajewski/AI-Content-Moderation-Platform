@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timezone
 
 from moderation.db.base import Base
-from sqlalchemy import Column, DateTime, String
+from sqlalchemy import Column, DateTime, String, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 
 
@@ -15,5 +15,7 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
     role = Column(String(50), default="moderator")  # 'moderator', 'admin'
+    profile_picture_url = Column(String, nullable=True)
+    external = Column(Boolean, nullable=True, default=False)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
