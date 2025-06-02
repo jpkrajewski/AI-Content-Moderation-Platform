@@ -25,7 +25,7 @@ const CACHE_DURATION = 5 * 60 * 1000
 const currentPageContent = computed(() => {
   const cachedContent = contentCache.value[currentPage.value]
   const lastFetch = lastFetchTime.value[currentPage.value]
-  
+
   if (cachedContent && lastFetch && Date.now() - lastFetch < CACHE_DURATION) {
     return cachedContent
   }
@@ -54,13 +54,12 @@ const fetchPendingContent = async (retryCount = 0) => {
 
     const data = await listPendingContent({
       page: currentPage.value,
-      page_size: PAGE_SIZE
+      page_size: PAGE_SIZE,
     })
 
     contentCache.value[currentPage.value] = data
     lastFetchTime.value[currentPage.value] = Date.now()
     contentItems.value = data
-
   } catch (err) {
     console.error('Error fetching content:', err)
     if (retryCount < MAX_RETRIES) {
@@ -124,8 +123,11 @@ onUnmounted(() => {
 
     <div v-else>
       <div class="grid grid-cols-1 gap-6 mb-6">
-        <div v-for="item in contentItems" :key="item.id"
-          class="bg-white border border-gray-200 rounded-xl shadow transition p-6 hover:shadow-lg">
+        <div
+          v-for="item in contentItems"
+          :key="item.id"
+          class="bg-white border border-gray-200 rounded-xl shadow transition p-6 hover:shadow-lg"
+        >
           <div class="flex justify-between items-center mb-2">
             <div>
               <h2 class="text-lg font-semibold text-gray-800 truncate">ID: {{ item.id }}</h2>
@@ -133,11 +135,15 @@ onUnmounted(() => {
                 {{ new Date(item.created_at).toLocaleString() }}
               </p>
             </div>
-            <span class="px-3 py-1 text-xs rounded-full" :class="{
-              'bg-green-100 text-green-800': item.status === 'approved',
-              'bg-yellow-100 text-yellow-800': item.status === 'pending',
-              'bg-red-100 text-red-800': item.status === 'rejected',
-            }" :aria-label="`Status: ${item.status}`">
+            <span
+              class="px-3 py-1 text-xs rounded-full"
+              :class="{
+                'bg-green-100 text-green-800': item.status === 'approved',
+                'bg-yellow-100 text-yellow-800': item.status === 'pending',
+                'bg-red-100 text-red-800': item.status === 'rejected',
+              }"
+              :aria-label="`Status: ${item.status}`"
+            >
               {{ item.status }}
             </span>
           </div>
@@ -145,37 +151,52 @@ onUnmounted(() => {
           <p class="text-sm text-gray-600 truncate mb-3">{{ item.body }}</p>
 
           <div class="flex flex-wrap gap-2 mb-4">
-            <span v-for="tag in item.tags" :key="tag"
-              class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">
+            <span
+              v-for="tag in item.tags"
+              :key="tag"
+              class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full"
+            >
               {{ tag }}
             </span>
           </div>
           <div class="flex justify-between">
-            <button @click="openItemRedirect(item)"
+            <button
+              @click="openItemRedirect(item)"
               class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              :aria-label="`View analysis for content ${item.id}`">
+              :aria-label="`View analysis for content ${item.id}`"
+            >
               View Analysis
             </button>
-            <button @click="openItem(item)"
+            <button
+              @click="openItem(item)"
               class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
-              :aria-label="`View details for content ${item.id}`">
+              :aria-label="`View details for content ${item.id}`"
+            >
               View Details
             </button>
           </div>
         </div>
       </div>
 
-      <div v-if="totalPages > 0"
-        class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+      <div
+        v-if="totalPages > 0"
+        class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6"
+      >
         <div class="flex flex-1 justify-between sm:hidden">
-          <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
+          <button
+            @click="changePage(currentPage - 1)"
+            :disabled="currentPage === 1"
             class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            :aria-label="`Go to previous page`">
+            :aria-label="`Go to previous page`"
+          >
             Previous
           </button>
-          <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
+          <button
+            @click="changePage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
             class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            :aria-label="`Go to next page`">
+            :aria-label="`Go to next page`"
+          >
             Next
           </button>
         </div>
@@ -185,49 +206,75 @@ onUnmounted(() => {
               Showing
               <span class="font-medium">{{ (currentPage - 1) * PAGE_SIZE + 1 }}</span>
               to
-              <span class="font-medium">{{ Math.min(currentPage * PAGE_SIZE, totalPages * PAGE_SIZE) }}</span>
+              <span class="font-medium">{{
+                Math.min(currentPage * PAGE_SIZE, totalPages * PAGE_SIZE)
+              }}</span>
               of
               <span class="font-medium">{{ pendingCountStore.count }}</span>
               results
             </p>
           </div>
           <div>
-            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-              <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
+            <nav
+              class="isolate inline-flex -space-x-px rounded-md shadow-sm"
+              aria-label="Pagination"
+            >
+              <button
+                @click="changePage(currentPage - 1)"
+                :disabled="currentPage === 1"
                 class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                :aria-label="`Go to previous page`">
+                :aria-label="`Go to previous page`"
+              >
                 <span class="sr-only">Previous</span>
                 <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd"
+                  <path
+                    fill-rule="evenodd"
                     d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
-                    clip-rule="evenodd" />
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </button>
 
               <template v-for="page in totalPages" :key="page">
-                <button v-if="page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)"
-                  @click="changePage(page)" :class="[
+                <button
+                  v-if="
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  "
+                  @click="changePage(page)"
+                  :class="[
                     page === currentPage
                       ? 'relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                       : 'relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                  ]" :aria-label="`Go to page ${page}`" :aria-current="page === currentPage ? 'page' : undefined">
+                  ]"
+                  :aria-label="`Go to page ${page}`"
+                  :aria-current="page === currentPage ? 'page' : undefined"
+                >
                   {{ page }}
                 </button>
-                <span v-else-if="page === currentPage - 2 || page === currentPage + 2"
+                <span
+                  v-else-if="page === currentPage - 2 || page === currentPage + 2"
                   class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0"
-                  aria-hidden="true">
+                  aria-hidden="true"
+                >
                   ...
                 </span>
               </template>
 
-              <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
+              <button
+                @click="changePage(currentPage + 1)"
+                :disabled="currentPage === totalPages"
                 class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                :aria-label="`Go to next page`">
+                :aria-label="`Go to next page`"
+              >
                 <span class="sr-only">Next</span>
                 <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd"
+                  <path
+                    fill-rule="evenodd"
                     d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                    clip-rule="evenodd" />
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </button>
             </nav>
@@ -236,12 +283,23 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="selectedItem" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4"
-      @click="closeModal" role="dialog" aria-modal="true" :aria-label="`Content details for ID ${selectedItem.id}`">
-      <div class="bg-white max-w-3xl w-full rounded-xl shadow-xl p-6 relative overflow-y-auto max-h-[90vh]" @click.stop>
-        <button @click="closeModal"
+    <div
+      v-if="selectedItem"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4"
+      @click="closeModal"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="`Content details for ID ${selectedItem.id}`"
+    >
+      <div
+        class="bg-white max-w-3xl w-full rounded-xl shadow-xl p-6 relative overflow-y-auto max-h-[90vh]"
+        @click.stop
+      >
+        <button
+          @click="closeModal"
           class="absolute top-2 right-4 text-gray-600 hover:text-black text-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full p-1"
-          aria-label="Close modal">
+          aria-label="Close modal"
+        >
           ×
         </button>
 
@@ -254,8 +312,11 @@ onUnmounted(() => {
         <div class="mb-4">
           <p class="font-medium text-gray-600">Tags:</p>
           <div class="flex flex-wrap gap-2 mt-1">
-            <span v-for="tag in selectedItem.tags" :key="tag"
-              class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">
+            <span
+              v-for="tag in selectedItem.tags"
+              :key="tag"
+              class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full"
+            >
               {{ tag }}
             </span>
           </div>
@@ -267,8 +328,11 @@ onUnmounted(() => {
 
         <div v-if="selectedItem.results?.length">
           <p class="font-medium mb-2">Analysis Results:</p>
-          <div v-for="(res, i) in selectedItem.results" :key="i"
-            class="border-t border-gray-200 pt-3 mt-3 text-sm text-gray-700">
+          <div
+            v-for="(res, i) in selectedItem.results"
+            :key="i"
+            class="border-t border-gray-200 pt-3 mt-3 text-sm text-gray-700"
+          >
             <p><strong>Content Type:</strong> {{ res.content_type }}</p>
             <p>
               <strong>Flagged:</strong>
@@ -284,7 +348,8 @@ onUnmounted(() => {
             <div class="mt-2">
               <p class="font-medium text-gray-600">Metadata:</p>
               <pre class="bg-gray-50 p-2 rounded border border-gray-200 text-xs overflow-x-auto">{{
-                JSON.stringify(res.analysis_metadata, null, 2) }}</pre>
+                JSON.stringify(res.analysis_metadata, null, 2)
+              }}</pre>
             </div>
           </div>
         </div>
