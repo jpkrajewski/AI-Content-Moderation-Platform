@@ -1,8 +1,11 @@
+import logging
 from http import HTTPStatus
 
 from dependency_injector.wiring import Provide, inject
 from moderation.core.container import Container
-from moderation.service.client_api_key import ClientApiKeyService
+from moderation.service.apikey.apikeys_service import ClientApiKeyService
+
+logger = logging.getLogger(__name__)
 
 
 @inject
@@ -32,17 +35,19 @@ def create(
 
 
 @inject
-def get(client_id: str | None = None, api_key_service: ClientApiKeyService = Provide[Container.api_key_service]):
+def get(client_id: str | None = None, page: int = 1, page_size: int = 10, api_key_service: ClientApiKeyService = Provide[Container.api_key_service]):
     """
     Get all API keys for a given client ID.
     :param client_id: The client ID to filter API keys.
     :param api_key_service: Injected ClientApiKeyService instance.
+    :param page: Page number for paging.
+    :param page_size: Page size for paging.
     :return: A list of API keys or an error message.
     """
     try:
         if client_id is None:
             return api_key_service.get(), HTTPStatus.OK
-        api_keys = api_key_service.list_api_keys(client_id)
+        api_keys = api_key_service.list_api_keys(client_id, page, page_size)
         if not api_keys:
             return {"detail": "No API keys found for this client"}, HTTPStatus.NOT_FOUND
         return api_keys, HTTPStatus.OK
@@ -59,12 +64,14 @@ def delete(api_key_id: str, api_key_service: ClientApiKeyService = Provide[Conta
     :return: A success or error message.
     """
     try:
+        logger.info(f"Deleting API key {api_key_id}")
         success = api_key_service.delete_api_key(api_key_id)
         if success:
             return {"message": "API key deleted successfully"}, HTTPStatus.OK
         else:
             return {"detail": "API key not found"}, HTTPStatus.NOT_FOUND
     except Exception as e:
+        logger.error(f"Error deleting API key {api_key_id}: {e}")
         return {"detail": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
 
 

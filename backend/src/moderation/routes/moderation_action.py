@@ -5,7 +5,7 @@ from uuid import UUID
 from dependency_injector.wiring import Provide, inject
 from moderation.core.container import Container
 from moderation.repository.db.content.base import Content
-from moderation.service.content.content import ContentService, ContentWithAnalysis
+from moderation.service.content.content_service import ContentService, ContentWithAnalysis
 
 
 @inject

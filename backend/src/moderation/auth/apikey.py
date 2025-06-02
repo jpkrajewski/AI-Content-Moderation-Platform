@@ -6,7 +6,7 @@ from moderation.auth.common import check_scopes
 from moderation.cache.redis import get_redis_client
 from moderation.constants.general import REDIS_PREFIX_KEY_CLIENT_API_KEY
 from moderation.service import get_client_api_key_service
-from moderation.service.client_api_key import ClientApiKey
+from moderation.service.apikey.apikeys_service import ClientApiKey
 from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)

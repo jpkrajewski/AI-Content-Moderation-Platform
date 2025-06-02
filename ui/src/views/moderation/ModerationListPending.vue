@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { listPendingContent, getModerationInfo } from '@/features/moderation/services/moderation'
+import { listPendingContent, getUiInfo } from '@/features/moderation/services/moderation'
 import { useRouter } from 'vue-router'
 import type { ContentItem } from '@/features/moderation/types/moderation'
 import { usePendingCountStore } from '@/stores/pendingCount'
 import { useDebounceFn } from '@vueuse/core'
+import type { UiInfo } from '@/features/moderation/services/moderation'
 
 const router = useRouter()
 const pendingCountStore = usePendingCountStore()
@@ -18,7 +19,7 @@ const PAGE_SIZE: number = 10
 const MAX_RETRIES: number = 3
 
 const contentCache = ref<Record<number, ContentItem[]>>({})
-const moderationInfoCache = ref<{ pending_count: number } | null>(null)
+const uiInfoCache = ref<UiInfo | null>(null)
 const lastFetchTime = ref<Record<number, number>>({})
 const CACHE_DURATION = 5 * 60 * 1000
 
@@ -44,12 +45,12 @@ const fetchPendingContent = async (retryCount = 0) => {
       return
     }
 
-    if (!moderationInfoCache.value) {
-      const moderationInfo = await getModerationInfo()
-      moderationInfoCache.value = moderationInfo
-      const total = Math.max(0, moderationInfo.pending_count)
+    if (!uiInfoCache.value) {
+      const uiInfo = await getUiInfo()
+      uiInfoCache.value = uiInfo
+      const total = Math.max(0, uiInfo.contents.pending_count)
       totalPages.value = Math.max(1, Math.ceil(total / PAGE_SIZE))
-      pendingCountStore.count = moderationInfo.pending_count
+      pendingCountStore.count = uiInfo.contents.pending_count
     }
 
     const data = await listPendingContent({

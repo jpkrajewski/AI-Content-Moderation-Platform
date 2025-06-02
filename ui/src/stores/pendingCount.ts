@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getModerationInfo } from '@/features/moderation/services/moderation'
+import { getUiInfo } from '@/features/moderation/services/moderation'
 
 export const usePendingCountStore = defineStore('pendingCount', {
   state: () => ({
@@ -8,8 +8,8 @@ export const usePendingCountStore = defineStore('pendingCount', {
   actions: {
     async fetchPendingCount() {
       try {
-        const info = await getModerationInfo()
-        this.count = info.pending_count
+        const info = await getUiInfo()
+        this.count = info.contents.pending_count
       } catch (error) {
         console.error('Failed to fetch pending count:', error)
       }
