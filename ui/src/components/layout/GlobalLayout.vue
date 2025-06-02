@@ -1,17 +1,13 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Top Navigation Bar -->
     <nav class="bg-white shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-          <!-- Left side -->
           <div class="flex">
-            <!-- Logo -->
             <div class="flex-shrink-0 flex items-center">
               <span class="text-xl font-bold text-blue-600">AI Moderation</span>
             </div>
 
-            <!-- Navigation Links -->
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
               <router-link
                 to="/secure/dashboard/summary"
@@ -70,17 +66,13 @@
             </div>
           </div>
 
-          <!-- Right side -->
           <div class="flex items-center">
-            <!-- Version -->
             <div class="hidden sm:flex items-center mr-4">
               <span class="text-sm text-gray-500">v{{ versionStore.version }}</span>
             </div>
 
-            <!-- User Menu -->
             <div class="relative ml-3">
               <div class="flex items-center space-x-4">
-                <!-- Notifications -->
                 <button
                   class="p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
@@ -98,7 +90,6 @@
                   ></span>
                 </button>
 
-                <!-- Profile dropdown -->
                 <div class="relative">
                   <button
                     @click="isProfileMenuOpen = !isProfileMenuOpen"
@@ -125,7 +116,6 @@
                     </svg>
                   </button>
 
-                  <!-- Dropdown menu -->
                   <div
                     v-if="isProfileMenuOpen"
                     class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
@@ -152,7 +142,6 @@
         </div>
       </div>
 
-      <!-- Mobile menu -->
       <div class="sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
           <router-link
@@ -179,7 +168,6 @@
       </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <router-view></router-view>
     </main>
