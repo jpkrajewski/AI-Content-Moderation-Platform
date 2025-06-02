@@ -140,7 +140,6 @@
             </div>
         </div>
 
-        <!-- Add Modal -->
         <div v-if="showCreateModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4"
             @click="showCreateModal = false">
             <div class="bg-white rounded-lg p-8 max-w-md w-full shadow-2xl" @click.stop>
@@ -203,7 +202,7 @@ const showCreateModal = ref(false)
 const newApiKey = ref({
     source: '',
     client_id: '',
-    current_scope: [] as string[]
+    current_scope: [] as string[],
 })
 
 const handleFetchApiKeys = async () => {
@@ -225,13 +224,12 @@ const handleCreateApiKey = async () => {
     try {
         await apiKeysService.createApiKey(newApiKey.value)
         showCreateModal.value = false
-        // Reset form
         newApiKey.value = {
             source: '',
             client_id: '',
-            current_scope: []
+            current_scope: [],
         }
-        handleFetchApiKeys() // Refresh the list after creation
+        handleFetchApiKeys()
     } catch (err) {
         error.value = 'Failed to create API key.'
         console.error(err)
@@ -245,7 +243,7 @@ const handleDeactivateApiKey = async (id: string) => {
     error.value = null
     try {
         await apiKeysService.deactivateApiKey(id)
-        handleFetchApiKeys() // Refresh the list after deactivation
+        handleFetchApiKeys()
     } catch (err) {
         error.value = `Failed to deactivate API key ${id}.`
         console.error(err)
@@ -259,7 +257,7 @@ const handleReactivateApiKey = async (id: string) => {
     error.value = null
     try {
         await apiKeysService.reactivateApiKey(id)
-        handleFetchApiKeys() // Refresh the list after reactivation
+        handleFetchApiKeys()
     } catch (err) {
         error.value = `Failed to reactivate API key ${id}.`
         console.error(err)
@@ -273,7 +271,7 @@ const handleDeleteApiKey = async (id: string) => {
     error.value = null
     try {
         await apiKeysService.deleteApiKey(id)
-        handleFetchApiKeys() // Refresh the list after deletion
+        handleFetchApiKeys()
     } catch (err) {
         error.value = `Failed to delete API key ${id}.`
         console.error(err)
@@ -288,10 +286,9 @@ const copyApiKey = async (apiKey: string) => {
         copied.value = true
         setTimeout(() => {
             copied.value = false
-        }, 2000) // Hide message after 2 seconds
+        }, 2000)
     } catch (err) {
         console.error('Failed to copy API key:', err)
-        // TODO: Display copy error message to user
     }
 }
 
