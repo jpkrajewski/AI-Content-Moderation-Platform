@@ -17,6 +17,8 @@ class DatabaseUserRepository(AbstractUserRepository):
                 email=user.email,
                 password_hash=user.password_hash,
                 role=user.role,
+                external=user.external,
+                profile_picture_url=user.profile_picture_url,
             )
             session.add(db_user)
             session.commit()

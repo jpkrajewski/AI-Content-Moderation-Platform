@@ -14,6 +14,8 @@ const source = ref('')
 const localization = ref('en')
 const images = ref<File[]>([])
 const documents = ref<File[]>([])
+const videos = ref<File[]>([])
+const audios = ref<File[]>([])
 
 const loading = ref(false)
 const error = ref('')
@@ -80,20 +82,32 @@ const removeFile = (index: number, target: Ref<File[]>) => {
 
 const handleImageChange = (e: Event) => {
   handleFileChange(e, images)
-  // Reset input value to allow selecting the same file again
   const input = e.target as HTMLInputElement
   input.value = ''
 }
 
 const handleDocumentChange = (e: Event) => {
   handleFileChange(e, documents)
-  // Reset input value to allow selecting the same file again
+  const input = e.target as HTMLInputElement
+  input.value = ''
+}
+
+const handleVideoChange = (e: Event) => {
+  handleFileChange(e, videos)
+  const input = e.target as HTMLInputElement
+  input.value = ''
+}
+
+const handleAudioChange = (e: Event) => {
+  handleFileChange(e, audios)
   const input = e.target as HTMLInputElement
   input.value = ''
 }
 
 const handleRemoveImage = (index: number) => removeFile(index, images)
 const handleRemoveDocument = (index: number) => removeFile(index, documents)
+const handleRemoveVideo = (index: number) => removeFile(index, videos)
+const handleRemoveAudio = (index: number) => removeFile(index, audios)
 
 const handleSubmit = async () => {
   if (!userInitialized.value) {
@@ -136,6 +150,12 @@ const handleSubmit = async () => {
     ;[...documents.value].forEach((file) => {
       formData.append('documents', file)
     })
+    ;[...videos.value].forEach((file) => {
+      formData.append('videos', file)
+    })
+    ;[...audios.value].forEach((file) => {
+      formData.append('audios', file)
+    })
 
     const response = await axiosInstance.post(endpoints.moderation.submitContent, formData, {
       headers: {
@@ -152,6 +172,8 @@ const handleSubmit = async () => {
       localization.value = 'en'
       images.value = []
       documents.value = []
+      videos.value = []
+      audios.value = []
     }
   } catch (e) {
     error.value = 'Failed to submit content. Please try again.'
@@ -163,151 +185,198 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="p-8 max-w-4xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl p-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">Submit Content for Moderation</h1>
-      <p class="mb-6 text-gray-600">
-        Submit text, tags, files, and metadata for moderation processing.
-      </p>
+  <div class="bg-white rounded-2xl shadow-xl p-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Submit Content for Moderation</h1>
+    <p class="mb-6 text-gray-600">
+      Submit text, tags, files, and metadata for moderation processing.
+    </p>
 
-      <div v-if="error" class="mb-6 bg-red-50 text-red-600 p-4 rounded-lg">{{ error }}</div>
-      <div v-if="success" class="mb-6 bg-green-50 text-green-600 p-4 rounded-lg">{{ success }}</div>
+    <div v-if="error" class="mb-6 bg-red-50 text-red-600 p-4 rounded-lg">{{ error }}</div>
+    <div v-if="success" class="mb-6 bg-green-50 text-green-600 p-4 rounded-lg">{{ success }}</div>
 
-      <form @submit.prevent="handleSubmit" class="space-y-6">
-        <div>
-          <label class="block mb-1 font-medium text-gray-700">Title</label>
-          <input
-            v-model="title"
-            type="text"
-            required
-            placeholder="Post title"
-            class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"
-          />
-        </div>
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Title</label>
+        <input
+          v-model="title"
+          type="text"
+          required
+          placeholder="Post title"
+          class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"
+        />
+      </div>
 
-        <div>
-          <label class="block mb-1 font-medium text-gray-700">Content</label>
-          <textarea
-            v-model="body"
-            rows="5"
-            required
-            placeholder="Enter your content..."
-            class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"
-          ></textarea>
-        </div>
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Content</label>
+        <textarea
+          v-model="body"
+          rows="5"
+          required
+          placeholder="Enter your content..."
+          class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"
+        ></textarea>
+      </div>
 
-        <div>
-          <label class="block mb-1 font-medium text-gray-700">Tags (comma-separated)</label>
-          <input
-            v-model="tags"
-            type="text"
-            placeholder="e.g., news, politics"
-            class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"
-          />
-        </div>
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Tags (comma-separated)</label>
+        <input
+          v-model="tags"
+          type="text"
+          placeholder="e.g., news, politics"
+          class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"
+        />
+      </div>
 
-        <div>
-          <label class="block mb-1 font-medium text-gray-700">Source</label>
-          <input
-            v-model="source"
-            type="text"
-            required
-            placeholder="e.g., acme_corp"
-            class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"
-          />
-        </div>
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Source</label>
+        <input
+          v-model="source"
+          type="text"
+          required
+          placeholder="e.g., acme_corp"
+          class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"
+        />
+      </div>
 
-        <div>
-          <label class="block mb-1 font-medium text-gray-700">Language</label>
-          <select
-            v-model="localization"
-            class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"
-          >
-            <option v-for="lang in localizations" :key="lang.value" :value="lang.value">
-              {{ lang.label }}
-            </option>
-          </select>
-        </div>
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Language</label>
+        <select
+          v-model="localization"
+          class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring focus:ring-blue-500"
+        >
+          <option v-for="lang in localizations" :key="lang.value" :value="lang.value">
+            {{ lang.label }}
+          </option>
+        </select>
+      </div>
 
-        <div>
-          <label class="block mb-1 font-medium text-gray-700">Upload Images</label>
-          <label
-            class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700"
-          >
-            Choose Images
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              @change="handleImageChange"
-              class="hidden"
-            />
-          </label>
-          <div v-if="images.length > 0" class="mt-2">
-            <p class="text-sm text-gray-600 mb-2">Selected images:</p>
-            <ul class="space-y-2">
-              <li
-                v-for="(file, index) in images"
-                :key="index"
-                class="flex items-center justify-between bg-gray-50 p-2 rounded"
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Upload Images</label>
+        <label
+          class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700"
+        >
+          Choose Images
+          <input type="file" accept="image/*" multiple @change="handleImageChange" class="hidden" />
+        </label>
+        <div v-if="images.length > 0" class="mt-2">
+          <p class="text-sm text-gray-600 mb-2">Selected images:</p>
+          <ul class="space-y-2">
+            <li
+              v-for="(file, index) in images"
+              :key="index"
+              class="flex items-center justify-between bg-gray-50 p-2 rounded"
+            >
+              <span class="text-sm text-gray-700">{{ file.name }}</span>
+              <button
+                @click="() => handleRemoveImage(index)"
+                class="text-red-600 hover:text-red-800"
               >
-                <span class="text-sm text-gray-700">{{ file.name }}</span>
-                <button
-                  @click="() => handleRemoveImage(index)"
-                  class="text-red-600 hover:text-red-800"
-                >
-                  Remove
-                </button>
-              </li>
-            </ul>
-          </div>
+                Remove
+              </button>
+            </li>
+          </ul>
         </div>
+      </div>
 
-        <div class="mt-4">
-          <label class="block mb-1 font-medium text-gray-700">Upload Documents</label>
-          <label
-            class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700"
-          >
-            Choose Documents
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx"
-              multiple
-              @change="handleDocumentChange"
-              class="hidden"
-            />
-          </label>
-          <div v-if="documents.length > 0" class="mt-2">
-            <p class="text-sm text-gray-600 mb-2">Selected documents:</p>
-            <ul class="space-y-2">
-              <li
-                v-for="(file, index) in documents"
-                :key="index"
-                class="flex items-center justify-between bg-gray-50 p-2 rounded"
+      <div class="mt-4">
+        <label class="block mb-1 font-medium text-gray-700">Upload Documents</label>
+        <label
+          class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700"
+        >
+          Choose Documents
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx"
+            multiple
+            @change="handleDocumentChange"
+            class="hidden"
+          />
+        </label>
+        <div v-if="documents.length > 0" class="mt-2">
+          <p class="text-sm text-gray-600 mb-2">Selected documents:</p>
+          <ul class="space-y-2">
+            <li
+              v-for="(file, index) in documents"
+              :key="index"
+              class="flex items-center justify-between bg-gray-50 p-2 rounded"
+            >
+              <span class="text-sm text-gray-700">{{ file.name }}</span>
+              <button
+                @click="() => handleRemoveDocument(index)"
+                class="text-red-600 hover:text-red-800"
               >
-                <span class="text-sm text-gray-700">{{ file.name }}</span>
-                <button
-                  @click="() => handleRemoveDocument(index)"
-                  class="text-red-600 hover:text-red-800"
-                >
-                  Remove
-                </button>
-              </li>
-            </ul>
-          </div>
+                Remove
+              </button>
+            </li>
+          </ul>
         </div>
+      </div>
+      <div class="mt-4">
+        <label class="block mb-1 font-medium text-gray-700">Upload Videos</label>
+        <label
+          class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700"
+        >
+          Choose Videos
+          <input type="file" accept="video/*" multiple @change="handleVideoChange" class="hidden" />
+        </label>
+        <div v-if="videos.length > 0" class="mt-2">
+          <p class="text-sm text-gray-600 mb-2">Selected videos:</p>
+          <ul class="space-y-2">
+            <li
+              v-for="(file, index) in videos"
+              :key="index"
+              class="flex items-center justify-between bg-gray-50 p-2 rounded"
+            >
+              <span class="text-sm text-gray-700">{{ file.name }}</span>
+              <button
+                @click="() => handleRemoveVideo(index)"
+                class="text-red-600 hover:text-red-800"
+              >
+                Remove
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
 
-        <div>
-          <button
-            type="submit"
-            :disabled="loading || !body || !title || !source"
-            class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-          >
-            <span v-if="loading">Submitting...</span>
-            <span v-else>Submit Content</span>
-          </button>
+      <div class="mt-4">
+        <label class="block mb-1 font-medium text-gray-700">Upload Audios</label>
+        <label
+          class="w-1/3 bg-blue-600 text-white py-3 px-4 rounded-lg inline-block text-center cursor-pointer hover:bg-blue-700"
+        >
+          Choose Audios
+          <input type="file" accept="audio/*" multiple @change="handleAudioChange" class="hidden" />
+        </label>
+        <div v-if="audios.length > 0" class="mt-2">
+          <p class="text-sm text-gray-600 mb-2">Selected audios:</p>
+          <ul class="space-y-2">
+            <li
+              v-for="(file, index) in audios"
+              :key="index"
+              class="flex items-center justify-between bg-gray-50 p-2 rounded"
+            >
+              <span class="text-sm text-gray-700">{{ file.name }}</span>
+              <button
+                @click="() => handleRemoveAudio(index)"
+                class="text-red-600 hover:text-red-800"
+              >
+                Remove
+              </button>
+            </li>
+          </ul>
         </div>
-      </form>
-    </div>
+      </div>
+
+      <div>
+        <button
+          type="submit"
+          :disabled="loading || !body || !title || !source"
+          class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        >
+          <span v-if="loading">Submitting...</span>
+          <span v-else>Submit Content</span>
+        </button>
+      </div>
+    </form>
   </div>
 </template>

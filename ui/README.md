@@ -52,7 +52,7 @@ npm run test:e2e
 # Runs the tests only on Chromium
 npm run test:e2e -- --project=chromium
 # Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
+npm run test:e2e -- tests/auth.spec.ts
 # Runs the tests in debug mode
 npm run test:e2e -- --debug
 ```

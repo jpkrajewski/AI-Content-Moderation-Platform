@@ -20,6 +20,9 @@ class AsyncGoogleSafeBrowsingClient:
     ]
 
     def __init__(self) -> None:
+        if not settings.GOOGLE_SAFEBROWSING_CLIENT_ID:
+            logger.error("GOOGLE_SAFEBROWSING_CLIENT_ID not set")
+
         self.api_key = settings.GOOGLE_API_KEY
         self.headers = {"Content-Type": "application/json"}
         self.client_info = {

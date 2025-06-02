@@ -73,9 +73,12 @@ onMounted(fetchContentAnalysis)
         <div class="text-sm text-gray-500">ID: {{ content.id }}</div>
         <div class="text-gray-700 whitespace-pre-wrap">{{ content.body }}</div>
 
-        <div class="flex flex-wrap gap-2">
+        <div
+          v-if="content.tags?.filter((tag) => tag.trim().length > 0).length"
+          class="flex flex-wrap gap-2"
+        >
           <span
-            v-for="tag in content.tags"
+            v-for="tag in content.tags.filter((tag) => tag.trim().length > 0)"
             :key="tag"
             class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full"
           >
@@ -92,7 +95,6 @@ onMounted(fetchContentAnalysis)
           <p>Created: {{ new Date(content.created_at).toLocaleString() }}</p>
         </div>
 
-        <!-- Analysis Results -->
         <div v-if="content.results?.length">
           <h2 class="text-lg font-semibold mt-4 mb-2">Analysis Results</h2>
 
@@ -103,7 +105,7 @@ onMounted(fetchContentAnalysis)
           >
             <p><strong>Content Type:</strong> {{ res.content_type }}</p>
             <p>
-              <strong>Flagged:</strong>
+              <strong>Flagged: </strong>
               <span :class="res.automated_flag ? 'text-red-600 font-semibold' : 'text-green-600'">
                 {{ res.automated_flag ? 'Yes' : 'No' }}
               </span>
@@ -113,7 +115,6 @@ onMounted(fetchContentAnalysis)
             </p>
             <p><strong>Model Version:</strong> {{ res.model_version }}</p>
 
-            <!-- Metadata -->
             <div class="mt-3">
               <p class="font-medium text-gray-700">Metadata:</p>
               <pre class="bg-white border text-xs mt-1 p-2 rounded overflow-x-auto max-h-40"
@@ -124,7 +125,6 @@ onMounted(fetchContentAnalysis)
         </div>
       </div>
 
-      <!-- Action Buttons -->
       <div class="pt-4 border-t mt-6">
         <div class="flex gap-4">
           <button

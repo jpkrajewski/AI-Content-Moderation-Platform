@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     APP_PORT: int
     APP_RELOAD: bool = True
     APP_UPLOAD_DIR: Path = BASE_DIR / "uploads"
+    APP_SECRET_KEY: str = "secret"
 
     # Kafka Configuration
     KAFKA_TOPIC: str = "moderation-content"
@@ -29,11 +30,11 @@ class Settings(BaseSettings):
 
     DB_REPOSITORY: Literal["memory", "database"] = "database"
 
-    AI_USE_MOCK: bool = True
-    AI_IMAGE_MODERATION_MODEL: str = "Falconsai/nsfw_image_detection"
-    AI_TEXT_MODERATION_MODEL: str = "unitary/toxic-bert"
+    AI_IMAGE_MODEL: str = "Falconsai/nsfw_image_detection"
+    AI_TEXT_MODEL: str = "unitary/toxic-bert"
     AI_IMAGE_MODERATION_THRESHOLD: float = 0.5
     AI_TEXT_MODERATION_THRESHOLD: float = 0.5
+    AI_AUDIO_MODEL: str = "openai/whisper-small"
 
     LOGGER_CONF_PATH: Path = BASE_DIR / "logging" / "dev.conf"
 
@@ -46,7 +47,16 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
 
     GOOGLE_API_KEY: str = "your_google_api_key"
-    GOOGLE_SAFEBROWSING_CLIENT_ID: str = "your_client_id"
+    GOOGLE_SAFEBROWSING_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+
+    PARSERS_VIDEO_FRAME_INTERVAL: int = 1
+
+    FRONTEND_OAUTH_CALLBACK: str = "http://localhost:5173/oauth/callback?token="
+
+
+
 
 
 settings = Settings()

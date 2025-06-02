@@ -2,28 +2,16 @@ from pathlib import Path
 
 from moderation.ai.text import TextClassifier, get_text_classifier
 from pytest import fixture
-
-IMAGES_FOLDER_PATH = Path(__name__).cwd() / "test" / "unit" / "ai"
-
+from moderation.parsers.documents import extract_text_from_document
 
 @fixture
-def image_classifier():
+def text_classifier():
     return get_text_classifier()
 
 
-def test_classify_pdf(image_classifier: TextClassifier):
-    result = image_classifier.classify_from_document(str(IMAGES_FOLDER_PATH / "file-example_PDF_1MB.pdf"))
+def test_classify(text_classifier: TextClassifier):
+    text = "Hello World, it is perfectly safe message"
+    result = text_classifier.classify(text)
     assert result is not None
-    assert result.content_type == "document"
-    assert result.automated_flag is False
-    assert result.automated_flag_reason == ""
-    assert isinstance(result.analysis_metadata, dict)
-
-
-def test_classify_docx(image_classifier: TextClassifier):
-    result = image_classifier.classify_from_document(str(IMAGES_FOLDER_PATH / "example.docx"))
-    assert result is not None
-    assert result.content_type == "document"
-    assert result.automated_flag is False
-    assert result.automated_flag_reason == ""
+    assert result.content_type == "text"
     assert isinstance(result.analysis_metadata, dict)

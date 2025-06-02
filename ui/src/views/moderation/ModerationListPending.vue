@@ -150,9 +150,12 @@ onUnmounted(() => {
 
           <p class="text-sm text-gray-600 truncate mb-3">{{ item.body }}</p>
 
-          <div class="flex flex-wrap gap-2 mb-4">
+          <div
+            v-if="item.tags?.filter((tag) => tag.trim().length > 0).length"
+            class="flex flex-wrap gap-2 mb-4"
+          >
             <span
-              v-for="tag in item.tags"
+              v-for="tag in item.tags.filter((tag) => tag.trim().length > 0)"
               :key="tag"
               class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full"
             >
@@ -309,11 +312,11 @@ onUnmounted(() => {
         </p>
         <p class="mb-4 text-gray-700 whitespace-pre-wrap">{{ selectedItem.body }}</p>
 
-        <div class="mb-4">
+        <div v-if="selectedItem.tags?.filter((tag) => tag.trim().length > 0).length" class="mb-4">
           <p class="font-medium text-gray-600">Tags:</p>
           <div class="flex flex-wrap gap-2 mt-1">
             <span
-              v-for="tag in selectedItem.tags"
+              v-for="tag in selectedItem.tags.filter((tag) => tag.trim().length > 0)"
               :key="tag"
               class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full"
             >
@@ -335,7 +338,7 @@ onUnmounted(() => {
           >
             <p><strong>Content Type:</strong> {{ res.content_type }}</p>
             <p>
-              <strong>Flagged:</strong>
+              <strong>Flagged: </strong>
               <span :class="res.automated_flag ? 'text-red-600 font-semibold' : 'text-green-600'">
                 {{ res.automated_flag ? 'Yes' : 'No' }}
               </span>

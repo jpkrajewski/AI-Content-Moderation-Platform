@@ -1,3 +1,5 @@
+from typing import Any
+
 from moderation.models.classification import Result
 
 
@@ -10,8 +12,20 @@ class TagResult:
         return result
 
 
-class ResultExcludeEmpty:
+class ResultExcludeEmptyMetadata:
     def __call__(self, result: Result) -> Result | None:
         if not result.analysis_metadata["results"]:
+            return None
+        return result
+
+
+class ReturnSame:
+    def __call__(self, result: Any) -> Any:
+        return result
+
+
+class ResultExcludeNotFlagged:
+    def __call__(self, result: Result) -> Result | None:
+        if not result.automated_flag:
             return None
         return result

@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 
+from moderation.pipelines.moderation.enums import PipelineType
+
 
 @dataclass
 class KafkaModerationMessage:
     content_id: str
-    type: str
+    type: PipelineType
     message: str
     filename: str | None = None
     filepath: str | None = None
@@ -18,10 +20,6 @@ class KafkaModerationMessage:
             filename=data.get("filename"),
             filepath=data.get("filepath"),
         )
-
-    def validate(self) -> None:
-        if self.type not in ["text", "image", "document"]:
-            raise ValueError(f"Invalid type: {self.type}")
 
     def get_input_data(self) -> str:
         if self.type == "text":

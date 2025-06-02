@@ -4,14 +4,14 @@ import GlobalLayout from '../components/layout/GlobalLayout.vue'
 
 import LoginView from '../views/auth/LoginView.vue'
 import RegisterView from '../views/auth/RegisterView.vue'
+import AuthCallbackView from '@/views/auth/0AuthCallbackView.vue'
 
 import DashboardSummary from '../views/dashboard/DashboardSummary.vue'
-import DashboardActivityMetrics from '../views/dashboard/DashboardActivityMetrics.vue'
-import DashboardKPI from '../views/dashboard/DashboardKPI.vue'
 
 import ModerationListPending from '../views/moderation/ModerationListPending.vue'
 import ModerationContentAnalysis from '../views/moderation/ModerationContentAnalysis.vue'
 import ContentSubmissionView from '../views/content/ContentSubmissionView.vue'
+import ApiKeysView from '@/views/apiKeys/ApiKeysView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +28,12 @@ const router = createRouter({
       component: RegisterView,
       meta: { requiresAuth: false },
     },
+    {
+      path: '/oauth/callback',
+      name: 'OAuthCallback',
+      component: AuthCallbackView,
+      meta: { requiresAuth: false },
+    },
 
     {
       path: '/',
@@ -38,16 +44,6 @@ const router = createRouter({
           path: 'secure/dashboard/summary',
           name: 'DashboardSummary',
           component: DashboardSummary,
-        },
-        {
-          path: 'secure/dashboard/activity-metrics',
-          name: 'DashboardActivityMetrics',
-          component: DashboardActivityMetrics,
-        },
-        {
-          path: 'secure/dashboard/kpi',
-          name: 'DashboardKPI',
-          component: DashboardKPI,
         },
         {
           path: 'secure/moderation/pending',
@@ -64,6 +60,11 @@ const router = createRouter({
           path: 'secure/content/submit',
           name: 'ContentSubmission',
           component: ContentSubmissionView,
+        },
+        {
+          path: 'secure/api-keys',
+          name: 'ApiKeys',
+          component: ApiKeysView,
         },
         {
           path: '',

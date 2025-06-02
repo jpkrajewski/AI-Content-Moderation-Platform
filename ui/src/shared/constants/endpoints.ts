@@ -13,6 +13,11 @@ export const endpoints = {
     submitContent: '/content',
     approve: (id: string) => `/moderation/${id}/approve`,
     reject: (id: string) => `/moderation/${id}/reject`,
+    getApiKeys: '/clients/apikeys',
+    createApiKey: '/clients/apikeys',
+    deactivateApiKey: (id: string) => `/clients/apikeys/${id}`,
+    reactivateApiKey: (id: string) => `/clients/apikeys/${id}/reactivate`,
+    deleteApiKey: (id: string) => `/clients/apikeys/${id}`,
   },
   dashboard: {
     summary: '/dashboard/summary',

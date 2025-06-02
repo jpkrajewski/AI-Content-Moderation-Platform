@@ -8,9 +8,9 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 class TextClassifier:
     def __init__(self) -> None:
-        self.tokenizer: AutoTokenizer = AutoTokenizer.from_pretrained(settings.AI_TEXT_MODERATION_MODEL)
+        self.tokenizer: AutoTokenizer = AutoTokenizer.from_pretrained(settings.AI_TEXT_MODEL)
         self.model: AutoModelForSequenceClassification = AutoModelForSequenceClassification.from_pretrained(
-            settings.AI_TEXT_MODERATION_MODEL
+            settings.AI_TEXT_MODEL
         )
 
     def classify(self, text: str) -> Result:
@@ -39,7 +39,7 @@ class TextClassifier:
         labels = self.model.config.id2label
         return Result(
             content_type="text",
-            model_version=settings.AI_TEXT_MODERATION_MODEL,
+            model_version=settings.AI_TEXT_MODEL,
             analysis_metadata={labels[i]: score.item() for i, score in enumerate(probs[0])},
         )
 

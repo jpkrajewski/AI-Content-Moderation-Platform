@@ -15,16 +15,11 @@ logger = logging.getLogger("moderation")
 def process_message(record: ConsumerRecord) -> None:
     try:
         message = KafkaModerationMessage(**record.value)
-        message.validate()
+        asyncio.run(process_pipeline_async(message))
     except Exception as e:
         logger.exception(f"Failed to process message: {e}")
         logger.error(f"Consumer record: {record}")
         return
-    try:
-        asyncio.run(process_pipeline_async(message))
-    except Exception as e:
-        logger.exception(f"Failed to process pipeline: {e}")
-        logger.error(f"Message: {message}")
 
 
 @inject

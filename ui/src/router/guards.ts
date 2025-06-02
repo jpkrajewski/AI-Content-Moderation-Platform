@@ -13,7 +13,6 @@ export const authGuard = async (
     return
   }
 
-  // Check for role-based access
   if (to.meta.requiresAdmin && !userStore.isAdmin) {
     next({ name: 'dashboard' })
     return
