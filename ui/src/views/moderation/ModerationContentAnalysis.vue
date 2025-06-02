@@ -73,9 +73,12 @@ onMounted(fetchContentAnalysis)
         <div class="text-sm text-gray-500">ID: {{ content.id }}</div>
         <div class="text-gray-700 whitespace-pre-wrap">{{ content.body }}</div>
 
-        <div class="flex flex-wrap gap-2">
+        <div 
+          v-if="content.tags?.filter(tag => tag.trim().length > 0).length"
+          class="flex flex-wrap gap-2"
+        >
           <span
-            v-for="tag in content.tags"
+            v-for="tag in content.tags.filter(tag => tag.trim().length > 0)"
             :key="tag"
             class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full"
           >
@@ -103,7 +106,7 @@ onMounted(fetchContentAnalysis)
           >
             <p><strong>Content Type:</strong> {{ res.content_type }}</p>
             <p>
-              <strong>Flagged:</strong>
+              <strong>Flagged: </strong>
               <span :class="res.automated_flag ? 'text-red-600 font-semibold' : 'text-green-600'">
                 {{ res.automated_flag ? 'Yes' : 'No' }}
               </span>

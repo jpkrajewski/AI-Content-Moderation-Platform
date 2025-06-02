@@ -25,28 +25,6 @@
                 Dashboard Summary
               </router-link>
               <router-link
-                to="/secure/dashboard/activity-metrics"
-                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                :class="[
-                  $route.path === '/secure/dashboard/activity-metrics'
-                    ? 'border-blue-500 text-gray-900'
-                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                ]"
-              >
-                Activity Metrics
-              </router-link>
-              <router-link
-                to="/secure/dashboard/kpi"
-                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                :class="[
-                  $route.path === '/secure/dashboard/kpi'
-                    ? 'border-blue-500 text-gray-900'
-                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                ]"
-              >
-                Dashboard KPI
-              </router-link>
-              <router-link
                 to="/secure/moderation/pending"
                 class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                 :class="[
@@ -61,6 +39,17 @@
                 >
                   {{ pendingCountStore.count }}
                 </span>
+              </router-link>
+              <router-link
+                to="/secure/api-keys"
+                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                :class="[
+                  $route.path === '/secure/api-keys'
+                    ? 'border-blue-500 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                ]"
+              >
+                API Keys
               </router-link>
               <router-link
                 to="/secure/content/submit"
@@ -239,6 +228,7 @@ const mobileMenuItems = [
     },
   },
   { name: 'Submit Content', path: '/secure/content/submit' },
+  { name: 'API Keys', path: '/secure/api-keys' },
 ]
 
 const logout = () => {
