@@ -73,9 +73,15 @@ onMounted(fetchContentAnalysis)
         <div class="text-sm text-gray-500">ID: {{ content.id }}</div>
         <div class="text-gray-700 whitespace-pre-wrap">{{ content.body }}</div>
 
-        <div v-if="content.tags?.filter((tag) => tag.trim().length > 0).length" class="flex flex-wrap gap-2">
-          <span v-for="tag in content.tags.filter((tag) => tag.trim().length > 0)" :key="tag"
-            class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">
+        <div
+          v-if="content.tags?.filter((tag) => tag.trim().length > 0).length"
+          class="flex flex-wrap gap-2"
+        >
+          <span
+            v-for="tag in content.tags.filter((tag) => tag.trim().length > 0)"
+            :key="tag"
+            class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full"
+          >
             {{ tag }}
           </span>
         </div>
@@ -92,7 +98,11 @@ onMounted(fetchContentAnalysis)
         <div v-if="content.results?.length">
           <h2 class="text-lg font-semibold mt-4 mb-2">Analysis Results</h2>
 
-          <div v-for="(res, i) in content.results" :key="i" class="border rounded-lg p-4 mb-4 bg-gray-50">
+          <div
+            v-for="(res, i) in content.results"
+            :key="i"
+            class="border rounded-lg p-4 mb-4 bg-gray-50"
+          >
             <p><strong>Content Type:</strong> {{ res.content_type }}</p>
             <p>
               <strong>Flagged: </strong>
@@ -107,7 +117,8 @@ onMounted(fetchContentAnalysis)
 
             <div class="mt-3">
               <p class="font-medium text-gray-700">Metadata:</p>
-              <pre class="bg-white border text-xs mt-1 p-2 rounded overflow-x-auto max-h-40">{{ JSON.stringify(res.analysis_metadata, null, 2) }}
+              <pre class="bg-white border text-xs mt-1 p-2 rounded overflow-x-auto max-h-40"
+                >{{ JSON.stringify(res.analysis_metadata, null, 2) }}
               </pre>
             </div>
           </div>
@@ -116,16 +127,25 @@ onMounted(fetchContentAnalysis)
 
       <div class="pt-4 border-t mt-6">
         <div class="flex gap-4">
-          <button @click="handleAction('approve')" :disabled="processing"
-            class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded disabled:opacity-50">
+          <button
+            @click="handleAction('approve')"
+            :disabled="processing"
+            class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded disabled:opacity-50"
+          >
             Approve
           </button>
-          <button @click="handleAction('reject')" :disabled="processing"
-            class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded disabled:opacity-50">
+          <button
+            @click="handleAction('reject')"
+            :disabled="processing"
+            class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded disabled:opacity-50"
+          >
             Reject
           </button>
-          <button @click="handleAction('flag')" :disabled="processing"
-            class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2 rounded disabled:opacity-50">
+          <button
+            @click="handleAction('flag')"
+            :disabled="processing"
+            class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2 rounded disabled:opacity-50"
+          >
             Flag
           </button>
         </div>

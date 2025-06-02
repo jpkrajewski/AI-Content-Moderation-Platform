@@ -46,7 +46,9 @@ const handleGoogleLogin = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
+  <div
+    class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4"
+  >
     <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
       <div class="text-center">
         <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
@@ -61,23 +63,36 @@ const handleGoogleLogin = async () => {
         <div class="space-y-4">
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700"> Email </label>
-            <input id="email" v-model="email" type="email" required
+            <input
+              id="email"
+              v-model="email"
+              type="email"
+              required
               class="mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-              placeholder="Enter your email" />
+              placeholder="Enter your email"
+            />
           </div>
 
           <div>
             <label for="password" class="block text-sm font-medium text-gray-700"> Password </label>
-            <input id="password" v-model="password" type="password" required
+            <input
+              id="password"
+              v-model="password"
+              type="password"
+              required
               class="mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-              placeholder="Enter your password" />
+              placeholder="Enter your password"
+            />
           </div>
         </div>
 
         <div class="flex items-center justify-between">
           <div class="flex items-center">
-            <input id="remember-me" type="checkbox"
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+            <input
+              id="remember-me"
+              type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
             <label for="remember-me" class="ml-2 block text-sm text-gray-700"> Remember me </label>
           </div>
 
@@ -86,15 +101,31 @@ const handleGoogleLogin = async () => {
           </a>
         </div>
 
-        <button type="submit" :disabled="loading"
-          class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        <button
+          type="submit"
+          :disabled="loading"
+          class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           <span v-if="loading" class="flex items-center">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-              </path>
+            <svg
+              class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
             Signing in...
           </span>
@@ -102,9 +133,16 @@ const handleGoogleLogin = async () => {
         </button>
 
         <div class="mt-6 text-center">
-          <button @click="handleGoogleLogin" type="button"
-            class="w-full inline-flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="w-5 h-5 mr-3" />
+          <button
+            @click="handleGoogleLogin"
+            type="button"
+            class="w-full inline-flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+          >
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google"
+              class="w-5 h-5 mr-3"
+            />
             Sign in with Google
           </button>
         </div>
