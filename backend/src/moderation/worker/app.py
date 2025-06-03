@@ -14,7 +14,13 @@ def provide_worker_app() -> Celery:
         backend=settings.CELERY_WORKER_BACKEND,
     )
 
+    app.autodiscover_tasks(
+        ["moderation.worker.tasks.moderation_pipeline"]
+    )
+
     app.conf.timezone = "UTC"
+
+    return app
 
 
 

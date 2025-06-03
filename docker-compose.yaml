@@ -100,6 +100,22 @@ services:
     volumes:
       - redis_data:/data
 
+  celery:
+    container_name: celery-worker
+    build:
+      context: ./backend
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+      - kafka
+      - zookeeper
+    volumes:
+      - ./backend:/app
+    command: celery -A src.moderation.worker.app.worker_app worker --loglevel=info
+
+
 volumes:
   postgres_data:
   redis_data:

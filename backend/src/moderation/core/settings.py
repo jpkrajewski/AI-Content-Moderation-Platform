@@ -55,6 +55,10 @@ class Settings(BaseSettings):
 
     FRONTEND_OAUTH_CALLBACK: str = "http://localhost:5173/oauth/callback?token="
 
+    CELERY_WORKER_APP_NAME: str = ""
+    CELERY_WORKER_BROKER: str = ""
+    CELERY_WORKER_BACKEND: str = ""
+
 
 
 

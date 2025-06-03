@@ -19,25 +19,25 @@ logger = logging.getLogger(__name__)
 
 
 class WorkerContext:
-    def __init__(self, db: Callable[[], ContextManager[Session]]):
-        self.db = db
+    def __init__(self, db: Callable[[], ContextManager[Session]] | None = None) -> None:
+        self.db = db or get_db
         self.content_service = self.get_content_service()
         self.analysis_service = self.get_analysis_service()
 
     def get_content_service(self) -> ContentService:
         return ContentService(
             analysis_repository=DatabaseAnalysisRepository(
-                db=self.get_db,
+                db=self.db,
             ),
             content_repository=DatabaseContentRepository(
-                db=self.get_db,
+                db=self.db,
             )
         )
 
     def get_analysis_service(self) -> AnalysisService:
         return AnalysisService(
             analysis_repository=DatabaseAnalysisRepository(
-                db=self.get_db,
+                db=self.db,
             )
         )
 

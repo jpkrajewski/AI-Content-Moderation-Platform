@@ -1,19 +1,20 @@
 import logging
 
-from rgmx.worker.app import worker_app
-from rgmx.worker.tasks.async_task_helper import run_async
-from rgmx.workers import optimization_post_processing_worker
+from moderation.worker.app import worker_app
+from moderation.worker.tasks.helper import run_async
+from moderation.workers import moderation_pipeline_worker
 
 logger = logging.getLogger()
 
 
-@worker_app.task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 5})
-def run_moderation_pipeline(self, content_id: str):
-    logging.info("[run_moderation_pipeline] start")
-
+@worker_app.task(autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 5})
+def run_moderation_pipeline(content_id: str, pipeline_type: str, filepath: str | None = None) -> None:
+    logging.info(f"[run_moderation_pipeline] start")
     run_async(
-        optimization_post_processing_worker.handle_optimization_results(
-            optimization_task_id=simulation_id,
+        moderation_pipeline_worker.run_moderation_pipeline(
+            content_id=content_id,
+            pipeline_type=pipeline_type,
+            filepath=filepath
         )
     )
     logging.info("[run_moderation_pipeline] done")
