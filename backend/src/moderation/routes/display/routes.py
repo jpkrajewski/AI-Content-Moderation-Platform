@@ -26,4 +26,4 @@ def info(
 
     except Exception as e:
         logger.error(f"Failed to get display info: {e}")
-        return {"Failed to fetch info"}, HTTPStatus.INTERNAL_SERVER_ERROR
+        return {"detail": "Failed to fetch info"}, HTTPStatus.INTERNAL_SERVER_ERROR
