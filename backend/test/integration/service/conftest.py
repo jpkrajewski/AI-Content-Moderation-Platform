@@ -5,7 +5,7 @@ import pytest
 from moderation.db.base import Base
 from moderation.db.session import engine, get_db
 from moderation.repository.db.client_api_key.database import DatabaseClientApiKeyRepository
-from moderation.service.client_api_key import ClientApiKeyService
+from moderation.service.apikey.apikeys_service import ClientApiKeyService
 from sqlalchemy import create_engine, text
 
 

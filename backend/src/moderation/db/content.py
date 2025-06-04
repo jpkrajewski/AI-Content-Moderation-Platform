@@ -1,4 +1,4 @@
-# models/content.py
+# models/content_service.py
 import uuid
 from datetime import datetime
 from typing import List

@@ -2,7 +2,7 @@ from functools import cache
 
 from moderation.db.session import get_db
 from moderation.repository.db.client_api_key.database import DatabaseClientApiKeyRepository
-from moderation.service.client_api_key import ClientApiKeyService
+from moderation.service.apikey.apikeys_service import ClientApiKeyService
 
 
 @cache

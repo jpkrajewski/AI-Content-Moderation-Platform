@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Callable, ContextManager, List, Optional
+from typing import Callable, ContextManager, List, Optional, Tuple
 from uuid import UUID
+
+from sqlalchemy import func
 
 from moderation.db.client_api_key import ClientApiKey as DBClientApiKey  # Assuming this is your DB model
 from moderation.repository.db.client_api_key.base import AbstractClientApiKeyRepository, ClientApiKey
@@ -40,12 +42,16 @@ class DatabaseClientApiKeyRepository(AbstractClientApiKeyRepository):
         """Initialize the repository with a database session context factory."""
         self.db = db
 
-    def list(self, client_id: Optional[str] = None) -> List[ClientApiKey]:
+    def list(self, client_id: Optional[str] = None, offset: int | None = None, limit: int | None = None) -> List[ClientApiKey]:
         """List all API keys, optionally filtered by client ID."""
         with self.db() as session:
             query = session.query(DBClientApiKey)
             if client_id:
                 query = query.filter(DBClientApiKey.client_id == client_id)
+            if offset:
+                query = query.offset(offset)
+            if limit:
+                query = query.limit(limit)
             return [from_record(record) for record in query.all()]
 
     def get_by_id(self, api_key_id: str) -> Optional[ClientApiKey]:
@@ -127,3 +133,17 @@ class DatabaseClientApiKeyRepository(AbstractClientApiKeyRepository):
                 active_keys=active_keys,
                 inactive_keys=inactive_keys,
             )
+
+    def get_active_and_deactivated_count(self) -> Tuple[int, int]:
+        with self.db() as session:
+            count_label = func.count(DBClientApiKey.id).label("count")
+
+            results = (
+                session.query(DBClientApiKey.is_active.label("is_active"), count_label)
+                .group_by(DBClientApiKey.is_active)
+                .all()
+            )
+
+            count_by_status = {row.is_active: row.count for row in results}
+
+            return count_by_status.get(True, 0), count_by_status.get(False, 0)

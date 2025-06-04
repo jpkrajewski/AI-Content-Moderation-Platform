@@ -133,26 +133,6 @@ paths:
         '200':
           description: List of flagged content
 
-  /moderation/info:
-    get:
-      summary: Admin - get generic info about moderated content
-      operationId: moderation.routes.moderation_action.info
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Generic moderation info
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  pending_count:
-                    type: integer
-                    example: 312
-        '500':
-          description: Server error
-
   /moderation/{content_id}:
     get:
       summary: Admin - view analysis of single content
@@ -278,6 +258,23 @@ paths:
           required: false
           schema:
             type: string
+        - name: page
+          in: query
+          description: The page number to retrieve (1-based index).
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          description: The number of items per page.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
       responses:
         '200':
           description: Successful Response
@@ -378,6 +375,24 @@ paths:
           description: API key is valid
         '400':
           description: API key validation failed
+
+  /display/info:
+    get:
+      summary: Generic info for UI
+      operationId: moderation.routes.display.routes.info
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Generic information for UI
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiInfo'
+        '500':
+          description: Server failed to get information for UI
+
+
 
 components:
   schemas:
@@ -633,6 +648,34 @@ components:
         is_active:
           type: boolean
           description: Whether the API key is active or not.
+
+    GenericContentInfo:
+      type: object
+      properties:
+        pending_count:
+          type: integer
+          example: 3
+
+    GenericApiKeyInfo:
+      type: object
+      properties:
+        active_count:
+          type: integer
+          example: 5
+        deactivated_count:
+          type: integer
+          example: 2
+        all_count:
+          type: integer
+          example: 7
+
+    UiInfo:
+      type: object
+      properties:
+        contents:
+          $ref: '#/components/schemas/GenericContentInfo'
+        api_keys:
+          $ref: '#/components/schemas/GenericApiKeyInfo'
 
   securitySchemes:
     BearerAuth:

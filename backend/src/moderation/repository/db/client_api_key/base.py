@@ -26,10 +26,12 @@ class AbstractClientApiKeyRepository(ABC):
     """Abstract base class for client API key repository."""
 
     @abstractmethod
-    def list(self, client_id: Optional[str] = None) -> List[ClientApiKey]:
+    def list(self, client_id: str | None = None, offset: int | None = None, limit: int | None = None) -> List[ClientApiKey]:
         """
         List all API keys, optionally filtered by client ID.
         :param client_id: Optional client ID to filter API keys.
+        :param offset: Optional offset for listing API keys.
+        :param limit: Optional limit for listing API keys.
         :return: A list of client API keys.
         """
 

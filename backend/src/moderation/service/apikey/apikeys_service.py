@@ -4,16 +4,19 @@ import uuid
 from moderation.cache.redis import cached_dataclass
 from moderation.constants.general import REDIS_PREFIX_KEY_CLIENT_API_KEY
 from moderation.repository.db.client_api_key.base import AbstractClientApiKeyRepository, ClientApiKey
+from moderation.service.apikey.models import GenericApiKeyInfo
 
 
 class ClientApiKeyService:
     def __init__(self, api_key_repository: AbstractClientApiKeyRepository):
         self.api_key_repository = api_key_repository
 
-    def list_api_keys(self, client_id: str | None = None) -> list[ClientApiKey]:
+    def list_api_keys(self, client_id: str | None = None, page: int = 1, page_size: int = 10) -> list[ClientApiKey]:
         """
         List all API keys, optionally filtered by client ID.
         :param client_id: Optional client ID to filter API keys.
+        :param page: Optional page number.
+        :param page_size: Optional page size.
         :return: A list of client API keys.
         """
         return self.api_key_repository.list(client_id)
@@ -92,3 +95,15 @@ class ClientApiKeyService:
 
     def get_by_api_key(self, api_key: str) -> ClientApiKey | None:
         return self.api_key_repository.get_by_api_key(api_key)
+
+
+    def delete_api_key(self, api_key: str) -> bool:
+        return self.api_key_repository.delete(api_key)
+
+    def get_info(self) -> GenericApiKeyInfo:
+        active, deactivate = self.api_key_repository.get_active_and_deactivated_count()
+        return GenericApiKeyInfo(
+            active_count=active,
+            deactivated_count=deactivate,
+            all_count=active + deactivate,
+        )

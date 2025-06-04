@@ -10,6 +10,17 @@ export interface ModerationInfo {
   pending_count: number
 }
 
+export interface ApiKeyInfo {
+  active_count: number
+  deactivated_count: number
+  all_count: number
+}
+
+export interface UiInfo {
+  contents: ModerationInfo
+  api_keys: ApiKeyInfo
+}
+
 export const listPendingContent = async (params: PaginationParams): Promise<ContentItem[]> => {
   const response = await axiosInstance.get('/moderation/pending', { params })
   return response.data
@@ -45,9 +56,9 @@ export const flagContent = async (contentId: string, reason?: string) => {
   return response.data
 }
 
-export const getModerationInfo = async (): Promise<ModerationInfo> => {
-  const response = await axiosInstance.get('/moderation/info')
-  return response.data
+export const getUiInfo = async (): Promise<UiInfo> => {
+  const response = await axiosInstance.get('/display/info')
+  return response.data as UiInfo
 }
 
 export const moderationService = {
@@ -57,5 +68,5 @@ export const moderationService = {
   analyzeContent,
   getContentAnalysis,
   flagContent,
-  getModerationInfo,
+  getUiInfo,
 }
