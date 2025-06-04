@@ -9,9 +9,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AI Content Moderation"
     ENVIRONMENT: str = "development"
-    DB_URI: str
-    APP_HOST: str
-    APP_PORT: int
+    DB_URI: str = ""
+    APP_HOST: str = "0.0.0.0"
+    APP_PORT: int = 8080
     APP_RELOAD: bool = True
     APP_UPLOAD_DIR: Path = BASE_DIR / "uploads"
     APP_SECRET_KEY: str = "secret"
@@ -30,11 +30,14 @@ class Settings(BaseSettings):
 
     DB_REPOSITORY: Literal["memory", "database"] = "database"
 
-    AI_IMAGE_MODEL: str = "Falconsai/nsfw_image_detection"
-    AI_TEXT_MODEL: str = "unitary/toxic-bert"
+    AI_AUDIO_MODEL_PATH: str = "./models/audio"
+    AI_IMAGE_MODEL_PATH: str = "./models/image"
+    AI_TEXT_MODEL_PATH: str = "./models/text"
+    AI_IMAGE_MODEL_NAME: str = "Falconsai/nsfw_image_detection"
+    AI_TEXT_MODEL_NAME: str = "unitary/toxic-bert"
+    AI_AUDIO_MODEL_NAME: str = "openai/whisper-small"
     AI_IMAGE_MODERATION_THRESHOLD: float = 0.5
     AI_TEXT_MODERATION_THRESHOLD: float = 0.5
-    AI_AUDIO_MODEL: str = "openai/whisper-small"
 
     LOGGER_CONF_PATH: Path = BASE_DIR / "logging" / "dev.conf"
 

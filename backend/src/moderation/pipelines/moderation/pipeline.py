@@ -114,5 +114,4 @@ class Pipeline:
                 logger.info(f"Running preprocessor: {stage.name}")
                 temp_data = await stage.run(temp_data)
             preprocessed_data[idx] = temp_data
-            logger.info(f"Preprocessed data for index {idx}: {temp_data}")
         return preprocessed_data

@@ -10,10 +10,11 @@ from transformers import AutoFeatureExtractor, AutoModelForImageClassification
 
 class ImageClassifier:
     def __init__(self) -> None:
-
-        self.extractor: AutoFeatureExtractor = AutoFeatureExtractor.from_pretrained(settings.AI_IMAGE_MODEL)
-        self.model: AutoModelForImageClassification = AutoModelForImageClassification.from_pretrained(
-            settings.AI_IMAGE_MODEL
+        self.extractor = AutoFeatureExtractor.from_pretrained(
+            settings.AI_IMAGE_MODEL_PATH, local_files_only=True
+        )
+        self.model = AutoModelForImageClassification.from_pretrained(
+            settings.AI_IMAGE_MODEL_PATH, local_files_only=True
         )
 
     def classify(self, image: Image) -> Result:
@@ -33,7 +34,7 @@ class ImageClassifier:
         analysis_metadata = {labels[idx]: score.item() for idx, score in enumerate(probs[0])}
         return Result(
             content_type="image",
-            model_version=settings.AI_IMAGE_MODEL,
+            model_version=settings.AI_IMAGE_MODEL_PATH,
             analysis_metadata=analysis_metadata,
         )
 
