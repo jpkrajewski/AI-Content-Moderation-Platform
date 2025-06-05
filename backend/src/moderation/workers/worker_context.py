@@ -1,18 +1,12 @@
 from contextlib import asynccontextmanager
 
 from moderation.db import get_db
-from moderation.repository.db.analysis.base import AbstractAnalysisRepository
 from moderation.repository.db.analysis.database import DatabaseAnalysisRepository
 from moderation.repository.db.content.database import DatabaseContentRepository
 from moderation.service.analysis import AnalysisService
-from moderation.service.content.content import ContentService
+from moderation.service.content.content_service import ContentService
 import logging
-from typing import Callable, ContextManager, List, Optional, AsyncGenerator, Any
-
-from moderation.db.analysis import ContentAnalysis as DBContentAnalysis
-from moderation.repository.db.analysis.base import AbstractAnalysisRepository, AnalysisResult
-from sqlalchemy import insert
-from sqlalchemy.exc import SQLAlchemyError
+from typing import Callable, ContextManager, AsyncGenerator, Any
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
