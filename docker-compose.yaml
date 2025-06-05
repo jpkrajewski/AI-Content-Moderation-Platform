@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   db:
     container_name: postgresdb
@@ -99,6 +97,22 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+
+  celery:
+    container_name: celery-worker
+    build:
+      context: ./backend
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+      - kafka
+      - zookeeper
+    volumes:
+      - ./backend:/app
+    command: celery -A src.moderation.worker.app.worker_app worker --loglevel=info
+
 
 volumes:
   postgres_data:

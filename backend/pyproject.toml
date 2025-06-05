@@ -33,4 +33,6 @@ dependencies = [
     "pydub>=0.25.1",
     "pytest-asyncio>=1.0.0",
     "authlib>=1.6.0",
+    "celery>=5.5.3",
+    "protobuf>=6.31.1",
 ]

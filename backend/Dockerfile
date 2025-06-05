@@ -23,6 +23,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade pip && \
     pip install -e .
 
+RUN python -m spacy download en_core_web_md
+
 COPY src/ ./src
 COPY alembic/ ./alembic
 COPY alembic.ini .

@@ -1,13 +1,23 @@
 from functools import cache
 
+from presidio_analyzer.nlp_engine import NlpEngineProvider
+
 from moderation.models.classification import Result
-from presidio_analyzer import AnalyzerEngine
+from presidio_analyzer import AnalyzerEngine, RecognizerRegistry
 from presidio_anonymizer import AnonymizerEngine
 
 
 @cache
 def get_analyzer() -> AnalyzerEngine:
-    return AnalyzerEngine()
+    nlp_config = {
+        "nlp_engine_name": "spacy",
+        "models": [{"lang_code": "en", "model_name": "en_core_web_md"}]
+    }
+
+    provider = NlpEngineProvider(nlp_configuration=nlp_config)
+    nlp_engine = provider.create_engine()
+
+    return AnalyzerEngine(nlp_engine=nlp_engine)
 
 
 @cache
