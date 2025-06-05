@@ -11,7 +11,7 @@ class ClientApiKeyService:
     def __init__(self, api_key_repository: AbstractClientApiKeyRepository):
         self.api_key_repository = api_key_repository
 
-    def list_api_keys(self, client_id: str | None = None, page: int = 1, page_size: int = 10) -> list[ClientApiKey]:
+    def list_api_keys(self, client_id: str | None = None, page: int | None = None, page_size: int | None = None) -> list[ClientApiKey]:
         """
         List all API keys, optionally filtered by client ID.
         :param client_id: Optional client ID to filter API keys.
@@ -19,7 +19,7 @@ class ClientApiKeyService:
         :param page_size: Optional page size.
         :return: A list of client API keys.
         """
-        return self.api_key_repository.list(client_id)
+        return self.api_key_repository.list(client_id, page, page_size)
 
     def get(self) -> list[ClientApiKey]:
         return self.api_key_repository.list()

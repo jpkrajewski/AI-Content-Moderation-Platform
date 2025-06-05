@@ -42,14 +42,14 @@ class DatabaseClientApiKeyRepository(AbstractClientApiKeyRepository):
         """Initialize the repository with a database session context factory."""
         self.db = db
 
-    def list(self, client_id: Optional[str] = None, offset: int | None = None, limit: int | None = None) -> List[ClientApiKey]:
+    def list(self, client_id: str | None = None, offset: int | None = None, limit: int | None = None) -> List[ClientApiKey]:
         """List all API keys, optionally filtered by client ID."""
         with self.db() as session:
             query = session.query(DBClientApiKey)
             if client_id:
                 query = query.filter(DBClientApiKey.client_id == client_id)
             if offset:
-                query = query.offset(offset)
+                query = query.offset(offset - 1)
             if limit:
                 query = query.limit(limit)
             return [from_record(record) for record in query.all()]
