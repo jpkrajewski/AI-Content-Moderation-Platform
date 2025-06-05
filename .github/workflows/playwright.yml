@@ -41,6 +41,9 @@ jobs:
       - name: Create fixtures
         run: docker compose exec -T backend python /app/src/moderation/scripts/load_fixtures.py
 
+      - name: Download AI Models
+        run: docker compose exec -T backend python /app/src/moderation/scripts/download_ai_models.py
+
       - name: Install Playwright Browsers
         run: |
           cd e2e
