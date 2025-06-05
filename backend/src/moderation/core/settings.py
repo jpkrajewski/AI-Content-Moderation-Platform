@@ -40,6 +40,8 @@ class Settings(BaseSettings):
 
     JWT_SECRET: str = "your_jwt_secret"
     JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRATION_ACCESS: int = 30
+    JWT_EXPIRATION_REFRESH: int = 60 * 4
 
     REDIS_URL: str = "redis://redis:6379/0"
     REDIS_API_KEY_PREFIX: str = "api_key"

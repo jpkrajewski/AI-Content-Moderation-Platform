@@ -89,6 +89,16 @@ paths:
         '200':
           description: Current user data
 
+  /auth/refresh:
+    post:
+      summary: Refresh JWT token
+      operationId: moderation.routes.auth.refresh
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Token returned
+
   /content:
     post:
       summary: Create new content
