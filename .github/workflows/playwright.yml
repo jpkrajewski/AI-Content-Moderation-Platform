@@ -44,6 +44,11 @@ jobs:
       - name: Download AI Models
         run: docker compose exec -T backend python /app/src/moderation/scripts/download_ai_models.py
 
+      - name: Restart containers
+        run: |
+          docker compose -f docker-compose-ci.yaml down
+          docker compose -f docker-compose-ci.yaml up -d
+
       - name: Install Playwright Browsers
         run: |
           cd e2e

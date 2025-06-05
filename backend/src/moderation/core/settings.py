@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AI Content Moderation"
     ENVIRONMENT: str = "development"
-    DB_URI: str = ""
+    DB_URI: str = "postgresql+psycopg2://jakub:secret@db:5432/moderation_db"
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8080
     APP_RELOAD: bool = True
