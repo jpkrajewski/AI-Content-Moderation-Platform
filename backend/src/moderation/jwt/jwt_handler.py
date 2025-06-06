@@ -11,9 +11,9 @@ class JwtTokenHandler:
         self.secret = settings.JWT_SECRET
         self.algorithm = settings.JWT_ALGORITHM
 
-    def generate_token(self, user_id: str, scopes: list[str], expires_in_minutes: int = 30) -> str:
+    def generate_token(self, user_id: str, scopes: list[str], expires_in_minutes: int | None = None) -> str:
         now = datetime.now(timezone.utc)
-        expiration = now + timedelta(minutes=expires_in_minutes)
+        expiration = now + timedelta(minutes=expires_in_minutes or settings.JWT_EXPIRATION_ACCESS)
 
         payload = {
             "jti": str(uuid.uuid4()),
@@ -24,6 +24,14 @@ class JwtTokenHandler:
         }
 
         return jwt.encode(payload, self.secret, algorithm=self.algorithm)
+
+    def generate_access_refresh_pair(self,
+        user_id: str,
+        scopes: list[str],
+    ) -> tuple[str, str]:
+        access = self.generate_token(user_id=user_id, scopes=scopes, expires_in_minutes=settings.JWT_EXPIRATION_ACCESS)
+        refresh = self.generate_token(user_id=user_id, scopes=[], expires_in_minutes=settings.JWT_EXPIRATION_REFRESH)
+        return access, refresh
 
     def decode_token(self, token: str) -> dict[str, Any]:
         try:

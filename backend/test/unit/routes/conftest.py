@@ -24,6 +24,7 @@ def override_user_service():
     mock_user.email = "test@example.com"
     mock_user.username = "testuser"
     mock_user.role = "user_role"
+    mock_user.id = "1"
 
     mock_user_service.get_user.return_value = mock_user
     with Container.user_service.override(mock_user_service):
