@@ -87,12 +87,16 @@ onMounted(fetchContentAnalysis)
         </div>
 
         <div class="text-sm text-gray-600">
-          <p>Localization: {{ content.localization }}</p>
-          <p>Source: {{ content.source }}</p>
+          <p><strong>Localization:</strong> {{ content.localization }}</p>
+          <p><strong>Source:</strong> {{ content.source }}</p>
           <p>
-            Status: <strong class="capitalize">{{ content.status }}</strong>
+            <strong>Status:</strong> <strong class="capitalize" :class="{
+              'text-yellow-600': content.status === 'pending',
+              'text-red-600': content.status === 'rejected',
+              'text-green-600': content.status === 'approved'
+            }">{{ content.status }}</strong>
           </p>
-          <p>Created: {{ new Date(content.created_at).toLocaleString() }}</p>
+          <p><strong>Created:</strong> {{ new Date(content.created_at).toLocaleString() }}</p>
         </div>
 
         <div v-if="content.results?.length">

@@ -56,12 +56,14 @@
           </div>
         </div>
 
-        <div v-if="apiKeys.length > 0 && !loading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div v-if="!loading && !error && apiKeys && apiKeys.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div
             v-for="key in apiKeys"
             :key="key.id"
             class="bg-white rounded-xl border border-gray-200 hover:border-blue-200 transition-all duration-200 overflow-hidden"
           >
+
+
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center">
@@ -178,7 +180,7 @@
           </div>
         </div>
 
-        <div v-else-if="!loading && !error" class="text-center py-12">
+        <div v-else-if="!loading && !error && apiKeys && apiKeys.length === 0" class="text-center py-12">
           <svg
             class="mx-auto h-12 w-12 text-gray-400"
             fill="none"
@@ -194,6 +196,105 @@
           </svg>
           <h3 class="mt-2 text-sm font-medium text-gray-900">No API keys</h3>
           <p class="mt-1 text-sm text-gray-500">Get started by creating a new API key.</p>
+        </div>
+
+        <div
+          v-if="totalPages > 0"
+          class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-6"
+        >
+          <div class="flex flex-1 justify-between sm:hidden">
+            <button
+              @click="changePage(currentPage - 1)"
+              :disabled="currentPage === 1"
+              class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              :aria-label="`Go to previous page`"
+            >
+              Previous
+            </button>
+            <button
+              @click="changePage(currentPage + 1)"
+              :disabled="currentPage === totalPages"
+              class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              :aria-label="`Go to next page`"
+            >
+              Next
+            </button>
+          </div>
+          <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm text-gray-700">
+                Showing
+                <span class="font-medium">{{ (currentPage - 1) * PAGE_SIZE + 1 }}</span>
+                to
+                <span class="font-medium">{{ Math.min(currentPage * PAGE_SIZE, totalPages * PAGE_SIZE) }}</span>
+                of
+                <span class="font-medium">{{ totalPages * PAGE_SIZE }}</span>
+                results
+              </p>
+            </div>
+            <div>
+              <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button
+                  @click="changePage(currentPage - 1)"
+                  :disabled="currentPage === 1"
+                  class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  :aria-label="`Go to previous page`"
+                >
+                  <span class="sr-only">Previous</span>
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      fill-rule="evenodd"
+                      d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                <template v-for="page in totalPages" :key="page">
+                  <button
+                    v-if="
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    "
+                    @click="changePage(page)"
+                    :class="[
+                      page === currentPage
+                        ? 'relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                        : 'relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+                    ]"
+                    :aria-label="`Go to page ${page}`"
+                    :aria-current="page === currentPage ? 'page' : undefined"
+                  >
+                    {{ page }}
+                  </button>
+                  <span
+                    v-else-if="page === currentPage - 2 || page === currentPage + 2"
+                    class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0"
+                    aria-hidden="true"
+                  >
+                    ...
+                  </span>
+                </template>
+
+                <button
+                  @click="changePage(currentPage + 1)"
+                  :disabled="currentPage === totalPages"
+                  class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  :aria-label="`Go to next page`"
+                >
+                  <span class="sr-only">Next</span>
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      fill-rule="evenodd"
+                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </nav>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -299,6 +400,9 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const copied = ref(false)
 const showCreateModal = ref(false)
+const currentPage = ref<number>(1)
+const totalPages = ref<number>(0)
+const PAGE_SIZE = 10
 const newApiKey = ref({
   source: '',
   client_id: '',
@@ -309,12 +413,27 @@ const handleFetchApiKeys = async () => {
   loading.value = true
   error.value = null
   try {
-    apiKeys.value = await apiKeysService.fetchApiKeys()
+    const response = await apiKeysService.fetchApiKeys({
+      page: currentPage.value,
+      page_size: PAGE_SIZE
+    })
+    apiKeys.value = response as unknown as ApiKey[];
+    totalPages.value = Math.ceil(apiKeys.value.length / PAGE_SIZE)
+
   } catch (err) {
     error.value = 'Failed to fetch API keys.'
     console.error(err)
+    apiKeys.value = []
+    totalPages.value = 0
   } finally {
     loading.value = false
+  }
+}
+
+const changePage = (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+    handleFetchApiKeys()
   }
 }
 
