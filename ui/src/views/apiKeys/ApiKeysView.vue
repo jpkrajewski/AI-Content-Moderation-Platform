@@ -56,14 +56,15 @@
           </div>
         </div>
 
-        <div v-if="!loading && !error && apiKeys && apiKeys.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          v-if="!loading && !error && apiKeys && apiKeys.length > 0"
+          class="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           <div
             v-for="key in apiKeys"
             :key="key.id"
             class="bg-white rounded-xl border border-gray-200 hover:border-blue-200 transition-all duration-200 overflow-hidden"
           >
-
-
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center">
@@ -180,7 +181,10 @@
           </div>
         </div>
 
-        <div v-else-if="!loading && !error && apiKeys && apiKeys.length === 0" class="text-center py-12">
+        <div
+          v-else-if="!loading && !error && apiKeys && apiKeys.length === 0"
+          class="text-center py-12"
+        >
           <svg
             class="mx-auto h-12 w-12 text-gray-400"
             fill="none"
@@ -226,14 +230,19 @@
                 Showing
                 <span class="font-medium">{{ (currentPage - 1) * PAGE_SIZE + 1 }}</span>
                 to
-                <span class="font-medium">{{ Math.min(currentPage * PAGE_SIZE, totalPages * PAGE_SIZE) }}</span>
+                <span class="font-medium">{{
+                  Math.min(currentPage * PAGE_SIZE, totalPages * PAGE_SIZE)
+                }}</span>
                 of
                 <span class="font-medium">{{ totalPages * PAGE_SIZE }}</span>
                 results
               </p>
             </div>
             <div>
-              <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+              <nav
+                class="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                aria-label="Pagination"
+              >
                 <button
                   @click="changePage(currentPage - 1)"
                   :disabled="currentPage === 1"
@@ -415,11 +424,10 @@ const handleFetchApiKeys = async () => {
   try {
     const response = await apiKeysService.fetchApiKeys({
       page: currentPage.value,
-      page_size: PAGE_SIZE
+      page_size: PAGE_SIZE,
     })
-    apiKeys.value = response as unknown as ApiKey[];
+    apiKeys.value = response as unknown as ApiKey[]
     totalPages.value = Math.ceil(apiKeys.value.length / PAGE_SIZE)
-
   } catch (err) {
     error.value = 'Failed to fetch API keys.'
     console.error(err)

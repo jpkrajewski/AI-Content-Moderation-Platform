@@ -90,11 +90,16 @@ onMounted(fetchContentAnalysis)
           <p><strong>Localization:</strong> {{ content.localization }}</p>
           <p><strong>Source:</strong> {{ content.source }}</p>
           <p>
-            <strong>Status:</strong> <strong class="capitalize" :class="{
-              'text-yellow-600': content.status === 'pending',
-              'text-red-600': content.status === 'rejected',
-              'text-green-600': content.status === 'approved'
-            }">{{ content.status }}</strong>
+            <strong>Status:</strong>
+            <strong
+              class="capitalize"
+              :class="{
+                'text-yellow-600': content.status === 'pending',
+                'text-red-600': content.status === 'rejected',
+                'text-green-600': content.status === 'approved',
+              }"
+              >{{ content.status }}</strong
+            >
           </p>
           <p><strong>Created:</strong> {{ new Date(content.created_at).toLocaleString() }}</p>
         </div>

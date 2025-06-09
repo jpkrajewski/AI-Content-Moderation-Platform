@@ -7,7 +7,7 @@ export const apiKeysService = {
   async fetchApiKeys(params?: { page?: number; page_size?: number }): Promise<ApiKey[]> {
     try {
       const response = await axiosInstance.get<ApiKey[]>(endpoints.moderation.getApiKeys, {
-        params
+        params,
       })
       return response.data
     } catch (error) {
