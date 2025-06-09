@@ -119,7 +119,9 @@ onUnmounted(() => {
   <div class="p-8 max-w-6xl mx-auto">
     <h1 class="text-3xl font-bold mb-6">Pending Moderation</h1>
 
-    <div v-if="loading" class="text-gray-500" role="status" aria-live="polite">Loading...</div>
+    <div v-if="loading" class="flex justify-center items-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
     <div v-else-if="error" class="text-red-600" role="alert">{{ error }}</div>
 
     <div v-else>
