@@ -124,6 +124,30 @@ class DatabaseAnalysisRepository(AbstractAnalysisRepository):
                 for result in results
             ]
 
+    def list_by_criterion(self, *filters) -> list[AnalysisResult]:
+        """List all analysis results in the database by criterion."""
+        with self.db() as session:
+            results = session.query(DBContentAnalysis).filter(*filters).all()
+            logger.debug(f"Fetched {len(results)} results from the database.")
+            return [
+                AnalysisResult(
+                    content_id=result.content_id,
+                    content_type=result.content_type,
+                    automated_flag=result.automated_flag,
+                    automated_flag_reason=result.automated_flag_reason,
+                    model_version=result.model_version,
+                    analysis_metadata=result.analysis_metadata,
+                )
+                for result in results
+            ]
+
+    def delete_bulk(self, analysis_ids: list[str]) -> None:
+        """Delete all analysis results for a given content ID."""
+        with self.db() as session:
+            session.query(DBContentAnalysis).filter(DBContentAnalysis.id.in_(analysis_ids)).delete(
+                synchronize_session=False
+            )
+
     def update_result(self, content_id: str, result: AnalysisResult) -> bool:
         """Update an analysis result. (Unimplemented placeholder)."""
         return False

@@ -65,6 +65,11 @@ A system with built-in moderation and analysis using AI. Can be used as SaaS or 
   - Classification results
   - User activity
 
+### Email Integration
+
+#### Daily Reports
+![img.png](images/img.png)
+
 ## Development
 
 ### Prerequisites

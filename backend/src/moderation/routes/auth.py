@@ -1,4 +1,5 @@
 import logging
+import uuid
 from http import HTTPStatus
 from typing import Any, Dict, Tuple
 from uuid import UUID
@@ -7,12 +8,10 @@ from authlib.integrations.flask_client import OAuth
 from connexion.exceptions import ClientProblem, ServerError
 from dependency_injector.wiring import Provide, inject
 from flask import redirect, url_for
-
 from moderation.core.container import Container
 from moderation.core.settings import settings
 from moderation.jwt.jwt_handler import JwtTokenHandler
 from moderation.service.auth import AuthService
-from moderation.service.oauth.models import UserInfo
 from moderation.service.oauth.oauth import OAuthService
 from moderation.service.user import UserService
 
@@ -66,10 +65,12 @@ def me(
         "scope": user_.role,
     }, HTTPStatus.OK
 
+
 @inject
 def oauth_login(oauth: OAuth = Provide[Container.oauth]):
-    redirect_uri = url_for('/api/v1.moderation_routes_auth_oauth_callback', _external=True)
+    redirect_uri = url_for("/api/v1.moderation_routes_auth_oauth_callback", _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
+
 
 @inject
 def oauth_callback(
@@ -90,7 +91,7 @@ def oauth_callback(
     if not user_service.exists(user_info.email):
         result, user = auth_service.register(
             email=user_info.email,
-            password="",
+            password=uuid.uuid4().hex,
             username=user_info.email,
             role="external",
         )
@@ -99,9 +100,7 @@ def oauth_callback(
     else:
         user = user_service.get_user_by_username(user_info.email)
 
-
     token = JwtTokenHandler().generate_token(user_id=user.id, scopes=user.role)
 
     # Redirect with token as query param
     return redirect(f"{settings.FRONTEND_OAUTH_CALLBACK}{token}", code=302)
-
