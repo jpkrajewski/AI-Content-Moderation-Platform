@@ -17,21 +17,14 @@ class BasicPagination:
         self.page_size = page_size
         self.page = page
         self.items = items
-        self.items_count = total_items
+        self.total_items = total_items
 
-    def result(self):
-        # Calculate total pages
-        total_pages = math.ceil(self.items_count / self.page_size)  # Use math.ceil to round up
-
-        # Calculate the items to return for the current page
-        start = (self.page - 1) * self.page_size
-        end = start + self.page_size
-        page_items = self.items[start:end]
-
+    def result(self) -> PaginationResult:
+        total_pages = math.ceil(self.total_items / self.page_size)
         return PaginationResult(
             page=self.page,
             page_size=self.page_size,
             total_pages=total_pages,
-            total_items=self.items_count,
-            items=page_items,
+            total_items=self.total_items,
+            items=self.items,
         )
