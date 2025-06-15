@@ -9,6 +9,6 @@ logger = logging.getLogger()
 
 @worker_app.task(autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 5})
 def run_send_daily_email() -> None:
-    logging.info("[run_send_daily_email] start")
+    logger.info("[run_send_daily_email] start")
     run_async(daily_email_worker.run_send_daily_email())
-    logging.info("[run_send_daily_email] done")
+    logger.info("[run_send_daily_email] done")
