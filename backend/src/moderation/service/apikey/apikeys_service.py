@@ -1,5 +1,6 @@
 import secrets
 import uuid
+from typing import Any
 
 from moderation.cache.redis import cached_dataclass
 from moderation.constants.general import REDIS_PREFIX_KEY_CLIENT_API_KEY
@@ -21,6 +22,8 @@ class ClientApiKeyService:
         """
         return self.api_key_repository.list(client_id, page, page_size)
 
+    def get_count(self, **criterion: dict[str, Any]) -> int:
+        return self.api_key_repository.count(**criterion)
     def get(self) -> list[ClientApiKey]:
         return self.api_key_repository.list()
 

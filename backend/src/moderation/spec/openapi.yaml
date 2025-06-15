@@ -281,9 +281,21 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ApiKeyResponse'
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApiKeyResponse'
+                  page:
+                    type: integer
+                  page_size:
+                    type: integer
+                  total_items:
+                    type: integer
+                  total_pages:
+                    type: integer
+
         '404':
           description: No API keys found for this client
 

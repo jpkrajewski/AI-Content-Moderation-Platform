@@ -1,9 +1,11 @@
 import logging
+
 from http import HTTPStatus
 
 from dependency_injector.wiring import Provide, inject
 from moderation.core.container import Container
 from moderation.service.apikey.apikeys_service import ClientApiKeyService
+from moderation.pagination.basic import BasicPagination
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +48,16 @@ def get(client_id: str | None = None, page: int | None = None, page_size: int | 
     """
     try:
         api_keys = api_key_service.list_api_keys(client_id, page, page_size)
+        api_keys_count = api_key_service.get_count()
         if not api_keys:
             return {"detail": "No API keys found for this client"}, HTTPStatus.NOT_FOUND
-        return api_keys, HTTPStatus.OK
+        pagination = BasicPagination(
+            page=page,
+            page_size=page_size,
+            items=api_keys,
+            total_items=api_keys_count,
+        )
+        return pagination.result(), HTTPStatus.OK
     except Exception as e:
         return {"detail": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
 

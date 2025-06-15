@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Callable, ContextManager, List, Optional, Tuple
+from typing import Callable, ContextManager, List, Optional, Tuple, Any, Dict
 from uuid import UUID
 
 from sqlalchemy import func
@@ -53,6 +53,12 @@ class DatabaseClientApiKeyRepository(AbstractClientApiKeyRepository):
             if limit:
                 query = query.limit(limit)
             return [from_record(record) for record in query.all()]
+
+
+    def count(self, **criterion: Dict[str, Any]) -> int:
+        with self.db() as session:
+            query = session.query(DBClientApiKey).filter_by(**criterion).count()
+            return query
 
     def get_by_id(self, api_key_id: str) -> Optional[ClientApiKey]:
         """Get an API key by its ID."""
