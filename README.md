@@ -100,3 +100,7 @@ cd backend
 make run_test_db
 pytest
 ```
+
+### Observability
+
+- Sentry for error tracking
