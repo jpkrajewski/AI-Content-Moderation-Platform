@@ -62,6 +62,8 @@ class Settings(BaseSettings):
     CELERY_WORKER_BROKER: str = ""
     CELERY_WORKER_BACKEND: str = ""
 
+    SENTRY_DSN: str = ""
+
 
 
 

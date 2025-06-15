@@ -7,7 +7,9 @@ from connexion.middleware import MiddlewarePosition
 from moderation.core.container import Container
 from moderation.core.settings import settings
 from moderation.middlewares.cors import CORSMiddleware
-
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+from moderation import MODERATION_VERSION
 
 def setup_logging():
     logging.config.fileConfig(
@@ -47,10 +49,22 @@ def add_container(app: FlaskApp) -> None:
 def configure_session(app: FlaskApp) -> None:
     app.app.secret_key = settings.APP_SECRET_KEY
 
+def configure_sentry() -> None:
+    if settings.SENTRY_DSN:
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            integrations=[FlaskIntegration()],
+            send_default_pii=True,
+            environment=settings.ENVIRONMENT,
+            release=MODERATION_VERSION,
+
+        )
+
 
 def create_app():
     setup_logging()
     app = FlaskApp(__name__, specification_dir=Path(__file__).parent / "spec")
+    configure_sentry()
     configure_session(app)
     add_container(app)
     add_oauth(app)
