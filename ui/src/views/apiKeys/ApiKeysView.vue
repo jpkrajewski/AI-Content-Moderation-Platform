@@ -1,3 +1,182 @@
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import { apiKeysService } from '@/features/apiKeys/api/apiKeysService'
+import type { ApiKey } from '@/features/apiKeys/types'
+import { useDebounceFn } from '@vueuse/core'
+
+interface PaginatedResponse {
+  items: ApiKey[]
+  page: number
+  page_size: number
+  total_items: number
+  total_pages: number
+}
+
+const apiKeys = ref<ApiKey[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
+const copied = ref(false)
+const showCreateModal = ref(false)
+const currentPage = ref<number>(1)
+const totalPages = ref<number>(0)
+const totalItems = ref<number>(0)
+const PAGE_SIZE = 10
+
+const contentCache = ref<Record<number, ApiKey[]>>({})
+const lastFetchTime = ref<Record<number, number>>({})
+const CACHE_DURATION = 5 * 60 * 1000
+
+const currentPageContent = computed(() => {
+  const cachedContent = contentCache.value[currentPage.value]
+  const lastFetch = lastFetchTime.value[currentPage.value]
+
+  if (cachedContent && lastFetch && Date.now() - lastFetch < CACHE_DURATION) {
+    return cachedContent
+  }
+  return null
+})
+
+const handleFetchApiKeys = async () => {
+  try {
+    loading.value = true
+    error.value = null
+
+    const cachedContent = currentPageContent.value
+    if (cachedContent) {
+      apiKeys.value = cachedContent
+      loading.value = false
+      return
+    }
+
+    const response = (await apiKeysService.fetchApiKeys({
+      page: currentPage.value,
+      page_size: PAGE_SIZE,
+    })) as unknown as PaginatedResponse
+
+    contentCache.value[currentPage.value] = response.items
+    lastFetchTime.value[currentPage.value] = Date.now()
+
+    apiKeys.value = response.items
+    totalPages.value = response.total_pages
+    totalItems.value = response.total_items
+  } catch (err) {
+    error.value = 'Failed to fetch API keys.'
+    console.error(err)
+    apiKeys.value = []
+    totalPages.value = 0
+    totalItems.value = 0
+  } finally {
+    loading.value = false
+  }
+}
+
+const debouncedFetchContent = useDebounceFn(handleFetchApiKeys, 300)
+
+const changePage = (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+    debouncedFetchContent()
+  }
+}
+
+const handleCreateApiKey = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    await apiKeysService.createApiKey(newApiKey.value)
+    showCreateModal.value = false
+    newApiKey.value = {
+      source: '',
+      client_id: '',
+      current_scope: [],
+    }
+    clearCache()
+    handleFetchApiKeys()
+  } catch (err) {
+    error.value = 'Failed to create API key.'
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleDeactivateApiKey = async (id: string) => {
+  loading.value = true
+  error.value = null
+  try {
+    await apiKeysService.deactivateApiKey(id)
+    clearCache()
+    handleFetchApiKeys()
+  } catch (err) {
+    error.value = `Failed to deactivate API key ${id}.`
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleReactivateApiKey = async (id: string) => {
+  loading.value = true
+  error.value = null
+  try {
+    await apiKeysService.reactivateApiKey(id)
+    clearCache()
+    handleFetchApiKeys()
+  } catch (err) {
+    error.value = `Failed to reactivate API key ${id}.`
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleDeleteApiKey = async (id: string) => {
+  loading.value = true
+  error.value = null
+  try {
+    await apiKeysService.deleteApiKey(id)
+    clearCache()
+    handleFetchApiKeys()
+  } catch (err) {
+    error.value = `Failed to delete API key ${id}.`
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const copyApiKey = async (apiKey: string) => {
+  try {
+    await navigator.clipboard.writeText(apiKey)
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to copy API key:', err)
+  }
+}
+
+const handleCreateApiKeyClick = () => {
+  showCreateModal.value = true
+}
+
+const clearCache = () => {
+  contentCache.value = {}
+  lastFetchTime.value = {}
+}
+
+const newApiKey = ref({
+  source: '',
+  client_id: '',
+  current_scope: [] as string[],
+})
+
+onMounted(() => {
+  handleFetchApiKeys()
+})
+</script>
+
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="px-8 py-12">
@@ -230,11 +409,9 @@
                 Showing
                 <span class="font-medium">{{ (currentPage - 1) * PAGE_SIZE + 1 }}</span>
                 to
-                <span class="font-medium">{{
-                  Math.min(currentPage * PAGE_SIZE, totalPages * PAGE_SIZE)
-                }}</span>
+                <span class="font-medium">{{ Math.min(currentPage * PAGE_SIZE, totalItems) }}</span>
                 of
-                <span class="font-medium">{{ totalPages * PAGE_SIZE }}</span>
+                <span class="font-medium">{{ totalItems }}</span>
                 results
               </p>
             </div>
@@ -398,132 +575,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { apiKeysService } from '@/features/apiKeys/api/apiKeysService'
-import type { ApiKey } from '@/features/apiKeys/types'
-
-const apiKeys = ref<ApiKey[]>([])
-const loading = ref(false)
-const error = ref<string | null>(null)
-const copied = ref(false)
-const showCreateModal = ref(false)
-const currentPage = ref<number>(1)
-const totalPages = ref<number>(0)
-const PAGE_SIZE = 10
-const newApiKey = ref({
-  source: '',
-  client_id: '',
-  current_scope: [] as string[],
-})
-
-const handleFetchApiKeys = async () => {
-  loading.value = true
-  error.value = null
-  try {
-    const response = await apiKeysService.fetchApiKeys({
-      page: currentPage.value,
-      page_size: PAGE_SIZE,
-    })
-    apiKeys.value = response as unknown as ApiKey[]
-    totalPages.value = Math.ceil(apiKeys.value.length / PAGE_SIZE)
-  } catch (err) {
-    error.value = 'Failed to fetch API keys.'
-    console.error(err)
-    apiKeys.value = []
-    totalPages.value = 0
-  } finally {
-    loading.value = false
-  }
-}
-
-const changePage = (page: number) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
-    handleFetchApiKeys()
-  }
-}
-
-const handleCreateApiKey = async () => {
-  loading.value = true
-  error.value = null
-  try {
-    await apiKeysService.createApiKey(newApiKey.value)
-    showCreateModal.value = false
-    newApiKey.value = {
-      source: '',
-      client_id: '',
-      current_scope: [],
-    }
-    handleFetchApiKeys()
-  } catch (err) {
-    error.value = 'Failed to create API key.'
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleDeactivateApiKey = async (id: string) => {
-  loading.value = true
-  error.value = null
-  try {
-    await apiKeysService.deactivateApiKey(id)
-    handleFetchApiKeys()
-  } catch (err) {
-    error.value = `Failed to deactivate API key ${id}.`
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleReactivateApiKey = async (id: string) => {
-  loading.value = true
-  error.value = null
-  try {
-    await apiKeysService.reactivateApiKey(id)
-    handleFetchApiKeys()
-  } catch (err) {
-    error.value = `Failed to reactivate API key ${id}.`
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleDeleteApiKey = async (id: string) => {
-  loading.value = true
-  error.value = null
-  try {
-    await apiKeysService.deleteApiKey(id)
-    handleFetchApiKeys()
-  } catch (err) {
-    error.value = `Failed to delete API key ${id}.`
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const copyApiKey = async (apiKey: string) => {
-  try {
-    await navigator.clipboard.writeText(apiKey)
-    copied.value = true
-    setTimeout(() => {
-      copied.value = false
-    }, 2000)
-  } catch (err) {
-    console.error('Failed to copy API key:', err)
-  }
-}
-
-const handleCreateApiKeyClick = () => {
-  showCreateModal.value = true
-}
-
-onMounted(() => {
-  handleFetchApiKeys()
-})
-</script>
