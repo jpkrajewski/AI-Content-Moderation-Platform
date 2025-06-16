@@ -4,9 +4,11 @@ import type { AxiosError } from 'axios'
 import type { ApiKey } from '../types'
 
 export const apiKeysService = {
-  async fetchApiKeys(): Promise<ApiKey[]> {
+  async fetchApiKeys(params?: { page?: number; page_size?: number }): Promise<ApiKey[]> {
     try {
-      const response = await axiosInstance.get<ApiKey[]>(endpoints.moderation.getApiKeys)
+      const response = await axiosInstance.get<ApiKey[]>(endpoints.moderation.getApiKeys, {
+        params,
+      })
       return response.data
     } catch (error) {
       console.error('Error fetching API keys:', error as AxiosError)

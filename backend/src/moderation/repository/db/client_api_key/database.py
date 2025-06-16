@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Callable, ContextManager, List, Optional, Tuple
+from typing import Callable, ContextManager, List, Optional, Tuple, Any, Dict
 from uuid import UUID
 
 from sqlalchemy import func
@@ -42,17 +42,23 @@ class DatabaseClientApiKeyRepository(AbstractClientApiKeyRepository):
         """Initialize the repository with a database session context factory."""
         self.db = db
 
-    def list(self, client_id: Optional[str] = None, offset: int | None = None, limit: int | None = None) -> List[ClientApiKey]:
+    def list(self, client_id: str | None = None, offset: int | None = None, limit: int | None = None) -> List[ClientApiKey]:
         """List all API keys, optionally filtered by client ID."""
         with self.db() as session:
             query = session.query(DBClientApiKey)
             if client_id:
                 query = query.filter(DBClientApiKey.client_id == client_id)
             if offset:
-                query = query.offset(offset)
+                query = query.offset(offset - 1)
             if limit:
                 query = query.limit(limit)
             return [from_record(record) for record in query.all()]
+
+
+    def count(self, **criterion: Dict[str, Any]) -> int:
+        with self.db() as session:
+            query = session.query(DBClientApiKey).filter_by(**criterion).count()
+            return query
 
     def get_by_id(self, api_key_id: str) -> Optional[ClientApiKey]:
         """Get an API key by its ID."""
