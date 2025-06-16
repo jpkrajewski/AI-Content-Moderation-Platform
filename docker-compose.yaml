@@ -113,6 +113,22 @@ services:
       - ./backend:/app
     command: celery -A src.moderation.worker.app.worker_app worker --loglevel=info
 
+  celery-beat:
+    container_name: celery-beat
+    build:
+      context: ./backend
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+      - kafka
+      - zookeeper
+      - celery
+    volumes:
+      - ./backend:/app
+    command: celery -A src.moderation.worker.app.worker_app beat --loglevel=info
+
 
 volumes:
   postgres_data:

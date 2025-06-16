@@ -7,7 +7,6 @@ stop:
 start:
 	docker compose up -d
 	npm --prefix ui run dev
-	@echo "✅ Frontend started at http://localhost:3000"
 
 rebuild:
 	docker compose down -v
