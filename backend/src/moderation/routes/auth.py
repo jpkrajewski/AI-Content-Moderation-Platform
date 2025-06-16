@@ -12,7 +12,6 @@ from moderation.core.container import Container
 from moderation.core.settings import settings
 from moderation.jwt.jwt_handler import JwtTokenHandler
 from moderation.service.auth import AuthService
-from moderation.service.oauth.models import UserInfo
 from moderation.service.oauth.oauth import OAuthService
 from moderation.service.user import UserService
 
@@ -46,8 +45,8 @@ def login(
     result, user = auth_service.authenticate(email, password)
     if not result or user is None:
         raise ClientProblem(title="Invalid credentials")
-    token = JwtTokenHandler().generate_token(user_id=user.id, scopes=[user.role])
-    return {"token": token}, HTTPStatus.OK
+    access_token, refresh_token = JwtTokenHandler().generate_access_refresh_pair(user_id=user.id, scopes=[user.role])
+    return {"token": access_token, "refresh": refresh_token}, HTTPStatus.OK
 
 
 @inject
@@ -65,6 +64,20 @@ def me(
         "username": user_.username,
         "scope": user_.role,
     }, HTTPStatus.OK
+
+
+@inject
+def refresh(
+    user: UUID,
+    user_service: UserService = Provide[Container.user_service],
+) -> Tuple[Dict[str, str], HTTPStatus]:
+    """Refresh the token."""
+    user_ = user_service.get_user(user)
+    if not user_:
+        raise ClientProblem(title="User not found")
+    access_token, refresh_token = JwtTokenHandler().generate_access_refresh_pair(user_id=user_.id, scopes=[user_.role])
+    return {"token": access_token, "refresh": refresh_token}, HTTPStatus.OK
+
 
 @inject
 def oauth_login(oauth: OAuth = Provide[Container.oauth]):
