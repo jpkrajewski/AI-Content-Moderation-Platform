@@ -1,9 +1,11 @@
 import logging
+
 from http import HTTPStatus
 
 from dependency_injector.wiring import Provide, inject
 from moderation.core.container import Container
 from moderation.service.apikey.apikeys_service import ClientApiKeyService
+from moderation.pagination.basic import BasicPagination
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +37,7 @@ def create(
 
 
 @inject
-def get(client_id: str | None = None, page: int = 1, page_size: int = 10, api_key_service: ClientApiKeyService = Provide[Container.api_key_service]):
+def get(client_id: str | None = None, page: int | None = None, page_size: int | None = None, api_key_service: ClientApiKeyService = Provide[Container.api_key_service]):
     """
     Get all API keys for a given client ID.
     :param client_id: The client ID to filter API keys.
@@ -45,12 +47,17 @@ def get(client_id: str | None = None, page: int = 1, page_size: int = 10, api_ke
     :return: A list of API keys or an error message.
     """
     try:
-        if client_id is None:
-            return api_key_service.get(), HTTPStatus.OK
         api_keys = api_key_service.list_api_keys(client_id, page, page_size)
+        api_keys_count = api_key_service.get_count()
         if not api_keys:
             return {"detail": "No API keys found for this client"}, HTTPStatus.NOT_FOUND
-        return api_keys, HTTPStatus.OK
+        pagination = BasicPagination(
+            page=page,
+            page_size=page_size,
+            items=api_keys,
+            total_items=api_keys_count,
+        )
+        return pagination.result(), HTTPStatus.OK
     except Exception as e:
         return {"detail": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
 
