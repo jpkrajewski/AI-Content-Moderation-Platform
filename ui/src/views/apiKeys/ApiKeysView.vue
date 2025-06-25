@@ -1,3 +1,115 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { apiKeysService } from '@/features/apiKeys/api/apiKeysService'
+import type { ApiKey } from '@/features/apiKeys/types'
+
+const apiKeys = ref<ApiKey[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
+const copied = ref(false)
+const showCreateModal = ref(false)
+const newApiKey = ref({
+  source: '',
+  client_id: '',
+  current_scope: [] as string[],
+})
+
+const handleFetchApiKeys = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    apiKeys.value = await apiKeysService.fetchApiKeys()
+  } catch (err) {
+    error.value = 'Failed to fetch API keys.'
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleCreateApiKey = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    await apiKeysService.createApiKey(newApiKey.value)
+    showCreateModal.value = false
+    newApiKey.value = {
+      source: '',
+      client_id: '',
+      current_scope: [],
+    }
+    handleFetchApiKeys()
+  } catch (err) {
+    error.value = 'Failed to create API key.'
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleDeactivateApiKey = async (id: string) => {
+  loading.value = true
+  error.value = null
+  try {
+    await apiKeysService.deactivateApiKey(id)
+    handleFetchApiKeys()
+  } catch (err) {
+    error.value = `Failed to deactivate API key ${id}.`
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleReactivateApiKey = async (id: string) => {
+  loading.value = true
+  error.value = null
+  try {
+    await apiKeysService.reactivateApiKey(id)
+    handleFetchApiKeys()
+  } catch (err) {
+    error.value = `Failed to reactivate API key ${id}.`
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleDeleteApiKey = async (id: string) => {
+  loading.value = true
+  error.value = null
+  try {
+    await apiKeysService.deleteApiKey(id)
+    handleFetchApiKeys()
+  } catch (err) {
+    error.value = `Failed to delete API key ${id}.`
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const copyApiKey = async (apiKey: string) => {
+  try {
+    await navigator.clipboard.writeText(apiKey)
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to copy API key:', err)
+  }
+}
+
+const handleCreateApiKeyClick = () => {
+  showCreateModal.value = true
+}
+
+onMounted(() => {
+  handleFetchApiKeys()
+})
+</script>
+
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="px-8 py-12">
@@ -288,115 +400,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { apiKeysService } from '@/features/apiKeys/api/apiKeysService'
-import type { ApiKey } from '@/features/apiKeys/types'
-
-const apiKeys = ref<ApiKey[]>([])
-const loading = ref(false)
-const error = ref<string | null>(null)
-const copied = ref(false)
-const showCreateModal = ref(false)
-const newApiKey = ref({
-  source: '',
-  client_id: '',
-  current_scope: [] as string[],
-})
-
-const handleFetchApiKeys = async () => {
-  loading.value = true
-  error.value = null
-  try {
-    apiKeys.value = await apiKeysService.fetchApiKeys()
-  } catch (err) {
-    error.value = 'Failed to fetch API keys.'
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleCreateApiKey = async () => {
-  loading.value = true
-  error.value = null
-  try {
-    await apiKeysService.createApiKey(newApiKey.value)
-    showCreateModal.value = false
-    newApiKey.value = {
-      source: '',
-      client_id: '',
-      current_scope: [],
-    }
-    handleFetchApiKeys()
-  } catch (err) {
-    error.value = 'Failed to create API key.'
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleDeactivateApiKey = async (id: string) => {
-  loading.value = true
-  error.value = null
-  try {
-    await apiKeysService.deactivateApiKey(id)
-    handleFetchApiKeys()
-  } catch (err) {
-    error.value = `Failed to deactivate API key ${id}.`
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleReactivateApiKey = async (id: string) => {
-  loading.value = true
-  error.value = null
-  try {
-    await apiKeysService.reactivateApiKey(id)
-    handleFetchApiKeys()
-  } catch (err) {
-    error.value = `Failed to reactivate API key ${id}.`
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleDeleteApiKey = async (id: string) => {
-  loading.value = true
-  error.value = null
-  try {
-    await apiKeysService.deleteApiKey(id)
-    handleFetchApiKeys()
-  } catch (err) {
-    error.value = `Failed to delete API key ${id}.`
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const copyApiKey = async (apiKey: string) => {
-  try {
-    await navigator.clipboard.writeText(apiKey)
-    copied.value = true
-    setTimeout(() => {
-      copied.value = false
-    }, 2000)
-  } catch (err) {
-    console.error('Failed to copy API key:', err)
-  }
-}
-
-const handleCreateApiKeyClick = () => {
-  showCreateModal.value = true
-}
-
-onMounted(() => {
-  handleFetchApiKeys()
-})
-</script>

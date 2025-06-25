@@ -1,3 +1,52 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useJwtStore } from '@/stores/jwt'
+import { useVersionStore } from '@/stores/version'
+import { usePendingCountStore } from '@/stores/pendingCount'
+
+const router = useRouter()
+const jwtStore = useJwtStore()
+const versionStore = useVersionStore()
+const pendingCountStore = usePendingCountStore()
+const isProfileMenuOpen = ref(false)
+
+let countInterval: number | null = null
+
+onMounted(() => {
+  pendingCountStore.fetchPendingCount()
+  versionStore.fetchVersion()
+  countInterval = window.setInterval(() => {
+    pendingCountStore.fetchPendingCount()
+  }, 30000)
+})
+
+onUnmounted(() => {
+  if (countInterval) {
+    clearInterval(countInterval)
+  }
+})
+
+const mobileMenuItems = [
+  { name: 'Dashboard Summary', path: '/secure/dashboard/summary' },
+  {
+    name: 'Moderation',
+    path: '/secure/moderation/pending',
+    badge: {
+      text: pendingCountStore.count.toString(),
+      class: 'bg-yellow-100 text-yellow-800',
+    },
+  },
+  { name: 'Submit Content', path: '/secure/content/submit' },
+  { name: 'API Keys', path: '/secure/api-keys' },
+]
+
+const logout = () => {
+  jwtStore.clearJwt()
+  router.push('/login')
+}
+</script>
+
 <template>
   <div class="min-h-screen bg-gray-50">
     <nav class="bg-white shadow-sm">
@@ -173,54 +222,3 @@
     </main>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useJwtStore } from '@/stores/jwt'
-import { useVersionStore } from '@/stores/version'
-import { usePendingCountStore } from '@/stores/pendingCount'
-
-const router = useRouter()
-const jwtStore = useJwtStore()
-const versionStore = useVersionStore()
-const pendingCountStore = usePendingCountStore()
-const isProfileMenuOpen = ref(false)
-
-let countInterval: number | null = null
-
-onMounted(() => {
-  pendingCountStore.fetchPendingCount()
-  versionStore.fetchVersion()
-  countInterval = window.setInterval(() => {
-    pendingCountStore.fetchPendingCount()
-  }, 30000)
-})
-
-onUnmounted(() => {
-  if (countInterval) {
-    clearInterval(countInterval)
-  }
-})
-
-const mobileMenuItems = [
-  { name: 'Dashboard Summary', path: '/secure/dashboard/summary' },
-  { name: 'Activity Metrics', path: '/secure/dashboard/activity-metrics' },
-  { name: 'Dashboard KPI', path: '/secure/dashboard/kpi' },
-  {
-    name: 'Moderation',
-    path: '/secure/moderation/pending',
-    badge: {
-      text: pendingCountStore.count.toString(),
-      class: 'bg-yellow-100 text-yellow-800',
-    },
-  },
-  { name: 'Submit Content', path: '/secure/content/submit' },
-  { name: 'API Keys', path: '/secure/api-keys' },
-]
-
-const logout = () => {
-  jwtStore.clearJwt()
-  router.push('/login')
-}
-</script>

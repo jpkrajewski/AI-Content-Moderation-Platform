@@ -20,7 +20,7 @@ const handleLogin = async () => {
       email: email.value,
       password: password.value,
     })
-    jwtStore.setJwt(response.token)
+    jwtStore.setTokens(response.token, response.refresh)
     router.push('/secure/dashboard/summary')
   } catch (e) {
     error.value = 'Invalid email or password'

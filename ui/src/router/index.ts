@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useJwtStore } from '@/stores/jwt'
+import { useJwtStore } from '@/features/auth/stores/jwt'
 import GlobalLayout from '../components/layout/GlobalLayout.vue'
 
 import LoginView from '../views/auth/LoginView.vue'
@@ -12,6 +12,9 @@ import ModerationListPending from '../views/moderation/ModerationListPending.vue
 import ModerationContentAnalysis from '../views/moderation/ModerationContentAnalysis.vue'
 import ContentSubmissionView from '../views/content/ContentSubmissionView.vue'
 import ApiKeysView from '@/views/apiKeys/ApiKeysView.vue'
+
+import { isJwtValid } from '@/shared/utils/jwt'
+import { authService } from '@/features/auth/services/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -75,17 +78,35 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const jwtStore = useJwtStore()
 
-  if (requiresAuth && !jwtStore.isLoggedIn) {
-    next({ path: '/login' })
-  } else if (!requiresAuth && jwtStore.isLoggedIn && to.path === '/login') {
-    next({ path: '/secure/dashboard/summary' })
-  } else {
-    next()
+  const jwtLocal = localStorage.getItem('jwt') || ''
+  const refreshLocal = localStorage.getItem('refresh_token') || ''
+  jwtStore.jwt = jwtLocal
+  jwtStore.refreshToken = refreshLocal
+
+  if (requiresAuth) {
+    if (!jwtStore.jwt || !jwtStore.refreshToken || !isJwtValid(jwtStore.jwt)) {
+      if (jwtStore.refreshToken) {
+        try {
+          const data = await authService.refreshToken(jwtStore.refreshToken)
+          jwtStore.setTokens(data.token, data.refresh)
+          next()
+          return
+        } catch {
+          jwtStore.clearTokens()
+          next({ path: '/login' })
+          return
+        }
+      }
+      jwtStore.clearTokens()
+      next({ path: '/login' })
+      return
+    }
   }
+  next()
 })
 
 export default router
