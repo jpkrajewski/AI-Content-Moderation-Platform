@@ -1,5 +1,7 @@
 import axiosInstance from '@/api/interceptors/interceptor'
+import axios from 'axios'
 import type { LoginCredentials, RegisterData, User } from '../types/user'
+import { endpoints } from '@/shared/constants/endpoints'
 
 export const authService = {
   async login(credentials: LoginCredentials) {
@@ -23,5 +25,16 @@ export const authService = {
 
   async initGoogleLogin() {
     window.location.href = 'http://localhost:8080/api/v1/auth/oauth/login'
+  },
+
+  async refreshToken(refreshToken: string) {
+    const response = await axios.post(
+      endpoints.auth.refresh,
+      { refresh_token: refreshToken },
+      {
+        baseURL: 'http://localhost:8080/api/v1',
+      },
+    )
+    return response.data
   },
 }

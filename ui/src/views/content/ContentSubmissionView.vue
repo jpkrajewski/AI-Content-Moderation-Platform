@@ -4,37 +4,39 @@ import type { Ref } from 'vue'
 import axiosInstance from '@/api/interceptors/interceptor'
 import { endpoints } from '@/shared/constants/endpoints'
 import { authService } from '@/features/auth/services/auth'
-import { useJwtStore } from '@/stores/jwt'
 import type { AxiosError } from 'axios'
 
-const title = ref('')
-const body = ref('')
-const tags = ref('')
-const source = ref('')
-const localization = ref('en')
+const localizations = [
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Spanish' },
+  { value: 'fr', label: 'French' },
+  { value: 'de', label: 'German' },
+  { value: 'pl', label: 'Polish' },
+] as const
+
+type LocalizationValue = (typeof localizations)[number]['value']
+
+const title = ref<string>('')
+const body = ref<string>('')
+const tags = ref<string>('')
+const source = ref<string>('')
+const localization = ref<LocalizationValue>('en')
 const images = ref<File[]>([])
 const documents = ref<File[]>([])
 const videos = ref<File[]>([])
 const audios = ref<File[]>([])
 
-const loading = ref(false)
-const error = ref('')
-const success = ref('')
-const uid = ref('')
-const username = ref('')
-const userInitialized = ref(false)
+const loading = ref<boolean>(false)
+const error = ref<string>('')
+const success = ref<string>('')
+const uid = ref<string>('')
+const username = ref<string>('')
+const userInitialized = ref<boolean>(false)
 
 const API_KEY = import.meta.env.VITE_API_KEY
 
 const initializeUser = async () => {
   try {
-    const jwtStore = useJwtStore()
-
-    if (!jwtStore.isLoggedIn) {
-      error.value = 'You must be logged in to submit content'
-      return
-    }
-
     const user = await authService.getCurrentUser()
 
     if (user && user.uid && user.username) {
@@ -59,14 +61,6 @@ const initializeUser = async () => {
 onMounted(async () => {
   await initializeUser()
 })
-
-const localizations = [
-  { value: 'en', label: 'English' },
-  { value: 'es', label: 'Spanish' },
-  { value: 'fr', label: 'French' },
-  { value: 'de', label: 'German' },
-  { value: 'pl', label: 'Polish' },
-]
 
 const handleFileChange = (event: Event, target: Ref<File[]>) => {
   const input = event.target as HTMLInputElement

@@ -6,6 +6,7 @@ export const endpoints = {
     register: '/auth/register',
     logout: '/auth/logout',
     me: '/auth/me',
+    refresh: '/auth/refresh',
   },
   moderation: {
     pending: '/moderation/pending',

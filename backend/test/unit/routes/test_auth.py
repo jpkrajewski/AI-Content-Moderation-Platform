@@ -33,3 +33,11 @@ def test_me_correct_jwt(client):
 def test_me_incorrect_jwt(client):
     response = client.get("/auth/me", headers={"Authorization": "Bearer xxx"})
     assert response.status_code == 400
+
+def test_refresh(client):
+    jwt = JwtTokenHandler().generate_token("1", scopes=[])
+    response = client.post(
+        "/auth/refresh",
+        headers={"Authorization": f"Bearer {jwt}"},
+    )
+    assert response.status_code == 200

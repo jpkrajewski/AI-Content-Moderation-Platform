@@ -42,11 +42,6 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
-const logout = () => {
-  jwtStore.clearJwt()
-  router.push('/login')
-}
-
 onMounted(() => {
   pendingCountStore.fetchPendingCount()
   versionStore.fetchVersion()
@@ -60,6 +55,11 @@ onUnmounted(() => {
     clearInterval(countInterval)
   }
 })
+
+const logout = () => {
+  jwtStore.clearJwt()
+  router.push('/login')
+}
 </script>
 
 <template>
