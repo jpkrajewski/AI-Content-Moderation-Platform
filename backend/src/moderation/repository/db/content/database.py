@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Callable, ContextManager, List
+from typing import Any, Callable, ContextManager, List
 from uuid import UUID
 
 from moderation.db.analysis import ContentAnalysis as DBContentAnalysis
@@ -90,6 +90,12 @@ class DatabaseContentRepository(AbstractDBContentRepository):
             )
             logger.info(f"Content analysis count: {len(content_list)}")
             return [content_with_analysis(content, content.analysis) for content in content_list]
+
+    def list_by_criterion(self, *filters: Any) -> List[Content]:
+        with self.db() as session:
+            query = session.query(DBContent).filter(*filters)
+            query = query.order_by(DBContent.created_at.desc())
+            return [from_record(record) for record in query.all()]
 
     def get_by_id(self, content_id: str) -> Content | None:
         """Get content by ID."""

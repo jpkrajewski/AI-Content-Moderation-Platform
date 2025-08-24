@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal
+from typing import List, Literal
 
 from pydantic_settings import BaseSettings
 
@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "AI Content Moderation"
     ENVIRONMENT: str = "development"
     DB_URI: str = "postgresql+psycopg2://jakub:secret@db:5432/moderation_db"
-    APP_HOST: str = "0.0.0.0"
+    APP_HOST: str = "0.0.0.0"  # nosec
     APP_PORT: int = 8080
     APP_RELOAD: bool = True
     APP_UPLOAD_DIR: Path = BASE_DIR / "uploads"
@@ -64,8 +64,12 @@ class Settings(BaseSettings):
 
     SENTRY_DSN: str = ""
 
+    CELERY_WORKER_PURGE_OLD_CONTENT_CUTOFF_DAYS: int = 90
 
+    RESEND_API_KEY: str = ""
 
+    EMAIL_FROM: str = "Acme <onboarding@resend.dev>"
+    EMAIL_RECIPIENTS: List[str] = ["jakubpkrajewski@gmail.com"]
 
 
 settings = Settings()
